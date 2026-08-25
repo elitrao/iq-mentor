@@ -1,0 +1,177 @@
+# Design QA
+
+**Comparison target**
+
+- Primary source visual: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-c5e1d400-8f16-4aed-9ddd-23634a6490e1.png` (IQ Mentor home).
+- Settings information architecture source: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-172accfe-a127-40d3-b23f-7fde85fb7deb.png`.
+- Sidebar reorder source: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-07c75f72-2306-4974-b9c5-7bdbff387248.png` (274 × 375 px).
+- Trainer navigation source: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-f2b008b5-53fd-41b0-9106-8e935731680b.png` (266 × 50 px).
+- Additional source screens reviewed: employees and documents screenshots supplied by the user, plus the authenticated live IQ Mentor interface.
+- Desktop implementation evidence: `implementation-home.png` and `implementation-settings.png`, captured at a 1904 × 915 CSS viewport with device scale factor 1.
+- Full-view comparison evidence: `comparison-home.png` places the source and implementation together at native scale.
+- Focused settings comparison evidence: `comparison-settings.png` places the complete settings topology above the working IQ Mentor-styled settings screen.
+- Reorder implementation evidence: `implementation-reorder.png`; focused 274 × 375 crop: `implementation-reorder-sidebar.png`.
+- Focused sidebar comparison evidence: `comparison-reorder-sidebar.png` places the supplied sidebar crop and the normalized implementation crop together at 1× density.
+- Trainer implementation evidence: `implementation-trainer-nav.png`; focused crop: `implementation-trainer-nav-crop.png`; 1× side-by-side evidence: `comparison-trainer-nav.png`.
+- State: authenticated user, Russian locale, dashboard and Settings / Profile.
+- Responsive evidence: 390 × 844 CSS viewport; page-level horizontal overflow was absent (`scrollWidth` 375 with the in-app browser scrollbar gutter).
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain. The implementation matches the source shell, 274 px sidebar, 74 px top bar, white and soft-gray surfaces, orange accent, black primary actions, typography hierarchy, spacing, borders, radii, tables and card density.
+- The requested structural difference is implemented: the sidebar no longer contains “Интеграции”; it contains “Настройки”.
+- “Тренер” is present before “Настройки” by default with the matching gray graduation-cap icon, label weight, spacing and right chevron. Its body intentionally contains only the source-defined page heading because no Trainer content reference was supplied.
+- The resting sidebar remains visually unchanged. Holding the left mouse button lifts the selected section into a floating card; surrounding sections animate aside and a subtle orange dashed slot marks the landing position.
+- [P3] Dashboard chart series use straight CSS-rendered segments instead of the source chart library's subtly curved interpolation. Axis labels, grid, colors, points, values and footprint match; this does not affect the requested settings workflow.
+
+**Required fidelity surfaces**
+
+- Fonts and typography: bundled Inter 400/500/600/700; headings, labels, controls, muted copy and numerical metrics follow the source hierarchy.
+- Spacing and layout rhythm: desktop margins, sidebar width, top-bar height, filter controls, dashboard cards, settings navigation and form rows were matched against combined visual evidence.
+- Colors and visual tokens: source-like orange `#ff7b1a`, near-black `#252525`, white canvas, soft neutral surfaces, gray iconography and colored chart/category states.
+- Image and icon quality: the genuine IQ logo geometry is used from an existing workspace asset; interface icons use the consistent Tabler icon family. No placeholder raster imagery, emoji icons or invented decorative assets are present.
+- Copy and content: source labels and realistic IQ Mentor data are preserved. All settings from the supplied topology are present under ЛК, Аналитик and Тренер.
+- States and interactions: navigation, forms, toggles, selections, integrations, report scheduling, scoring sliders, rights checkboxes, document controls and feedback toasts were exercised.
+- Reorder behavior: the full nav row is the drag target, uses a grab/grabbing cursor, suppresses accidental navigation after a drag, and persists the committed order locally.
+- Accessibility: semantic buttons, inputs, labels and headings are present; keyboard focus is visible; the mobile layout keeps primary controls reachable.
+
+**Comparison history**
+
+1. Initial comparison found a P1 chart overflow into the lower cards and P2 omissions in chart series/grid details.
+2. The chart was clipped to its card, all five series and grid lines were added, category highlighting and the exact date range were restored, and y-axis labels were corrected to 0/20/40/60/80/100.
+3. Post-fix evidence is in `implementation-home.png` and `comparison-home.png`.
+4. Settings were re-captured after interaction testing; `comparison-settings.png` confirms that the supplied topology is complete and presented in the established IQ Mentor UI.
+5. The reorder follow-up was compared against the supplied 274 × 375 sidebar crop. `comparison-reorder-sidebar.png` confirms that adding drag-and-drop introduced no resting-state layout, typography, icon or color drift.
+6. The Trainer follow-up was normalized to the supplied 266 × 50 crop. `comparison-trainer-nav.png` confirms matching icon family, label position, vertical centering, color and chevron placement with no actionable P1/P2 drift.
+
+**Primary interactions tested**
+
+- All six primary sidebar destinations open their screens.
+- Dragged “Настройки” from position 6 to position 2 with a real held-left-button pointer path; adjacent rows yielded and the new order committed.
+- Opened “Тренер” and confirmed its sidebar active state, top-bar label, route and page heading.
+- Dragged “Тренер” above “Документы”, confirmed its reordered position, then restored it before “Настройки”.
+- Reloaded the page and confirmed the custom order persisted.
+- Dragged “Настройки” back to position 6 after the persistence test, restoring the source order for handoff.
+- All 11 settings destinations open the correct working panel.
+- Profile saving persists after reload; test-only phone data was cleared afterward.
+- Notification toggle and delivery channel selection.
+- Integration connect/disconnect, restored to the initial state.
+- Analyst and trainer report schedules.
+- Stereo call format radio selection.
+- Scoring range controls.
+- Employee rights matrix, including the disabled administrator permission.
+- Documents type modal, keywords and file chooser.
+- Desktop 1904 × 915 and mobile 390 × 844 responsive states.
+- Browser console checked: no errors.
+- `npm run build`: passed.
+- `npm run test:sites`: 4/4 passed.
+
+**Implementation Checklist**
+
+- [x] Source interface inspected after user authentication.
+- [x] Source and implementation compared together at the same desktop viewport.
+- [x] Visible P1/P2 differences fixed and re-captured.
+- [x] Every requested settings section implemented and tested.
+- [x] Persistence, responsive behavior and console state checked.
+- [x] Drag threshold, pointer capture, animated gap, drop commit, click suppression and persisted order checked.
+- [x] Production and Sites-ready builds verified.
+
+**Follow-up Polish**
+
+- P3: replace the CSS chart interpolation with a chart library only if exact curve geometry becomes a requirement.
+
+## Latest settings navigation QA — selected direction 2
+
+**Artifacts and normalization**
+
+- Source visual truth: `C:\Users\samoilenko.d\.codex\generated_images\01a0376b-bade-7860-9ff9-c83bde1d0a99\exec-9389fbd3-0c90-43d2-b845-9029a599fc84.png` (887 × 1774 px). The generated concept specifies a 420 × 840 CSS target and therefore functions as an approximately 2.11× density reference.
+- Browser-rendered implementation: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-settings-option2.png` (381 × 616 px), captured from the `.settings-nav-panel` at a 420 × 840 CSS viewport with device scale factor 1.
+- State: Settings → Общие → Сотрудники active, Russian locale, light theme.
+- Full-view comparison evidence: the complete selected navigation concept and complete implementation crop were opened together in one comparison input.
+- Focused-region evidence: the source and implementation are both already focused component crops; no smaller crop was needed because headings, icons, separators, labels, chevrons and active borders are legible at native scale.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+- Fonts and typography: both use an Inter-like hierarchy; the implementation uses bundled Inter and intentionally retains the product's compact 13 px navigation labels to fit the existing 332 px desktop rail.
+- Spacing and layout rhythm: group ordering, row rhythm, 32 px icon tiles, separators, 11 px group labels and rounded active row match the selected direction. The implementation is vertically denser than the concept so the complete navigation remains visible in the existing product shell; this is an accepted product constraint rather than a fidelity defect.
+- Colors and tokens: General is neutral graphite/gray; Analyst uses muted orange `#d97840` with `#fff2e9` surfaces; Trainer uses muted violet `#7569a8` with `#f2effb` surfaces. No large or bright color fill is present.
+- Image and icon quality: the selected concept contains only interface icons. The implementation uses the existing Tabler outline icon library; no raster placeholders, handcrafted SVGs, emoji or CSS-drawn icons were introduced.
+- Copy and content: every Russian group and destination from the current Settings information architecture is preserved in the same order.
+- Accessibility and behavior: navigation remains semantic and keyboard-focusable; active and focus states are visible without reverting to the global bright-orange focus ring.
+
+**Comparison history**
+
+1. The first implementation capture showed the global orange focus outline around the neutral active “Сотрудники” row, creating an unintended double ring and violating the General-neutral rule (P2).
+2. The settings navigation received tone-aware focus styling; the active row now uses a single neutral border while non-active keyboard focus remains visible.
+3. The post-fix browser capture was compared with the selected concept in the same comparison input. No P0/P1/P2 differences remained.
+
+**Primary interactions tested**
+
+- Opened General → Employees and confirmed the neutral active state.
+- Opened Analyst → Notification settings and confirmed muted-orange navigation and content-header tokens.
+- Opened Trainer → Notification settings and confirmed muted-violet navigation and content-header tokens.
+- Returned to Employees for handoff.
+- Browser console checked: no errors.
+- `npm run build`: passed.
+- `npm run test:sites`: 4/4 passed.
+
+**Follow-up polish**
+
+- P3: the generated concept is more vertically spacious than the production rail. The denser implementation is intentional to preserve full navigation visibility and can be loosened later if the rail width or viewport allocation increases.
+
+## Latest integrations service-list QA
+
+**Evidence**
+
+- User reference: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-052d8751-c4a5-4b45-9102-96f5bbe4227a.png`.
+- Browser-rendered implementation: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-integrations.png`.
+- Exact brand assets supplied by the user: `codex-clipboard-fe42c814-e4f8-49dc-adc8-1c157470134d.png`, `codex-clipboard-7e6cba92-cf6f-43c7-b4c3-136e0f49e6c7.png`, and `codex-clipboard-71b8bac6-d06b-462e-90c8-c9875bcd3204.png`.
+- Final browser capture using those assets: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-integrations-logos.png`.
+- State: Settings → Analyst → Integrations → Bitrix24 active, desktop light theme.
+
+**Findings and checks**
+
+- The three service rows now contain only the service name, brand logo and connection-status dot; all secondary descriptions were removed.
+- Bitrix24, Yandex Disk and amoCRM use the exact supplied raster logos, bundled locally instead of generic interface icons or reconstructed marks.
+- Active, hover and connected states retain the existing restrained IQ Mentor visual language.
+- Switched between all three services and confirmed the correct contextual panel for each.
+- DOM check: 3 loaded brand images at their expected natural dimensions, 0 service-description nodes.
+- Browser console checked: no errors.
+- Production build passed.
+
+## Latest embedded settings surfaces QA
+
+**Evidence and normalization**
+
+- Auto-report source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-7e33b8c1-c558-40c4-9610-63fd0e1d2f06.png` (565 × 384 px).
+- Final embedded auto-report implementation: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-auto-reports-embedded.png` (1890 × 947 px, desktop browser viewport).
+- User-annotated Employees reference: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-f87f0edb-0e44-41af-b961-662654e19d21.png` (1578 × 815 px).
+- Final embedded Employees implementation: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-employees-full-bleed.png`, verified at a matching 1578 × 815 desktop viewport.
+- Source and final auto-report implementation were opened in the same comparison input. The source was used for control styling and hierarchy; the user's later instruction intentionally changed the composition from a floating card to a full-width settings surface.
+- Focused-region comparison was not required after the full-width change because the complete report controls, labels, switches and actions are legible in the full desktop capture.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain.
+- Fonts and typography: bundled Inter preserves the source hierarchy while using the existing IQ Mentor settings scale.
+- Spacing and layout rhythm: the report surface occupies the content bounds without a card border or shadow. Employees now reaches the Settings content edges, uses one continuous surface with a single internal divider, and no longer has two floating outer cards.
+- Colors and tokens: report controls remain neutral with a restrained Analyst orange active switch and Trainer violet counterpart.
+- Image quality: the final Yandex Disk, Bitrix24 and amoCRM source assets remain locally bundled and undistorted.
+- Copy and content: all supplied Russian labels are preserved; the report period controls, compact Save and Close actions remain functional. The Cancel button was intentionally removed in the latest iteration.
+
+**Interaction and technical checks**
+
+- Report toggles and persistence remain functional; the final Save button is 138 × 40 px, right-aligned, and the report surface contains no Cancel button.
+- Employees search/table controls remain visible within the settings content boundary.
+- Annotation iteration: the first Employees adjustment only changed column proportions and was visually insufficient. The follow-up removed outer panel borders/radii, used negative inset compensation to reach the content bounds, joined departments and table with one divider, and kept the complete table visible at 1578 px.
+- Overflow audit at 1578 px: document `scrollWidth` equals `clientWidth` (1563 px), `scrollX` is 0, and the Employees surface right edge exactly matches the Settings content edge.
+- Employees header iteration: Duplicate Search and Create Department now occupy the same 66 px header row as the Employees title; the main departments/table surface starts directly at the header bottom, removing the former empty action row.
+- Stereo settings iteration: removed the “Распознавание каналов” mode cards and separate channel controls. A single 520 px compact dropdown now switches between `L (Оператор), R (Клиент) (по умолчанию)` and the inverse mapping; selection and Save behavior were browser-tested.
+- Stereo Save follow-up: the 138 × 40 px icon-free button now sits 2 px from the form's left content edge.
+- Scoring settings iteration: replaced category weights and strict-scoring controls with the supplied minimum-duration and automatic-analysis interface. The surface is embedded, uses a reset/Close action and a 138 × 40 px compact Save button; duration, checkbox, reset defaults and save toast were browser-tested with no console errors.
+- Browser console checked after both final surfaces: no errors.
+- `npm run build`: passed.
+- `npm run test:sites`: 4/4 passed.
+
+final result: passed
