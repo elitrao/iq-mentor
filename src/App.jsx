@@ -415,7 +415,7 @@ function StereoSettings({ value, update, save, notify }) {
     next.stereo.left = format === "operator-left" ? "Сотрудник" : "Клиент";
     next.stereo.right = format === "operator-left" ? "Клиент" : "Сотрудник";
   });
-  return <form className="stereo-format-form" onSubmit={(e) => { e.preventDefault(); save(); }}><div className="stereo-format-section"><label className="stereo-format-field"><span>Стереоформат звонков</span><select value={current} onChange={(e) => change(e.target.value)}><option value="operator-left">L (Оператор), R (Клиент) (по умолчанию)</option><option value="client-left">L (Клиент), R (Оператор)</option></select></label></div><div className="stereo-format-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
+  return <form className="stereo-format-form" onSubmit={(e) => { e.preventDefault(); save(); }}><div className="stereo-format-section"><label className="stereo-format-field"><span>Стереоформат звонков</span><p>Выберите, в каком канале стереозаписи находятся оператор и клиент. Настройка применяется ко всем входящим звонкам, передаваемым на анализ.</p><select value={current} onChange={(e) => change(e.target.value)}><option value="operator-left">L (Оператор), R (Клиент) (по умолчанию)</option><option value="client-left">L (Клиент), R (Оператор)</option></select></label></div><div className="stereo-format-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
 }
 
 function ScoringSettings({ value, update, save, notify }) {
