@@ -176,6 +176,38 @@
 
 final result: passed
 
+## Latest Home dashboard constructor QA
+
+**Evidence**
+
+- Existing Home visual source: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-49b183d4-4426-4a1d-aad1-77a97e837e15.png` (1680 × 940 px).
+- Resting implementation: `implementation-home-constructor.png` (1680 × 940 px).
+- Side-by-side resting-state comparison: `comparison-home-constructor.png`.
+- Hover affordance: `implementation-home-constructor-hover.png`.
+- Saved custom layout: `implementation-home-constructor-reordered.png`.
+- State: Home, Russian locale, desktop light theme, 1680 × 940 CSS viewport.
+
+**Findings**
+
+- No actionable P0/P1/P2 visual differences remain. The constructor preserves the approved Home layout, spacing, card proportions, typography and full-viewport fit in its default state.
+- The previously requested removal of the date selector and Configure button is intentionally preserved.
+- Metrics, large charts and summary cards form three size-compatible reorder zones so cards can move smoothly without breaking the dashboard's established proportions.
+- Holding the left mouse button lifts the selected card into a floating overlay, adjacent cards animate toward the open slot, and the destination is marked with a soft dashed placeholder.
+- A compact hover hint communicates `Зажмите и переместите`; it disappears during dragging and does not intercept pointer events.
+
+**Interaction and technical checks**
+
+- Dragged `Обработано звонков` from position 1 to position 3 and confirmed the surrounding metric cards yielded into the available space.
+- Swapped the two large chart panels and moved `Топ категорий` from position 1 to position 3 in the summary row.
+- Reloaded the page and confirmed all three custom orders persisted.
+- Restored the default layout through the same pointer interactions before handoff.
+- Interactive buttons inside cards remain excluded from drag initiation.
+- At 1680 × 940, `scrollHeight` equals `clientHeight` (940 px); no vertical scroll is introduced.
+- Browser console checked after dragging, reload and restoration: no errors or warnings.
+- Production build passed.
+
+final result: passed
+
 ## Latest Home dashboard reference-match QA
 
 **Evidence and normalization**
