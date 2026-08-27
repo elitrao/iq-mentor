@@ -6,12 +6,18 @@ import "@fontsource/inter/700.css";
 import bitrix24Logo from "./assets/integrations/bitrix24.png";
 import amoCrmLogo from "./assets/integrations/amocrm.png";
 import yandexDiskLogo from "./assets/integrations/yandex-disk.png";
+import avatar1 from "./assets/avatars/employee-1.webp";
+import avatar2 from "./assets/avatars/employee-2.webp";
+import avatar3 from "./assets/avatars/employee-3.webp";
+import avatar4 from "./assets/avatars/employee-4.webp";
+import avatar5 from "./assets/avatars/employee-5.webp";
+import avatar6 from "./assets/avatars/employee-6.webp";
 import {
-  IconAdjustmentsHorizontal, IconBell, IconBook2, IconBuilding, IconCalendar, IconCheck, IconClock,
+  IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCalendar, IconCheck, IconClock,
   IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconDeviceFloppy, IconFile,
-  IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
+  IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
   IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
-  IconShieldCheck, IconSchool, IconSparkles, IconSwitchHorizontal, IconTemplate, IconUpload,
+  IconPhoneCall, IconShieldCheck, IconSchool, IconSparkles, IconStar, IconSwitchHorizontal, IconTargetArrow, IconTemplate, IconUpload,
   IconUser, IconUsers, IconX,
 } from "@tabler/icons-react";
 
@@ -194,6 +200,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
     <div className="sidebar-brand">
       <button className="bare-icon crop-button" aria-label="Свернуть меню" onClick={() => setCollapsed(!collapsed)}><IconMenu2 size={18} stroke={1.6} /></button>
       <img src="/iq-logo.svg" className="brand-logo" alt="IQ" />
+      <span className="sidebar-product">Ментор</span>
     </div>
     <nav ref={navRef} className={drag?.active ? "sidebar-nav is-reordering" : "sidebar-nav"} aria-label="Основная навигация">
       {orderedItems.map((item, index) => {
@@ -232,6 +239,7 @@ function NavDragOverlay({ item, active, top, width }) {
 }
 
 function Topbar({ page, setPage }) {
+  if (page === "home") return null;
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
     <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
@@ -242,15 +250,80 @@ function Topbar({ page, setPage }) {
 function PageTitle({ children, badge }) { return <div className="page-title"><h1>{children}</h1>{badge && <span>{badge}</span>}</div>; }
 
 function HomePage({ setPage, notify }) {
-  return <section className="home-page">
-    <div className="home-welcome"><div><span>Главная</span><h1>Добрый день, Даниил</h1><p>Здесь собрана короткая сводка по работе с звонками.</p></div><button className="dark-button" onClick={() => setPage("analytics")}>Открыть Аналитик <IconChevronRight size={20} /></button></div>
-    <div className="home-overview">
-      <article className="home-summary-card"><div className="home-card-head"><div><span>За последние 30 дней</span><h2>Работа идёт по плану</h2></div><span className="home-status"><i></i>Система активна</span></div><p>Обработан один звонок. Средняя оценка качества — 100%.</p><div className="home-summary-values"><div><strong>1</strong><span>звонок обработан</span></div><div><strong>100%</strong><span>средняя оценка</span></div></div><button className="home-text-action" onClick={() => setPage("analytics")}>Посмотреть подробную аналитику <IconChevronRight size={17} /></button></article>
-      <aside className="home-actions-card"><span>Быстрые действия</span><h2>Что хотите сделать?</h2><button onClick={() => setPage("analytics")}><span className="home-action-icon analyst"><IconReportAnalytics size={19} /></span><span><strong>Перейти к звонкам</strong><small>Открыть результаты анализа</small></span><IconChevronRight size={18} /></button><button onClick={() => setPage("templates")}><span className="home-action-icon"><IconTemplate size={19} /></span><span><strong>Настроить шаблоны</strong><small>Изменить критерии оценки</small></span><IconChevronRight size={18} /></button></aside>
+  const stats = [
+    { label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
+    { label: "Длительность звонков", value: "10 208", suffix: "мин", delta: "7 417 за период", badge: "266%", icon: IconClock, tone: "violet", spark: [28, 45, 40, 54, 58, 40, 38, 65] },
+    { label: "Средняя оценка", value: "84%", delta: "6% за период", badge: "6%", icon: IconStar, tone: "blue", spark: [22, 29, 25, 39, 54, 42, 45, 67, 52, 75] },
+    { label: "Конверсия в сделку", value: "32%", delta: "5% за период", badge: "5%", icon: IconTargetArrow, tone: "orange", spark: [29, 39, 33, 51, 37, 52, 68, 62] },
+  ];
+  const categories = [
+    ["Вежливость", 91, 5, "#11ad68"], ["Выявление потребностей", 88, 3, "#19a6a4"],
+    ["Презентация продукта", 85, 2, "#178fbc"], ["Работа с возражениями", 78, -2, "#7057ef"],
+    ["Завершение сделки", 72, -4, "#8b39ef"],
+  ];
+  const employees = [
+    [avatar1, "Кузнецова Анна", "100%", 16], [avatar3, "Потапова Мария", "98%", 13],
+    [avatar2, "Федоров Дмитрий", "92%", 10], [avatar5, "Возакова Нина", "89%", 8], [avatar6, "Мальцев Дмитрий", "85%", 7],
+  ];
+  const attention = [
+    [avatar1, "Иванов Сергей", "Низкая вежливость", "62%", "coral"], [avatar3, "Петрова Ольга", "Возражения", "58%", "amber"],
+    [avatar2, "Романов Олег", "Презентация продукта", "52%", "violet"], [avatar6, "Сидоров Алексей", "Закрытие сделки", "45%", "amber"],
+    [avatar5, "Смирнова Елена", "Работа с возражениями", "42%", "violet"],
+  ];
+  return <section className="home-dashboard">
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls"><button className="home-date-control"><IconCalendar size={19} />28.06.2026 – 28.07.2026<IconChevronDown size={18} /></button><button className="home-configure" onClick={() => setPage("settings")}><IconAdjustmentsHorizontal size={19} />Настроить</button><div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <div className="home-kpi-grid">{stats.map((item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`} key={item.label}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Меню: ${item.label}`}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; })}</div>
+    <div className="home-chart-grid"><DashboardPanel title="Динамика средней оценки" className="home-trend-panel" action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart /></DashboardPanel><DashboardPanel title="Распределение оценок" className="home-distribution-panel"><div className="home-distribution-body"><DonutChart /><div className="home-distribution-legend">{[["#16ad67", "Отлично (80–100%)", "65%"], ["#f3b400", "Хорошо (60–80%)", "20%"], ["#f2750a", "Удовлетворительно (40–60%)", "10%"], ["#f13b35", "Плохо (0–40%)", "5%"]].map(([color, label, value]) => <div key={label}><i style={{ background: color }}></i><span>{label}</span><strong>{value}</strong></div>)}</div></div></DashboardPanel></div>
+    <div className="home-bottom-grid">
+      <DashboardPanel title="Топ категорий"><div className="home-category-list">{categories.map(([label, value, delta, color]) => <div className="home-category-item" key={label}><div><span>{label}</span><strong style={{ color }}>{value}%</strong><em className={delta < 0 ? "down" : ""}>{delta < 0 ? <IconArrowDown size={13} /> : <IconArrowUp size={13} />}{Math.abs(delta)}%</em></div><progress max="100" value={value} style={{ "--progress-color": color }} /></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все категории</button></DashboardPanel>
+      <DashboardPanel title="Топ сотрудники"><div className="home-employee-head"><span>Сотрудник</span><span>Средняя оценка</span><span>Кол-во звонков</span></div><div className="home-employee-list">{employees.map(([avatar, name, score, calls]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span>{score}</span><span>{calls}</span></div>)}</div><button className="home-panel-link" onClick={() => { setPage("settings"); notify("Открыт раздел сотрудников"); }}>Все сотрудники</button></DashboardPanel>
+      <DashboardPanel title="Требует внимания"><div className="home-attention-list">{attention.map(([avatar, name, issue, score, tone]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span className={tone}>{issue}</span><b>{score}</b></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все вопросы</button></DashboardPanel>
     </div>
-    <article className="home-activity-card"><div className="home-card-head"><div><span>Последняя активность</span><h2>Недавно обработанные звонки</h2></div><button className="light-button" onClick={() => setPage("analytics")}>Все звонки</button></div><button className="home-call-row" onClick={() => setPage("analytics")}><span className="home-call-icon"><IconCheck size={18} /></span><span><strong>Самойленко Даниил</strong><small>Стандартный шаблон оценки качества</small></span><span className="home-call-time"><strong>4 минуты</strong><small>Обработан сегодня</small></span><IconChevronRight size={18} /></button></article>
-    <div className="home-tip"><IconInfoCircle size={18} /><span><strong>Хотите получать больше пользы от сводки?</strong> Добавьте новые записи звонков — здесь появятся свежие результаты и рекомендации.</span><button onClick={() => notify("Загрузка звонков доступна в разделе Аналитик")}>Как добавить звонки</button></div>
   </section>;
+}
+
+function DashboardPanel({ title, className = "", action, children }) { return <article className={`home-dashboard-panel ${className}`}><header><div><h2>{title}</h2><IconInfoCircle size={14} /></div><span>{action}<button className="home-panel-menu" aria-label={`Меню: ${title}`}><IconDotsVertical size={19} /></button></span></header>{children}</article>; }
+
+function useCanvas(draw) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return undefined;
+    const render = () => {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(rect.width * ratio)); canvas.height = Math.max(1, Math.round(rect.height * ratio));
+      const context = canvas.getContext("2d"); context.setTransform(ratio, 0, 0, ratio, 0, 0); context.clearRect(0, 0, rect.width, rect.height); draw(context, rect.width, rect.height);
+    };
+    render(); const observer = new ResizeObserver(render); observer.observe(canvas); return () => observer.disconnect();
+  }, [draw]);
+  return ref;
+}
+
+function Sparkline({ values }) {
+  const draw = (context, width, height) => { const padding = 3; const min = Math.min(...values); const max = Math.max(...values); context.beginPath(); values.forEach((value, index) => { const x = padding + (index / (values.length - 1)) * (width - padding * 2); const y = height - padding - ((value - min) / Math.max(1, max - min)) * (height - padding * 2); index ? context.lineTo(x, y) : context.moveTo(x, y); }); context.strokeStyle = "rgba(255,255,255,.9)"; context.lineWidth = 2; context.lineCap = "round"; context.lineJoin = "round"; context.stroke(); };
+  const ref = useCanvas(draw); return <canvas ref={ref} className="home-sparkline" aria-hidden="true" />;
+}
+
+function DashboardLineChart() {
+  const values = [20, 38, 80, 93, 88, 91, 94, 96, 82];
+  const labels = ["22.06", "", "29.06", "", "06.07", "13.07", "20.07", "", "27.07"];
+  const draw = (context, width, height) => {
+    const left = 45, right = 10, top = 12, bottom = 28, chartW = width - left - right, chartH = height - top - bottom;
+    context.font = "10px Inter"; context.fillStyle = "#7b8082"; context.textAlign = "right"; context.textBaseline = "middle";
+    [0, 25, 50, 75, 100].forEach((tick) => { const y = top + chartH - (tick / 100) * chartH; context.strokeStyle = "#e8ecea"; context.lineWidth = 1; context.beginPath(); context.moveTo(left, y); context.lineTo(width - right, y); context.stroke(); context.fillText(`${tick}%`, left - 10, y); });
+    const points = values.map((value, index) => [left + (index / (values.length - 1)) * chartW, top + chartH - (value / 100) * chartH]);
+    const fill = context.createLinearGradient(0, top, 0, top + chartH); fill.addColorStop(0, "rgba(20,173,103,.28)"); fill.addColorStop(1, "rgba(20,173,103,.02)"); context.beginPath(); context.moveTo(points[0][0], top + chartH); points.forEach(([x, y]) => context.lineTo(x, y)); context.lineTo(points.at(-1)[0], top + chartH); context.closePath(); context.fillStyle = fill; context.fill();
+    context.beginPath(); points.forEach(([x, y], index) => index ? context.lineTo(x, y) : context.moveTo(x, y)); context.strokeStyle = "#12aa66"; context.lineWidth = 2; context.stroke();
+    points.forEach(([x, y]) => { context.beginPath(); context.arc(x, y, 4, 0, Math.PI * 2); context.fillStyle = "#fff"; context.fill(); context.strokeStyle = "#12aa66"; context.lineWidth = 2; context.stroke(); });
+    context.textAlign = "center"; context.textBaseline = "top"; context.fillStyle = "#6f7476"; labels.forEach((label, index) => label && context.fillText(label, left + (index / (labels.length - 1)) * chartW, height - 18));
+  };
+  const ref = useCanvas(draw); return <canvas ref={ref} className="home-line-chart" aria-label="Динамика средней оценки от 20 до 96 процентов" />;
+}
+
+function DonutChart() {
+  const draw = (context, width, height) => { const size = Math.min(width, height); const cx = width / 2, cy = height / 2, radius = size * .37, thickness = size * .12; let start = -Math.PI / 2; [[65, "#16ad67"], [20, "#f3b400"], [10, "#f2750a"], [5, "#f13b35"]].forEach(([value, color]) => { const end = start + (value / 100) * Math.PI * 2; context.beginPath(); context.arc(cx, cy, radius, start, end); context.strokeStyle = color; context.lineWidth = thickness; context.stroke(); start = end; }); context.textAlign = "center"; context.fillStyle = "#171717"; context.font = "600 22px Inter"; context.fillText("2 001", cx, cy + 1); context.fillStyle = "#656a6c"; context.font = "10px Inter"; context.fillText("звонков", cx, cy + 21); };
+  const ref = useCanvas(draw); return <canvas ref={ref} className="home-donut-chart" aria-label="Распределение оценок: отлично 65 процентов, хорошо 20 процентов, удовлетворительно 10 процентов, плохо 5 процентов" />;
 }
 
 function AnalyticsPage({ notify }) {

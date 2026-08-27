@@ -175,3 +175,38 @@
 - `npm run test:sites`: 4/4 passed.
 
 final result: passed
+
+## Latest Home dashboard reference-match QA
+
+**Evidence and normalization**
+
+- Source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-49b183d4-4426-4a1d-aad1-77a97e837e15.png` (1680 × 940 px).
+- Browser-rendered implementation: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\implementation-home-reference-style.png` (1680 × 940 px).
+- Full-view comparison: `comparison-home-reference-style.png` places the reference and implementation side by side at the same viewport and state.
+- Focused comparisons: `comparison-home-kpi-focus.png` covers the header and KPI row; `comparison-home-content-focus.png` covers charts, rankings and attention panels.
+- State: Home, Russian locale, desktop light theme, 1680 × 940 CSS viewport.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain. The implementation matches the reference's compact header, four gradient KPI cards, two analytics panels and three lower summary cards.
+- Typography, whitespace, borders, radii, chart density, value hierarchy and muted white/gray canvas follow the reference.
+- The current product information architecture is intentionally preserved: Employees, Documents and Integrations remain under Settings as established in earlier user-approved iterations.
+- Six distinct locally bundled employee portraits are used throughout the two employee lists, preserving a unique avatar for every displayed person.
+- Desktop content fits the 1680 × 940 reference viewport without horizontal overflow; the lower dashboard remains fully readable.
+
+**Interaction and technical checks**
+
+- The `Настроить` control opens `#settings`; the sidebar `Главная` control returns to `#home`.
+- Sidebar navigation, dashboard links and accessible canvas labels remain present in the DOM.
+- Browser console checked after navigation: no errors or warnings.
+- Production build passed.
+- `npm run test:sites`: 4/4 passed.
+
+**Comparison history**
+
+1. The previous minimalist Home dashboard was replaced with the supplied full analytics composition.
+2. Generated portrait assets were cropped into six square, independently usable employee avatars and wired into both people panels.
+3. The browser render was captured at the exact reference viewport and compared side by side with the supplied source.
+4. The preserved Settings-first navigation difference was reviewed as an intentional product constraint; no visible fidelity defects requiring correction remained.
+
+final result: passed
