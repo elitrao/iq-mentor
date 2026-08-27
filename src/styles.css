@@ -278,6 +278,26 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 
 .sidebar-collapsed { padding-left: 72px; }.sidebar-collapsed .sidebar { width: 72px; }.sidebar-collapsed .sidebar-brand { justify-content: center; padding: 0; }.sidebar-collapsed .brand-logo, .sidebar-collapsed .sidebar-product, .sidebar-collapsed .nav-item span, .sidebar-collapsed .nav-arrow, .sidebar-collapsed .nav-drag-hint, .sidebar-collapsed .profile-copy, .sidebar-collapsed .lk-button { display: none; }.sidebar-collapsed .nav-item { display: flex; justify-content: center; padding: 0; }.sidebar-collapsed .profile-card { justify-content: center; padding: 6px 0; background: transparent; }.sidebar-collapsed .sidebar-bottom { gap: 4px; }
 
+@media (min-width: 1451px) and (max-height: 950px) {
+  .page-area:has(.home-dashboard) { padding-top: 20px; padding-bottom: 8px; }
+  .home-dashboard-header { min-height: 62px; }
+  .home-kpi { min-height: 174px; padding: 18px 21px 16px; }
+  .home-kpi-main { margin-top: 13px; }
+  .home-chart-grid, .home-bottom-grid { margin-top: 18px; }
+  .home-dashboard-panel > header { min-height: 52px; }
+  .home-trend-panel, .home-distribution-panel { min-height: 282px; }
+  .home-line-chart { height: 224px; }
+  .home-distribution-body { min-height: 224px; padding-bottom: 11px; }
+  .home-donut-chart { height: 205px; }
+  .home-distribution-legend { gap: 18px; }
+  .home-bottom-grid .home-dashboard-panel { min-height: 318px; }
+  .home-category-list { gap: 11px; padding-top: 9px; }
+  .home-employee-head { padding-top: 9px; }
+  .home-employee-list, .home-attention-list { gap: 6px; }
+  .home-attention-list { padding-top: 9px; }
+  .home-panel-link { margin-bottom: 14px; }
+}
+
 @media (max-width: 1450px) {
   .home-dashboard-header { align-items: flex-start; flex-direction: column; padding: 10px 0 16px; }.home-header-controls { width: 100%; flex-wrap: wrap; }.home-balance { margin-left: auto; }.home-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.home-chart-grid { grid-template-columns: 1fr; }.home-bottom-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.home-bottom-grid .home-dashboard-panel:last-child { grid-column: 1 / -1; }
 }
