@@ -176,6 +176,49 @@
 
 final result: passed
 
+## Latest unified Home constructor and widget visibility QA
+
+**Evidence and normalization**
+
+- Source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-49b183d4-4426-4a1d-aad1-77a97e837e15.png` (1680 × 940 px).
+- Resting implementation: `implementation-home-unified-constructor.png` (1680 × 940 px at a 1680 × 940 CSS viewport).
+- Full-view side-by-side comparison: `comparison-home-unified-constructor.png` (3336 × 941 px; source and implementation kept at 1:1 density).
+- Cross-size reordered state: `implementation-home-unified-constructor-reordered.png`.
+- Hover affordance: `implementation-home-unified-constructor-hover.png`.
+- Hidden-widget state: `implementation-home-widget-hidden.png`.
+- State: Home, Russian locale, desktop light theme. The date and Configure controls remain intentionally absent per the later product decision.
+
+**Findings**
+
+- No actionable P0/P1/P2 differences remain. The default layout preserves the source's card hierarchy, density, proportions and full-viewport composition.
+- Fonts and typography: bundled Inter renders consistently across KPI values, chart labels and compact list content; destination-size variants retain legible hierarchy without clipping.
+- Spacing and layout rhythm: one twelve-column grid recreates the four compact, two middle and three lower slots. Widgets inherit destination geometry, while the resting state remains visually identical to the approved dashboard composition.
+- Colors and visual tokens: original KPI gradients, white analytical surfaces, neutral borders and semantic chart colors remain unchanged.
+- Image quality and assets: the six bundled employee portraits remain sharp, correctly cropped and undistorted after moves between slot sizes.
+- Copy and content: all approved Russian dashboard labels remain present. Compact summary slots intentionally show the first two rows and the existing destination link; expanded slots show the complete content.
+- Focused-region comparison was not needed because all cards, controls, text, charts and states are legible in the same-size full-view comparison and dedicated interaction captures.
+
+**Interaction and technical checks**
+
+- Moved `Динамика средней оценки` from the wide middle slot into the first compact slot. The chart resized to the compact slot, while `Конверсия в сделку` expanded into the vacated wide slot.
+- Moved `Требует внимания` from a lower summary slot into a compact top slot. Its compact form showed two readable employee rows and retained the `Все вопросы` action.
+- Confirmed all nine widgets can participate in the same reorder sequence; the floating widget follows the pointer, the target placeholder changes size, and surrounding cards translate and scale toward their destination slots.
+- Reloaded after cross-size moves and confirmed the unified order persisted, then restored the approved default order using the same pointer interactions.
+- Hid `Обработано звонков` through its three-dot action. The remaining eight widgets closed the gap, `Вернуть скрытые 1` appeared in the header, and the hidden state persisted after reload.
+- Restored all widgets through the header action and confirmed the default nine-widget state returned.
+- At 1680 × 940, document `scrollHeight` equals `clientHeight` (940 px) in both the default and reordered states.
+- Browser console after reorder, hide, reload and restore: no errors or warnings.
+- Production build passed.
+
+**Comparison history**
+
+1. Replaced three isolated size-compatible reorder zones with one unified slot system.
+2. Added destination-size rendering for KPI cards, charts, distribution, category, employee and attention panels.
+3. Added global pointer completion so cross-size dragging ends reliably even when the pointer leaves the source widget.
+4. Added persistent widget hiding plus a minimal restore control and verified the compacted layout visually.
+
+final result: passed
+
 ## Latest Home dashboard constructor QA
 
 **Evidence**

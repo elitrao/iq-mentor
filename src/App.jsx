@@ -30,11 +30,18 @@ const NAV_ITEMS = [
   { id: "settings", label: "Настройки", icon: IconSettings, arrow: true },
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
-const DEFAULT_DASHBOARD_ORDER = {
-  metrics: ["calls", "duration", "score", "conversion"],
-  charts: ["trend", "distribution"],
-  summaries: ["categories", "employees", "attention"],
-};
+const DEFAULT_DASHBOARD_ORDER = ["calls", "duration", "score", "conversion", "trend", "distribution", "categories", "employees", "attention"];
+const DASHBOARD_SLOTS = [
+  { kind: "compact", column: "1 / span 3", row: "1" },
+  { kind: "compact", column: "4 / span 3", row: "1" },
+  { kind: "compact", column: "7 / span 3", row: "1" },
+  { kind: "compact", column: "10 / span 3", row: "1" },
+  { kind: "wide", column: "1 / span 7", row: "2" },
+  { kind: "medium", column: "8 / span 5", row: "2" },
+  { kind: "summary", column: "1 / span 4", row: "3" },
+  { kind: "summary", column: "5 / span 4", row: "3" },
+  { kind: "summary", column: "9 / span 4", row: "3" },
+];
 
 const SETTINGS_GROUPS = [
   { title: "Общие", items: [
@@ -99,12 +106,18 @@ function loadNavOrder() {
 
 function loadDashboardOrder() {
   try {
-    const saved = JSON.parse(localStorage.getItem("iq-mentor-dashboard-order") || "{}");
-    return Object.fromEntries(Object.entries(DEFAULT_DASHBOARD_ORDER).map(([group, defaults]) => {
-      const valid = [...new Set((saved[group] || []).filter((id) => defaults.includes(id)))];
-      return [group, [...valid, ...defaults.filter((id) => !valid.includes(id))]];
-    }));
+    const saved = JSON.parse(localStorage.getItem("iq-mentor-dashboard-order") || "[]");
+    const savedOrder = Array.isArray(saved) ? saved : [...(saved.metrics || []), ...(saved.charts || []), ...(saved.summaries || [])];
+    const valid = [...new Set(savedOrder.filter((id) => DEFAULT_DASHBOARD_ORDER.includes(id)))];
+    return [...valid, ...DEFAULT_DASHBOARD_ORDER.filter((id) => !valid.includes(id))];
   } catch { return DEFAULT_DASHBOARD_ORDER; }
+}
+
+function loadHiddenWidgets() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("iq-mentor-hidden-widgets") || "[]");
+    return [...new Set((Array.isArray(saved) ? saved : []).filter((id) => DEFAULT_DASHBOARD_ORDER.includes(id)))];
+  } catch { return []; }
 }
 
 export function App() {
@@ -287,38 +300,46 @@ function HomePage({ setPage, notify }) {
     [avatar5, "Смирнова Елена", "Работа с возражениями", "42%", "violet"],
   ];
   const [dashboardOrder, setDashboardOrder] = useState(loadDashboardOrder);
+  const [hiddenWidgets, setHiddenWidgets] = useState(loadHiddenWidgets);
   useEffect(() => { localStorage.setItem("iq-mentor-dashboard-order", JSON.stringify(dashboardOrder)); }, [dashboardOrder]);
-  const reorderDashboard = (group, id, targetIndex) => {
+  useEffect(() => { localStorage.setItem("iq-mentor-hidden-widgets", JSON.stringify(hiddenWidgets)); }, [hiddenWidgets]);
+  const reorderDashboard = (id, targetIndex) => {
     setDashboardOrder((current) => {
-      const sourceIndex = current[group].indexOf(id);
+      const visible = current.filter((widgetId) => !hiddenWidgets.includes(widgetId));
+      const sourceIndex = visible.indexOf(id);
       if (sourceIndex < 0 || sourceIndex === targetIndex) return current;
-      const nextGroup = [...current[group]];
-      const [moved] = nextGroup.splice(sourceIndex, 1);
-      nextGroup.splice(targetIndex, 0, moved);
-      return { ...current, [group]: nextGroup };
+      const [moved] = visible.splice(sourceIndex, 1);
+      visible.splice(targetIndex, 0, moved);
+      let visibleIndex = 0;
+      return current.map((widgetId) => hiddenWidgets.includes(widgetId) ? widgetId : visible[visibleIndex++]);
     });
     notify("Порядок блоков сохранен");
   };
-  const chartItems = [{ id: "trend" }, { id: "distribution" }];
-  const summaryItems = [{ id: "categories" }, { id: "employees" }, { id: "attention" }];
-  const renderMetric = (item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Меню: ${item.label}`}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; };
-  const renderChart = (item) => item.id === "trend"
-    ? <DashboardPanel title="Динамика средней оценки" className="home-trend-panel" action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart /></DashboardPanel>
-    : <DashboardPanel title="Распределение оценок" className="home-distribution-panel"><div className="home-distribution-body"><DonutChart /><div className="home-distribution-legend">{[["#16ad67", "Отлично (80–100%)", "65%"], ["#f3b400", "Хорошо (60–80%)", "20%"], ["#f2750a", "Удовлетворительно (40–60%)", "10%"], ["#f13b35", "Плохо (0–40%)", "5%"]].map(([color, label, value]) => <div key={label}><i style={{ background: color }}></i><span>{label}</span><strong>{value}</strong></div>)}</div></div></DashboardPanel>;
-  const renderSummary = (item) => {
-    if (item.id === "categories") return <DashboardPanel title="Топ категорий"><div className="home-category-list">{categories.map(([label, value, delta, color]) => <div className="home-category-item" key={label}><div><span>{label}</span><strong style={{ color }}>{value}%</strong><em className={delta < 0 ? "down" : ""}>{delta < 0 ? <IconArrowDown size={13} /> : <IconArrowUp size={13} />}{Math.abs(delta)}%</em></div><progress max="100" value={value} style={{ "--progress-color": color }} /></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все категории</button></DashboardPanel>;
-    if (item.id === "employees") return <DashboardPanel title="Топ сотрудники"><div className="home-employee-head"><span>Сотрудник</span><span>Средняя оценка</span><span>Кол-во звонков</span></div><div className="home-employee-list">{employees.map(([avatar, name, score, calls]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span>{score}</span><span>{calls}</span></div>)}</div><button className="home-panel-link" onClick={() => { setPage("settings"); notify("Открыт раздел сотрудников"); }}>Все сотрудники</button></DashboardPanel>;
-    return <DashboardPanel title="Требует внимания"><div className="home-attention-list">{attention.map(([avatar, name, issue, score, tone]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span className={tone}>{issue}</span><b>{score}</b></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все вопросы</button></DashboardPanel>;
+  const hideWidget = (item) => {
+    setHiddenWidgets((current) => current.includes(item.id) ? current : [...current, item.id]);
+    notify(`Виджет «${item.label || ({ trend: "Динамика средней оценки", distribution: "Распределение оценок", categories: "Топ категорий", employees: "Топ сотрудники", attention: "Требует внимания" }[item.id])}» скрыт`);
   };
+  const chartItems = [{ id: "trend", type: "chart" }, { id: "distribution", type: "chart" }];
+  const summaryItems = [{ id: "categories", type: "summary" }, { id: "employees", type: "summary" }, { id: "attention", type: "summary" }];
+  const renderMetric = (item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Скрыть виджет: ${item.label}`} title="Скрыть виджет" onClick={() => hideWidget(item)}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; };
+  const renderChart = (item) => item.id === "trend"
+    ? <DashboardPanel title="Динамика средней оценки" className="home-trend-panel" onHide={() => hideWidget(item)} action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart /></DashboardPanel>
+    : <DashboardPanel title="Распределение оценок" className="home-distribution-panel" onHide={() => hideWidget(item)}><div className="home-distribution-body"><DonutChart /><div className="home-distribution-legend">{[["#16ad67", "Отлично (80–100%)", "65%"], ["#f3b400", "Хорошо (60–80%)", "20%"], ["#f2750a", "Удовлетворительно (40–60%)", "10%"], ["#f13b35", "Плохо (0–40%)", "5%"]].map(([color, label, value]) => <div key={label}><i style={{ background: color }}></i><span>{label}</span><strong>{value}</strong></div>)}</div></div></DashboardPanel>;
+  const renderSummary = (item) => {
+    if (item.id === "categories") return <DashboardPanel title="Топ категорий" onHide={() => hideWidget(item)}><div className="home-category-list">{categories.map(([label, value, delta, color]) => <div className="home-category-item" key={label}><div><span>{label}</span><strong style={{ color }}>{value}%</strong><em className={delta < 0 ? "down" : ""}>{delta < 0 ? <IconArrowDown size={13} /> : <IconArrowUp size={13} />}{Math.abs(delta)}%</em></div><progress max="100" value={value} style={{ "--progress-color": color }} /></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все категории</button></DashboardPanel>;
+    if (item.id === "employees") return <DashboardPanel title="Топ сотрудники" onHide={() => hideWidget(item)}><div className="home-employee-head"><span>Сотрудник</span><span>Средняя оценка</span><span>Кол-во звонков</span></div><div className="home-employee-list">{employees.map(([avatar, name, score, calls]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span>{score}</span><span>{calls}</span></div>)}</div><button className="home-panel-link" onClick={() => { setPage("settings"); notify("Открыт раздел сотрудников"); }}>Все сотрудники</button></DashboardPanel>;
+    return <DashboardPanel title="Требует внимания" onHide={() => hideWidget(item)}><div className="home-attention-list">{attention.map(([avatar, name, issue, score, tone]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span className={tone}>{issue}</span><b>{score}</b></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все вопросы</button></DashboardPanel>;
+  };
+  const dashboardItems = [...stats.map((item) => ({ ...item, type: "metric" })), ...chartItems, ...summaryItems];
+  const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : renderSummary(item);
+  const visibleOrder = dashboardOrder.filter((id) => !hiddenWidgets.includes(id));
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls"><div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
-    <ReorderableDashboardGrid className="home-kpi-grid" items={stats} order={dashboardOrder.metrics} renderItem={renderMetric} onReorder={(id, index) => reorderDashboard("metrics", id, index)} />
-    <ReorderableDashboardGrid className="home-chart-grid" items={chartItems} order={dashboardOrder.charts} renderItem={renderChart} onReorder={(id, index) => reorderDashboard("charts", id, index)} />
-    <ReorderableDashboardGrid className="home-bottom-grid" items={summaryItems} order={dashboardOrder.summaries} renderItem={renderSummary} onReorder={(id, index) => reorderDashboard("summaries", id, index)} />
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={visibleOrder} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} />
   </section>;
 }
 
-function ReorderableDashboardGrid({ className, items, order, renderItem, onReorder }) {
+function ReorderableDashboardGrid({ className, items, order, slots, renderItem, onReorder }) {
   const gridRef = useRef(null);
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
@@ -328,11 +349,10 @@ function ReorderableDashboardGrid({ className, items, order, renderItem, onReord
   const startDrag = (event, item, sourceIndex) => {
     if (event.button !== 0 || window.matchMedia("(max-width: 820px)").matches || event.target.closest("button, a, input, select, textarea")) return;
     const gridRect = gridRef.current.getBoundingClientRect();
-    const cells = [...gridRef.current.querySelectorAll(":scope > .dashboard-reorder-item")];
-    const rects = cells.map((cell) => cell.getBoundingClientRect());
+    const rects = orderedItems.map((orderedItem) => gridRef.current.querySelector(`[data-dashboard-id="${orderedItem.id}"]`).getBoundingClientRect());
     const cellRect = event.currentTarget.getBoundingClientRect();
     try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* Pointer capture is optional. */ }
-    updateDrag({ id: item.id, pointerId: event.pointerId, sourceIndex, targetIndex: sourceIndex, startX: event.clientX, startY: event.clientY, pointerX: event.clientX, pointerY: event.clientY, offsetX: event.clientX - cellRect.left, offsetY: event.clientY - cellRect.top, gridLeft: gridRect.left, gridTop: gridRect.top, width: cellRect.width, height: cellRect.height, rects, active: false });
+    updateDrag({ id: item.id, pointerId: event.pointerId, sourceIndex, targetIndex: sourceIndex, startX: event.clientX, startY: event.clientY, pointerX: event.clientX, pointerY: event.clientY, offsetRatioX: (event.clientX - cellRect.left) / cellRect.width, offsetRatioY: (event.clientY - cellRect.top) / cellRect.height, gridLeft: gridRect.left, gridTop: gridRect.top, width: cellRect.width, height: cellRect.height, rects, active: false });
   };
   const continueDrag = (event) => {
     const current = dragRef.current;
@@ -362,6 +382,20 @@ function ReorderableDashboardGrid({ className, items, order, renderItem, onReord
     if (!suppressClickRef.current) return;
     event.preventDefault(); event.stopPropagation(); suppressClickRef.current = false;
   };
+  useEffect(() => {
+    if (!drag?.pointerId) return undefined;
+    const move = (event) => continueDrag(event);
+    const up = (event) => finishDrag(event);
+    const cancel = (event) => finishDrag(event, true);
+    window.addEventListener("pointermove", move, { passive: false });
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", cancel);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", cancel);
+    };
+  }, [drag?.pointerId]);
   const previewOrder = drag?.active ? [...order] : order;
   if (drag?.active) { const [moved] = previewOrder.splice(drag.sourceIndex, 1); previewOrder.splice(drag.targetIndex, 0, moved); }
   const draggedItem = drag?.active ? orderedItems.find((item) => item.id === drag.id) : null;
@@ -369,18 +403,19 @@ function ReorderableDashboardGrid({ className, items, order, renderItem, onReord
     {orderedItems.map((item, index) => {
       const destinationIndex = previewOrder.indexOf(item.id);
       const from = drag?.rects[index]; const to = drag?.rects[destinationIndex];
-      const transform = drag?.active && item.id !== drag.id && from && to ? `translate(${to.left - from.left}px, ${to.top - from.top}px)` : "translate(0, 0)";
-      return <div className={`dashboard-reorder-item${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} style={{ transform }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
-        {renderItem(item)}
+      const transform = drag?.active && item.id !== drag.id && from && to ? `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})` : "translate(0, 0) scale(1)";
+      const slot = slots[index];
+      return <div className={`dashboard-reorder-item dashboard-slot-${slot.kind}${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} data-dashboard-id={item.id} style={{ transform, gridColumn: slot.column, gridRow: slot.row }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
+        {renderItem(item, slot.kind)}
         <span className="dashboard-drag-hint" role="tooltip">Зажмите и переместите</span>
       </div>;
     })}
     {drag?.active && <span className="dashboard-drop-slot" style={{ left: `${drag.rects[drag.targetIndex].left - drag.gridLeft}px`, top: `${drag.rects[drag.targetIndex].top - drag.gridTop}px`, width: `${drag.rects[drag.targetIndex].width}px`, height: `${drag.rects[drag.targetIndex].height}px` }} aria-hidden="true" />}
-    {draggedItem && <div className="dashboard-drag-overlay" style={{ left: `${drag.pointerX - drag.gridLeft - drag.offsetX}px`, top: `${drag.pointerY - drag.gridTop - drag.offsetY}px`, width: `${drag.width}px`, height: `${drag.height}px` }} aria-hidden="true">{renderItem(draggedItem)}</div>}
+    {draggedItem && (() => { const targetRect = drag.rects[drag.targetIndex]; const targetSlot = slots[drag.targetIndex]; return <div className={`dashboard-drag-overlay dashboard-slot-${targetSlot.kind}`} style={{ left: `${drag.pointerX - drag.gridLeft - targetRect.width * drag.offsetRatioX}px`, top: `${drag.pointerY - drag.gridTop - targetRect.height * drag.offsetRatioY}px`, width: `${targetRect.width}px`, height: `${targetRect.height}px` }} aria-hidden="true">{renderItem(draggedItem, targetSlot.kind)}</div>; })()}
   </div>;
 }
 
-function DashboardPanel({ title, className = "", action, children }) { return <article className={`home-dashboard-panel ${className}`}><header><div><h2>{title}</h2><IconInfoCircle size={14} /></div><span>{action}<button className="home-panel-menu" aria-label={`Меню: ${title}`}><IconDotsVertical size={19} /></button></span></header>{children}</article>; }
+function DashboardPanel({ title, className = "", action, onHide, children }) { return <article className={`home-dashboard-panel ${className}`}><header><div><h2>{title}</h2><IconInfoCircle size={14} /></div><span>{action}<button className="home-panel-menu" aria-label={`Скрыть виджет: ${title}`} title="Скрыть виджет" onClick={onHide}><IconDotsVertical size={19} /></button></span></header>{children}</article>; }
 
 function useCanvas(draw) {
   const ref = useRef(null);
