@@ -6,6 +6,11 @@
     <meta name="theme-color" content="#151515" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />
     <title>IQ Mentor</title>
+    <script>
+      if (["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)) {
+        document.title = "IQ Mentor (local)";
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
