@@ -365,3 +365,22 @@ final result: passed
 4. Compared the final resting state against the approved visual source and verified the interaction states independently.
 
 final result: passed
+
+## Notion-style catalog category tags — 2026-08-27
+
+**Evidence**
+
+- Source crop: `codex-clipboard-94f01b5c-2835-4a5c-bbea-c23406ac4644.png` (184 × 91 px).
+- Final catalog state: `design-qa-catalog-category-tags.png` (1280 × 720 px).
+- Focused card evidence: `design-qa-catalog-category-tag-card.png` (296 × 190 px).
+- Side-by-side comparison: `design-qa-catalog-category-tag-comparison.png` (760 × 310 px).
+
+**Findings and checks**
+
+- The plain gray widget-type caption is now a compact rounded property tag, matching the supplied Notion-like category treatment.
+- `Показатель` uses a restrained lime tint, `Аналитика` uses orange and `Команда` uses violet; every tag keeps readable contrast on the light card.
+- All nine catalog entries render exactly one category tag. The card title, placement action and preview geometry remain unchanged.
+- The catalog opens correctly and the browser console reports no errors after the change.
+- Production build and the site test suite passed.
+
+final result: passed

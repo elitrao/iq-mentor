@@ -247,6 +247,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .widget-catalog-list article > footer > div { min-width: 0; display: grid; gap: 3px; }
 .widget-catalog-list article strong { overflow: hidden; font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .widget-catalog-list article small { color: #969c99; font-size: 9px; }
+.widget-category-tag { width: fit-content; display: inline-flex; align-items: center; min-height: 18px; border-radius: 5px; padding: 2px 6px; font-size: 8px; font-weight: 600; line-height: 1; }
+.widget-category-tag.metrics { background: #edf6dd; color: #5f861b; }
+.widget-category-tag.analytics { background: #fff0e7; color: #c3653d; }
+.widget-category-tag.team { background: #f0edff; color: #7162c9; }
 .widget-catalog-list article > footer > button { min-height: 30px; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; padding: 0 8px; cursor: pointer; font-size: 9px; font-weight: 600; }
 .widget-catalog-list article > footer > button.visible { border: 1px solid #dce2df; background: #fff; color: #737a76; }
 .widget-catalog-list article > footer > button.visible:hover { border-color: #ffc7ad; background: #fff8f4; color: #d9683c; }
