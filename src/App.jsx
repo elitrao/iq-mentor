@@ -311,10 +311,10 @@ function WidgetCatalogPreview({ item }) {
 function HomePage({ setPage, notify }) {
   // Dashboard data mirrors the approved IQ Mentor home-page reference.
   const stats = [
-    { id: "calls", label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
-    { id: "duration", label: "Длительность звонков", value: "10 208", suffix: "мин", delta: "7 417 за период", badge: "266%", icon: IconClock, tone: "violet", spark: [28, 45, 40, 54, 58, 40, 38, 65] },
-    { id: "score", label: "Средняя оценка", value: "84%", delta: "6% за период", badge: "6%", icon: IconStar, tone: "blue", spark: [22, 29, 25, 39, 54, 42, 45, 67, 52, 75] },
-    { id: "conversion", label: "Конверсия в сделку", value: "32%", delta: "5% за период", badge: "5%", icon: IconTargetArrow, tone: "orange", spark: [29, 39, 33, 51, 37, 52, 68, 62] },
+    { id: "calls", label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", sparkColor: "#85b91d", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
+    { id: "duration", label: "Длительность звонков", value: "10 208", suffix: "мин", delta: "7 417 за период", badge: "266%", icon: IconClock, tone: "violet", sparkColor: "#7867e7", spark: [28, 45, 40, 54, 58, 40, 38, 65] },
+    { id: "score", label: "Средняя оценка", value: "84%", delta: "6% за период", badge: "6%", icon: IconStar, tone: "blue", sparkColor: "#3e82dc", spark: [22, 29, 25, 39, 54, 42, 45, 67, 52, 75] },
+    { id: "conversion", label: "Конверсия в сделку", value: "32%", delta: "5% за период", badge: "5%", icon: IconTargetArrow, tone: "orange", sparkColor: "#e86f48", spark: [29, 39, 33, 51, 37, 52, 68, 62] },
   ];
   const categories = [
     ["Вежливость", 91, 5, "#11ad68"], ["Выявление потребностей", 88, 3, "#19a6a4"],
@@ -386,7 +386,7 @@ function HomePage({ setPage, notify }) {
   };
   const chartItems = [{ id: "trend", type: "chart" }, { id: "distribution", type: "chart" }];
   const summaryItems = [{ id: "categories", type: "summary" }, { id: "employees", type: "summary" }, { id: "attention", type: "summary" }];
-  const renderMetric = (item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Скрыть виджет: ${item.label}`} title="Скрыть виджет" onClick={() => hideWidget(item)}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; };
+  const renderMetric = (item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Скрыть виджет: ${item.label}`} title="Скрыть виджет" onClick={() => hideWidget(item)}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} color={item.sparkColor} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; };
   const renderChart = (item) => item.id === "trend"
     ? <DashboardPanel title="Динамика средней оценки" className="home-trend-panel" onHide={() => hideWidget(item)} action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart /></DashboardPanel>
     : <DashboardPanel title="Распределение оценок" className="home-distribution-panel" onHide={() => hideWidget(item)}><div className="home-distribution-body"><DonutChart /><div className="home-distribution-legend">{[["#16ad67", "Отлично (80–100%)", "65%"], ["#f3b400", "Хорошо (60–80%)", "20%"], ["#f2750a", "Удовлетворительно (40–60%)", "10%"], ["#f13b35", "Плохо (0–40%)", "5%"]].map(([color, label, value]) => <div key={label}><i style={{ background: color }}></i><span>{label}</span><strong>{value}</strong></div>)}</div></div></DashboardPanel>;
@@ -523,8 +523,8 @@ function useCanvas(draw) {
   return ref;
 }
 
-function Sparkline({ values }) {
-  const draw = (context, width, height) => { const padding = 3; const min = Math.min(...values); const max = Math.max(...values); context.beginPath(); values.forEach((value, index) => { const x = padding + (index / (values.length - 1)) * (width - padding * 2); const y = height - padding - ((value - min) / Math.max(1, max - min)) * (height - padding * 2); index ? context.lineTo(x, y) : context.moveTo(x, y); }); context.strokeStyle = "rgba(255,255,255,.9)"; context.lineWidth = 2; context.lineCap = "round"; context.lineJoin = "round"; context.stroke(); };
+function Sparkline({ values, color = "#85b91d" }) {
+  const draw = (context, width, height) => { const padding = 3; const min = Math.min(...values); const max = Math.max(...values); context.beginPath(); values.forEach((value, index) => { const x = padding + (index / (values.length - 1)) * (width - padding * 2); const y = height - padding - ((value - min) / Math.max(1, max - min)) * (height - padding * 2); index ? context.lineTo(x, y) : context.moveTo(x, y); }); context.strokeStyle = color; context.lineWidth = 2; context.lineCap = "round"; context.lineJoin = "round"; context.stroke(); };
   const ref = useCanvas(draw); return <canvas ref={ref} className="home-sparkline" aria-hidden="true" />;
 }
 

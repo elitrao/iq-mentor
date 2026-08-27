@@ -176,6 +176,43 @@
 
 final result: passed
 
+## Light bento dashboard refinement — 2026-08-27
+
+**Scope and evidence**
+
+- Primary visual reference 1: `codex-clipboard-fcbd4b95-eaa1-4051-a412-791c02debf9a.png` (736 × 553 px), supplied by the user as the light monochrome management-dashboard direction.
+- Primary visual reference 2: `codex-clipboard-1c5c8474-dc85-42ea-8c95-48907bce07b6.png` (1200 × 900 px), supplied by the user for the rounded bento-panel and restrained accent treatment.
+- Final Home evidence: `design-qa-home-light-final.png` (1265 × 712 px at the desktop local-preview viewport).
+- Final catalog evidence: `design-qa-catalog-light-final.png` (1280 × 720 px with the catalog modal open).
+- Full comparison evidence: `design-qa-comparison-light-final.png` (1920 × 1240 px), containing both references and both implementation states in one image.
+- State: Home, Russian locale, light theme; default widget layout and the open widget-catalog modal were both checked.
+
+**Findings**
+
+- No actionable P0/P1/P2 visual issues remain in the reviewed desktop states.
+- The rejected dark interpretation was fully reverted. The final shell uses a soft warm-gray canvas, white floating panels, subtle borders and restrained shadows.
+- The reference language is carried through large rounded bento surfaces, compact black/gray typography, generous breathing room and small acid-green active accents.
+- KPI cards no longer use full-card gradients. Their identity is communicated by a thin top accent, a tinted icon tile, a matching sparkline and a quiet badge.
+- The catalog remains a centered light modal rather than a side drawer. Each widget has a visual preview, name, type and current placement action.
+- Widget order, drag-and-drop behavior, hide/restore controls, search and catalog filters remain unchanged by the visual pass.
+- All four KPI labels fit their desktop cards without clipping in the inspected viewport. Charts and employee imagery remain sharp and correctly cropped.
+
+**Interaction and technical checks**
+
+- Confirmed the Home dashboard renders all four compact KPI cards, two analytical panels and three lower summary panels in the existing 12-column layout.
+- Confirmed the catalog opens as a modal and renders nine visual widget previews, search and the four category filters.
+- Confirmed the final implementation screenshots contain no dark-theme surfaces introduced by the rejected pass.
+- Production build and the site test suite passed after the light-theme refinement.
+
+**Comparison history**
+
+1. Reverted the full dark-theme pass after the user clarified that the product must remain light.
+2. Rebuilt the visual hierarchy around white bento panels and a soft neutral page canvas.
+3. Reduced color to data visualization, icon tiles, badges and selected controls.
+4. Compared the final Home and catalog states against both new references in a single QA image.
+
+final result: passed
+
 ## Latest unified Home constructor and widget visibility QA
 
 **Evidence and normalization**
