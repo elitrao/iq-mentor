@@ -384,3 +384,24 @@ final result: passed
 - Production build and the site test suite passed.
 
 final result: passed
+
+## KPI stripe removal and orange system accents — 2026-08-27
+
+**Evidence**
+
+- Stripe-removal source: `codex-clipboard-0f608370-44cb-49fb-8fa6-90602668f6f6.png` (1668 × 247 px).
+- Orange header source: `codex-clipboard-07d09034-29f6-485e-92fc-99fba0f40678.png` (662 × 75 px).
+- Orange catalog source: `codex-clipboard-c247a81b-c5a3-4c22-91cc-e1522ae218b5.png` (947 × 732 px).
+- Final Home: `design-qa-home-orange-accents.png` (1265 × 712 px).
+- Final catalog: `design-qa-home-orange-accents-catalog.png` (1280 × 720 px).
+- Combined comparison: `design-qa-home-orange-accents-comparison.png` (1920 × 1240 px).
+
+**Findings and checks**
+
+- Removed the decorative colored pseudo-element from all four Home KPI cards; computed `::after` content is `none` for every card.
+- Moved system-level accents from acid green to the product orange: balance badge, notification count, customization controls, empty-slot states, drag/drop outlines, catalog search focus, active filter and add/restore actions.
+- Preserved semantic data colors in KPI sparklines, chart series and category tags so analytical distinctions remain readable.
+- Home and catalog were inspected in the in-app browser. No console errors were reported.
+- Production build and the site test suite passed.
+
+final result: passed
