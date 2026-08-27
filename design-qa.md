@@ -176,51 +176,6 @@
 
 final result: passed
 
-## Latest dark device-dashboard redesign QA
-
-**Evidence and normalization**
-
-- Source visual truth 1: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-c547ccf0-5925-48f8-b17a-cc24e033fb01.png` (736 × 552 px), used as the widget composition and dark-surface mood reference.
-- Source visual truth 2: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-517470d5-c7bb-4710-bffb-274b5356ae24.png` (736 × 736 px), used as the dense product-dashboard and acid-green accent reference.
-- Browser-rendered Home implementation: `design-qa-home-dark-final-v2.png` (1265 × 712 px) at the default 1280 × 720 CSS browser viewport and device scale factor 1.
-- Browser-rendered catalog implementation: `design-qa-catalog-dark-final.png` (1280 × 720 px) at the same viewport and density.
-- Combined full-view comparison: `design-qa-comparison-dark-final.png` places both source references and both implementation states in one 1920 × 1080 comparison image.
-- State: Home, Russian locale, dark dashboard theme; catalog closed for the Home capture and open with all nine widget previews for the catalog capture.
-- Focused-region evidence was not needed: the combined comparison keeps KPI labels, chart treatments, catalog previews, navigation, borders and accent states legible.
-
-**Findings**
-
-- No actionable P0/P1/P2 differences remain. The redesign captures the references' graphite canvas, low-gloss inset surfaces, compact modular widget rhythm, restrained multicolor signals and acid-green primary accent while preserving IQ Mentor's existing information architecture.
-- Fonts and typography: bundled Inter remains the product font; headings use a lighter optical weight, KPI values have stronger scale, secondary copy is subdued, and all four KPI labels fit without truncation at the tested viewport.
-- Spacing and layout rhythm: the 12-column constructor keeps four compact KPI widgets, two analytical panels and three lower summaries visible above the fold. Reduced gaps, 17 px radii and tighter compact-card padding match the device-dashboard density.
-- Colors and visual tokens: the Home canvas uses near-black `#090d12`, surfaces use `#141a23`, borders use `#2a323d`, and the primary active accent is acid green `#b7ff3c`. Violet, blue and coral remain restrained semantic accents rather than large fills.
-- Image quality and assets: existing employee portraits remain sharp and correctly cropped. Interface icons use the established Tabler library. The source references function as art direction rather than literal image content, so their editorial photos and device frame are intentionally not copied into the analytics product.
-- Copy and content: all Russian KPI, chart, employee and attention labels are preserved; the catalog retains search, filters and add/remove states.
-- Accessibility and interaction: the modal retains semantic dialog attributes, body-scroll locking, backdrop close, close button and Escape close. Dark controls maintain visible hover/focus states and readable contrast.
-
-**Comparison history**
-
-1. The first dark pass preserved the former responsive breakpoint, producing two oversized KPI columns at 1280 px and drifting from the references' compact modular density (P2).
-2. The Home breakpoint was narrowed so the tested desktop viewport keeps the full 12-column layout; the second capture shows four compact KPI cards, two analytical panels and three summary panels (fixed).
-3. The second capture exposed truncated KPI titles and a mismatch between donut segments and legend tokens (P2).
-4. Compact KPI icon/padding geometry was tightened and the legend palette was synchronized with the donut. DOM measurements confirm all four labels fit without clipping (fixed).
-5. The final Home and catalog captures were combined with both source references. No actionable P0/P1/P2 mismatch remained.
-
-**Primary interactions tested**
-
-- Opened the widget catalog from `Настроить главную` and confirmed nine preview cards render.
-- Confirmed search autofocus, body-scroll locking and semantic dialog visibility.
-- Confirmed the catalog closes with Escape and restores body scrolling.
-- Entered and exited customization mode; drag grips and the lime `Готово` state remain visible and usable.
-- Browser console checked after reload, modal open/close and customization transitions: no errors.
-- Production build passed.
-
-**Follow-up polish**
-
-- P3: the editorial widgets in the first source use photography and typography as content. IQ Mentor intentionally keeps data-first content; optional future widgets could add call-recording thumbnails without changing the core dashboard system.
-
-final result: passed
-
 ## Latest unified Home constructor and widget visibility QA
 
 **Evidence and normalization**
