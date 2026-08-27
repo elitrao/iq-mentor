@@ -126,7 +126,7 @@ export function App() {
     <div className="app-column">
       <Topbar page={page} setPage={setPage} />
       <main className="page-area">
-        {page === "home" && <HomePage />}
+        {page === "home" && <HomePage setPage={setPage} notify={notify} />}
         {page === "analytics" && <AnalyticsPage notify={notify} />}
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
@@ -241,16 +241,15 @@ function Topbar({ page, setPage }) {
 
 function PageTitle({ children, badge }) { return <div className="page-title"><h1>{children}</h1>{badge && <span>{badge}</span>}</div>; }
 
-function HomePage() {
-  const categories = [["Вежливость", 100, "green"], ["Вероятность успеха звонка", 75, "blue"], ["Потребность", 35, "red"], ["Качество презентации", 25, "orange"], ["223", 0, "purple"]];
-  const dates = ["22.06", "29.06", "06.07", "13.07", "20.07", "27.07"];
-  const series = [["#09a969", "-30deg"], ["#aad5ff", "-22deg"], ["#ffc1c1", "-10deg"], ["#ffd79b", "-7deg"], ["#d7c1ff", "0deg"]];
-  return <section>
-    <div className="title-row"><PageTitle badge="AI Аналитик">Главная</PageTitle><button className="dark-button">Отчет по звонкам <IconChevronRight size={22} /></button></div>
-    <div className="dashboard-filters"><button className="field-like"><IconUser size={19} />Все сотрудники<IconChevronDown size={18} /></button><button className="field-like muted"><IconTemplate size={19} />Все шаблоны<IconChevronDown size={18} /></button><button className="field-like date"><IconCalendar size={19} />28.06.2026-28.07.2026</button></div>
-    <div className="metric-grid"><div className="metric-card"><span>Кол-во обработаных звонков</span><strong>1</strong></div><div className="metric-card"><span>Длительность обработаных звонков</span><strong>4 <small>минут</small></strong></div></div>
-    <div className="chart-card"><h3>Средняя оценка по категориям (%)</h3><div className="chart-area">{[0, 20, 40, 60, 80, 100].map((value) => <span key={value} style={{ bottom: `${value}%` }}>{value}</span>)}<div className="chart-grid">{[20, 40, 60, 80].map((value) => <b key={`h-${value}`} style={{ bottom: `${value}%` }}></b>)}{[20, 40, 60, 80].map((value) => <i key={`v-${value}`} style={{ left: `${value}%` }}></i>)}</div>{series.map(([color, angle]) => <div className="chart-line" key={color} style={{ "--line-color": color, "--line-angle": angle }}></div>)}{dates.map((date, index) => <div className="chart-point" style={{ left: `${index * 20}%`, bottom: index === dates.length - 1 ? "100%" : "0%" }} key={date}><i></i></div>)}<div className="chart-labels">{dates.map((date, index) => <small key={date} style={{ left: `${index * 20}%`, transform: index === 0 ? "none" : index === dates.length - 1 ? "translateX(-100%)" : "translateX(-50%)" }}>{date}</small>)}</div></div></div>
-    <div className="dashboard-bottom"><div className="soft-card categories-card"><div className="card-heading"><h3>Категории шаблона</h3><IconSettings size={17} /></div>{categories.map(([label, value, color]) => <div className={`category-row ${color}`} key={label}><div><span>{label}</span><strong>{value}%</strong></div><i style={{ width: `${value}%` }}></i></div>)}</div><div className="soft-card top-employees"><div className="card-heading"><h3>Топ сотрудников категории</h3><label className="search-field"><IconSearch size={19} /><input placeholder="Поиск" /></label></div><div className="table-head"><span>Сотрудник</span><span>Кол-во звонков</span><span>Средняя оценка</span></div><div className="employee-line"><IconCrown className="crown" size={22} fill="currentColor" /><strong>Самойленко Даниил</strong><span>1</span><span>100%</span></div></div></div>
+function HomePage({ setPage, notify }) {
+  return <section className="home-page">
+    <div className="home-welcome"><div><span>Главная</span><h1>Добрый день, Даниил</h1><p>Здесь собрана короткая сводка по работе с звонками.</p></div><button className="dark-button" onClick={() => setPage("analytics")}>Открыть Аналитик <IconChevronRight size={20} /></button></div>
+    <div className="home-overview">
+      <article className="home-summary-card"><div className="home-card-head"><div><span>За последние 30 дней</span><h2>Работа идёт по плану</h2></div><span className="home-status"><i></i>Система активна</span></div><p>Обработан один звонок. Средняя оценка качества — 100%.</p><div className="home-summary-values"><div><strong>1</strong><span>звонок обработан</span></div><div><strong>100%</strong><span>средняя оценка</span></div></div><button className="home-text-action" onClick={() => setPage("analytics")}>Посмотреть подробную аналитику <IconChevronRight size={17} /></button></article>
+      <aside className="home-actions-card"><span>Быстрые действия</span><h2>Что хотите сделать?</h2><button onClick={() => setPage("analytics")}><span className="home-action-icon analyst"><IconReportAnalytics size={19} /></span><span><strong>Перейти к звонкам</strong><small>Открыть результаты анализа</small></span><IconChevronRight size={18} /></button><button onClick={() => setPage("templates")}><span className="home-action-icon"><IconTemplate size={19} /></span><span><strong>Настроить шаблоны</strong><small>Изменить критерии оценки</small></span><IconChevronRight size={18} /></button></aside>
+    </div>
+    <article className="home-activity-card"><div className="home-card-head"><div><span>Последняя активность</span><h2>Недавно обработанные звонки</h2></div><button className="light-button" onClick={() => setPage("analytics")}>Все звонки</button></div><button className="home-call-row" onClick={() => setPage("analytics")}><span className="home-call-icon"><IconCheck size={18} /></span><span><strong>Самойленко Даниил</strong><small>Стандартный шаблон оценки качества</small></span><span className="home-call-time"><strong>4 минуты</strong><small>Обработан сегодня</small></span><IconChevronRight size={18} /></button></article>
+    <div className="home-tip"><IconInfoCircle size={18} /><span><strong>Хотите получать больше пользы от сводки?</strong> Добавьте новые записи звонков — здесь появятся свежие результаты и рекомендации.</span><button onClick={() => notify("Загрузка звонков доступна в разделе Аналитик")}>Как добавить звонки</button></div>
   </section>;
 }
 
