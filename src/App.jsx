@@ -16,7 +16,7 @@ import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
   IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconDeviceFloppy, IconFile,
   IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
-  IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
+  IconChartDonut, IconGripVertical, IconLayoutGridAdd, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
   IconPhoneCall, IconShieldCheck, IconSchool, IconSparkles, IconStar, IconSwitchHorizontal, IconTargetArrow, IconTemplate, IconUpload,
   IconUser, IconUsers, IconX,
 } from "@tabler/icons-react";
@@ -322,6 +322,10 @@ function HomePage({ setPage, notify }) {
   ];
   const [dashboardLayout, setDashboardLayout] = useState(loadDashboardLayout);
   const [hiddenWidgets, setHiddenWidgets] = useState(loadHiddenWidgets);
+  const [customizing, setCustomizing] = useState(false);
+  const [catalogOpen, setCatalogOpen] = useState(false);
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const [catalogFilter, setCatalogFilter] = useState("all");
   useEffect(() => { localStorage.setItem("iq-mentor-dashboard-layout-v2", JSON.stringify(dashboardLayout)); }, [dashboardLayout]);
   useEffect(() => { localStorage.setItem("iq-mentor-hidden-widgets", JSON.stringify(hiddenWidgets)); }, [hiddenWidgets]);
   const reorderDashboard = (id, targetIndex) => {
@@ -348,6 +352,17 @@ function HomePage({ setPage, notify }) {
     });
     notify(`Виджет «${item.label || ({ trend: "Динамика средней оценки", distribution: "Распределение оценок", categories: "Топ категорий", employees: "Топ сотрудники", attention: "Требует внимания" }[item.id])}» скрыт`);
   };
+  const addWidget = (item) => {
+    setHiddenWidgets((current) => current.filter((id) => id !== item.id));
+    setDashboardLayout((current) => {
+      if (current.includes(item.id)) return current;
+      const next = [...current];
+      const emptyIndex = next.indexOf(null);
+      if (emptyIndex >= 0) next[emptyIndex] = item.id;
+      return next;
+    });
+    notify(`Виджет «${item.label}» добавлен на главную`);
+  };
   const chartItems = [{ id: "trend", type: "chart" }, { id: "distribution", type: "chart" }];
   const summaryItems = [{ id: "categories", type: "summary" }, { id: "employees", type: "summary" }, { id: "attention", type: "summary" }];
   const renderMetric = (item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Скрыть виджет: ${item.label}`} title="Скрыть виджет" onClick={() => hideWidget(item)}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; };
@@ -360,14 +375,22 @@ function HomePage({ setPage, notify }) {
     return <DashboardPanel title="Требует внимания" onHide={() => hideWidget(item)}><div className="home-attention-list">{attention.map(([avatar, name, issue, score, tone]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span className={tone}>{issue}</span><b>{score}</b></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все вопросы</button></DashboardPanel>;
   };
   const dashboardItems = [...stats.map((item) => ({ ...item, type: "metric" })), ...chartItems, ...summaryItems];
+  const catalogItems = dashboardItems.map((item) => ({
+    ...item,
+    label: item.label || ({ trend: "Динамика средней оценки", distribution: "Распределение оценок", categories: "Топ категорий", employees: "Топ сотрудники", attention: "Требует внимания" }[item.id]),
+    catalogIcon: item.icon || ({ trend: IconReportAnalytics, distribution: IconChartDonut, categories: IconTemplate, employees: IconUsers, attention: IconBell }[item.id]),
+    catalogGroup: item.type === "metric" ? "metrics" : item.type === "chart" ? "analytics" : "team",
+  }));
+  const shownCatalogItems = catalogItems.filter((item) => (catalogFilter === "all" || item.catalogGroup === catalogFilter) && item.label.toLowerCase().includes(catalogQuery.trim().toLowerCase()));
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : renderSummary(item);
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
-    <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} />
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => { setCustomizing(true); setCatalogOpen(true); }}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
+    {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><aside className="widget-catalog" aria-label="Каталог виджетов"><header><div><span>Настройка главной</span><h2>Каталог виджетов</h2></div><button className="header-icon" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={19} /></button></header><p>Добавляйте нужные блоки, затем расставляйте их на странице перетаскиванием.</p><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Найти виджет" /></label><div className="widget-catalog-filters">{[["all", "Все"], ["metrics", "Показатели"], ["analytics", "Аналитика"], ["team", "Команда"]].map(([id, label]) => <button className={catalogFilter === id ? "active" : ""} onClick={() => setCatalogFilter(id)} key={id}>{label}</button>)}</div><div className="widget-catalog-list">{shownCatalogItems.map((item) => { const Icon = item.catalogIcon; const visible = dashboardLayout.includes(item.id); return <article key={item.id}><span className={`widget-catalog-icon ${item.tone || item.catalogGroup}`}><Icon size={20} stroke={1.7} /></span><div><strong>{item.label}</strong><small>{item.catalogGroup === "metrics" ? "Ключевой показатель" : item.catalogGroup === "analytics" ? "График и аналитика" : "Команда и качество"}</small></div><button className={visible ? "visible" : "add"} onClick={() => visible ? hideWidget(item) : addWidget(item)}>{visible ? <><IconCheck size={15} />На главной</> : <><IconPlus size={15} />Добавить</>}</button></article>; })}{shownCatalogItems.length === 0 && <div className="widget-catalog-empty">Ничего не найдено</div>}</div>{hiddenWidgets.length > 0 && <button className="widget-restore-all" onClick={() => { hiddenWidgets.forEach((id) => { const item = catalogItems.find((catalogItem) => catalogItem.id === id); if (item) addWidget(item); }); }}>Добавить все скрытые</button>}</aside></div>}
   </section>;
 }
 
-function ReorderableDashboardGrid({ className, items, order, slots, renderItem, onReorder }) {
+function ReorderableDashboardGrid({ className, items, order, slots, renderItem, onReorder, editing, onOpenCatalog }) {
   const gridRef = useRef(null);
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
@@ -435,15 +458,16 @@ function ReorderableDashboardGrid({ className, items, order, slots, renderItem, 
     }
   }
   const draggedItem = drag?.active ? orderedItems.find((item) => item?.id === drag.id) : null;
-  return <div ref={gridRef} className={`${className} dashboard-reorder-grid${drag?.active ? " is-dragging" : ""}`}>
+  return <div ref={gridRef} className={`${className} dashboard-reorder-grid${drag?.active ? " is-dragging" : ""}${editing ? " is-customizing" : ""}`}>
     {orderedItems.map((item, index) => {
       const slot = slots[index];
-      if (!item) return <div className="dashboard-reorder-item dashboard-empty-slot" data-dashboard-slot={index} style={{ gridColumn: slot.column, gridRow: slot.row }} key={`empty-${index}`} aria-label="Свободное место для виджета"><span>Свободное место</span></div>;
+      if (!item) return <div className="dashboard-reorder-item dashboard-empty-slot" data-dashboard-slot={index} style={{ gridColumn: slot.column, gridRow: slot.row }} key={`empty-${index}`} aria-label="Свободное место для виджета"><button onClick={onOpenCatalog}><IconPlus size={17} />Добавить виджет</button><span>или перетащите сюда</span></div>;
       const destinationIndex = previewOrder.indexOf(item.id);
       const from = drag?.rects[index]; const to = drag?.rects[destinationIndex];
       const transform = drag?.active && item.id !== drag.id && from && to ? `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})` : "translate(0, 0) scale(1)";
       return <div className={`dashboard-reorder-item dashboard-slot-${slot.kind}${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} data-dashboard-id={item.id} data-dashboard-slot={index} style={{ transform, gridColumn: slot.column, gridRow: slot.row }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
         {renderItem(item, slot.kind)}
+        <span className="dashboard-drag-handle" aria-hidden="true"><IconGripVertical size={18} /><small>Перетащить</small></span>
         <span className="dashboard-drag-hint" role="tooltip">Зажмите и переместите</span>
       </div>;
     })}

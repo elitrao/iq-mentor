@@ -287,3 +287,44 @@ final result: passed
 4. The preserved Settings-first navigation difference was reviewed as an intentional product constraint; no visible fidelity defects requiring correction remained.
 
 final result: passed
+
+## Latest Home widget catalog and explicit customization-mode QA
+
+**Evidence and normalization**
+
+- Source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-49b183d4-4426-4a1d-aad1-77a97e837e15.png` (1680 × 940 px).
+- Resting implementation: `implementation-home-widget-catalog-resting.png` (1680 × 940 px at a 1680 × 940 CSS viewport).
+- Full-view side-by-side comparison: `comparison-home-widget-catalog.png` (3336 × 941 px, 1:1 source and implementation density).
+- Explicit customization state: `implementation-home-customize-mode.png`.
+- Open catalog state: `implementation-home-widget-catalog.png`.
+- State: Home, Russian locale, desktop light theme. The new catalog and edit mode intentionally extend the approved resting dashboard without changing its content grid.
+
+**Findings**
+
+- No actionable P0/P1/P2 issues remain. Resting mode preserves the approved card geometry and full-viewport dashboard; the only persistent addition is the compact `Настроить главную` action.
+- Fonts and typography: the catalog, filters, mode label, grips and card content use the bundled Inter hierarchy with readable compact weights and no unintended wrapping.
+- Spacing and layout rhythm: the catalog is a 390 px inset right drawer with an 18 px radius and a restrained blurred backdrop. The 12-column dashboard remains unchanged underneath and fits exactly within the 940 px viewport.
+- Colors and visual tokens: catalog and editing affordances use neutral white/gray surfaces with a muted green active state; existing KPI gradients and analytical chart colors remain unchanged.
+- Image quality and assets: all existing employee portraits and brand imagery remain locally bundled, sharp and correctly cropped. New controls use the established Tabler icon library rather than approximated assets.
+- Copy and content: `Настроить главную`, `Перетаскивайте виджеты`, `Каталог`, `Готово`, search/filter labels and per-widget states are concise and consistent with the Russian product UI.
+- Focused evidence is provided by the dedicated catalog and customization screenshots; no additional crop was needed because their controls remain legible at full resolution.
+
+**Interaction and technical checks**
+
+- Opened `Настроить главную`; confirmed the drawer, nine catalog entries, search and four category filters render while every widget grip remains visible beneath the drawer.
+- Hid `Средняя оценка` from its catalog row; confirmed one free slot appeared, the row changed from `На главной` to `Добавить`, and the hidden count became 1.
+- Searched for `оценка`; confirmed the catalog narrowed to the matching widget, then added it back and confirmed the free slot and hidden state cleared.
+- Closed the drawer while keeping customization mode active; all nine Notion-like six-dot grips stayed visible and cards gained restrained editable outlines.
+- Restored the approved default widget order through pointer dragging and exited with `Готово` before handoff.
+- Reloaded the final resting state: the catalog is closed, all nine widget IDs are in the approved order, no empty slots remain, and `scrollHeight` equals `clientHeight` at 940 px.
+- Browser console after open, filter, search, hide, add, close, drag and reload: no errors or warnings.
+- Production build passed.
+
+**Comparison history**
+
+1. Added a visible six-dot drag affordance on hover and a persistent version in customization mode.
+2. Added the compact Home customization controls and a right-side searchable catalog.
+3. Connected catalog item states to the existing persistent hide, add and free-slot layout model.
+4. Compared the final resting state against the approved visual source and verified the interaction states independently.
+
+final result: passed
