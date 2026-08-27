@@ -250,6 +250,7 @@ function Topbar({ page, setPage }) {
 function PageTitle({ children, badge }) { return <div className="page-title"><h1>{children}</h1>{badge && <span>{badge}</span>}</div>; }
 
 function HomePage({ setPage, notify }) {
+  // Dashboard data mirrors the approved IQ Mentor home-page reference.
   const stats = [
     { label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
     { label: "Длительность звонков", value: "10 208", suffix: "мин", delta: "7 417 за период", badge: "266%", icon: IconClock, tone: "violet", spark: [28, 45, 40, 54, 58, 40, 38, 65] },
