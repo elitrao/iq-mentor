@@ -13,7 +13,7 @@ import avatar4 from "./assets/avatars/employee-4.webp";
 import avatar5 from "./assets/avatars/employee-5.webp";
 import avatar6 from "./assets/avatars/employee-6.webp";
 import {
-  IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCalendar, IconCheck, IconClock,
+  IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
   IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconDeviceFloppy, IconFile,
   IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
   IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
@@ -272,7 +272,7 @@ function HomePage({ setPage, notify }) {
     [avatar5, "Смирнова Елена", "Работа с возражениями", "42%", "violet"],
   ];
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls"><button className="home-date-control"><IconCalendar size={19} />28.06.2026 – 28.07.2026<IconChevronDown size={18} /></button><button className="home-configure" onClick={() => setPage("settings")}><IconAdjustmentsHorizontal size={19} />Настроить</button><div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls"><div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
     <div className="home-kpi-grid">{stats.map((item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`} key={item.label}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Меню: ${item.label}`}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; })}</div>
     <div className="home-chart-grid"><DashboardPanel title="Динамика средней оценки" className="home-trend-panel" action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart /></DashboardPanel><DashboardPanel title="Распределение оценок" className="home-distribution-panel"><div className="home-distribution-body"><DonutChart /><div className="home-distribution-legend">{[["#16ad67", "Отлично (80–100%)", "65%"], ["#f3b400", "Хорошо (60–80%)", "20%"], ["#f2750a", "Удовлетворительно (40–60%)", "10%"], ["#f13b35", "Плохо (0–40%)", "5%"]].map(([color, label, value]) => <div key={label}><i style={{ background: color }}></i><span>{label}</span><strong>{value}</strong></div>)}</div></div></DashboardPanel></div>
     <div className="home-bottom-grid">
