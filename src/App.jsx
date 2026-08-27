@@ -290,13 +290,22 @@ function useCanvas(draw) {
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return undefined;
+    let disposed = false;
     const render = () => {
       const rect = canvas.getBoundingClientRect();
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.max(1, Math.round(rect.width * ratio)); canvas.height = Math.max(1, Math.round(rect.height * ratio));
       const context = canvas.getContext("2d"); context.setTransform(ratio, 0, 0, ratio, 0, 0); context.clearRect(0, 0, rect.width, rect.height); draw(context, rect.width, rect.height);
     };
-    render(); const observer = new ResizeObserver(render); observer.observe(canvas); return () => observer.disconnect();
+    render();
+    const observer = new ResizeObserver(render); observer.observe(canvas);
+    if (document.fonts) {
+      Promise.all([
+        document.fonts.load("400 10px Inter", "звонков 22.06"),
+        document.fonts.load("600 22px Inter", "2 001"),
+      ]).then(() => { if (!disposed) render(); }).catch(() => {});
+    }
+    return () => { disposed = true; observer.disconnect(); };
   }, [draw]);
   return ref;
 }
@@ -311,7 +320,7 @@ function DashboardLineChart() {
   const labels = ["22.06", "", "29.06", "", "06.07", "13.07", "20.07", "", "27.07"];
   const draw = (context, width, height) => {
     const left = 45, right = 10, top = 12, bottom = 28, chartW = width - left - right, chartH = height - top - bottom;
-    context.font = "10px Inter"; context.fillStyle = "#7b8082"; context.textAlign = "right"; context.textBaseline = "middle";
+    context.font = "10px Inter, Arial, sans-serif"; context.fillStyle = "#7b8082"; context.textAlign = "right"; context.textBaseline = "middle";
     [0, 25, 50, 75, 100].forEach((tick) => { const y = top + chartH - (tick / 100) * chartH; context.strokeStyle = "#e8ecea"; context.lineWidth = 1; context.beginPath(); context.moveTo(left, y); context.lineTo(width - right, y); context.stroke(); context.fillText(`${tick}%`, left - 10, y); });
     const points = values.map((value, index) => [left + (index / (values.length - 1)) * chartW, top + chartH - (value / 100) * chartH]);
     const fill = context.createLinearGradient(0, top, 0, top + chartH); fill.addColorStop(0, "rgba(20,173,103,.28)"); fill.addColorStop(1, "rgba(20,173,103,.02)"); context.beginPath(); context.moveTo(points[0][0], top + chartH); points.forEach(([x, y]) => context.lineTo(x, y)); context.lineTo(points.at(-1)[0], top + chartH); context.closePath(); context.fillStyle = fill; context.fill();
@@ -323,7 +332,7 @@ function DashboardLineChart() {
 }
 
 function DonutChart() {
-  const draw = (context, width, height) => { const size = Math.min(width, height); const cx = width / 2, cy = height / 2, radius = size * .37, thickness = size * .12; let start = -Math.PI / 2; [[65, "#16ad67"], [20, "#f3b400"], [10, "#f2750a"], [5, "#f13b35"]].forEach(([value, color]) => { const end = start + (value / 100) * Math.PI * 2; context.beginPath(); context.arc(cx, cy, radius, start, end); context.strokeStyle = color; context.lineWidth = thickness; context.stroke(); start = end; }); context.textAlign = "center"; context.fillStyle = "#171717"; context.font = "600 22px Inter"; context.fillText("2 001", cx, cy + 1); context.fillStyle = "#656a6c"; context.font = "10px Inter"; context.fillText("звонков", cx, cy + 21); };
+  const draw = (context, width, height) => { const size = Math.min(width, height); const cx = width / 2, cy = height / 2, radius = size * .37, thickness = size * .12; let start = -Math.PI / 2; [[65, "#16ad67"], [20, "#f3b400"], [10, "#f2750a"], [5, "#f13b35"]].forEach(([value, color]) => { const end = start + (value / 100) * Math.PI * 2; context.beginPath(); context.arc(cx, cy, radius, start, end); context.strokeStyle = color; context.lineWidth = thickness; context.stroke(); start = end; }); context.textAlign = "center"; context.fillStyle = "#171717"; context.font = "600 22px Inter, Arial, sans-serif"; context.fillText("2 001", cx, cy + 1); context.fillStyle = "#656a6c"; context.font = "10px Inter, Arial, sans-serif"; context.fillText("звонков", cx, cy + 21); };
   const ref = useCanvas(draw); return <canvas ref={ref} className="home-donut-chart" aria-label="Распределение оценок: отлично 65 процентов, хорошо 20 процентов, удовлетворительно 10 процентов, плохо 5 процентов" />;
 }
 
