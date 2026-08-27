@@ -120,6 +120,27 @@ function loadHiddenWidgets() {
   } catch { return []; }
 }
 
+function loadDashboardLayout() {
+  const hidden = loadHiddenWidgets();
+  try {
+    const saved = JSON.parse(localStorage.getItem("iq-mentor-dashboard-layout-v2") || "null");
+    if (Array.isArray(saved) && saved.length === DASHBOARD_SLOTS.length) {
+      const used = new Set();
+      const layout = saved.map((id) => {
+        if (id === null || hidden.includes(id) || !DEFAULT_DASHBOARD_ORDER.includes(id) || used.has(id)) return null;
+        used.add(id); return id;
+      });
+      DEFAULT_DASHBOARD_ORDER.filter((id) => !hidden.includes(id) && !used.has(id)).forEach((id) => {
+        const emptyIndex = layout.indexOf(null);
+        if (emptyIndex >= 0) { layout[emptyIndex] = id; used.add(id); }
+      });
+      return layout;
+    }
+  } catch { /* Fall through to the legacy layout migration. */ }
+  const visible = loadDashboardOrder().filter((id) => !hidden.includes(id));
+  return [...visible, ...Array(DASHBOARD_SLOTS.length - visible.length).fill(null)];
+}
+
 export function App() {
   const [page, setPage] = useState(() => { const route = window.location.hash.replace("#", ""); return ["documents", "employees"].includes(route) ? "settings" : route || "settings"; });
   const [collapsed, setCollapsed] = useState(false);
@@ -299,24 +320,32 @@ function HomePage({ setPage, notify }) {
     [avatar2, "Романов Олег", "Презентация продукта", "52%", "violet"], [avatar6, "Сидоров Алексей", "Закрытие сделки", "45%", "amber"],
     [avatar5, "Смирнова Елена", "Работа с возражениями", "42%", "violet"],
   ];
-  const [dashboardOrder, setDashboardOrder] = useState(loadDashboardOrder);
+  const [dashboardLayout, setDashboardLayout] = useState(loadDashboardLayout);
   const [hiddenWidgets, setHiddenWidgets] = useState(loadHiddenWidgets);
-  useEffect(() => { localStorage.setItem("iq-mentor-dashboard-order", JSON.stringify(dashboardOrder)); }, [dashboardOrder]);
+  useEffect(() => { localStorage.setItem("iq-mentor-dashboard-layout-v2", JSON.stringify(dashboardLayout)); }, [dashboardLayout]);
   useEffect(() => { localStorage.setItem("iq-mentor-hidden-widgets", JSON.stringify(hiddenWidgets)); }, [hiddenWidgets]);
   const reorderDashboard = (id, targetIndex) => {
-    setDashboardOrder((current) => {
-      const visible = current.filter((widgetId) => !hiddenWidgets.includes(widgetId));
-      const sourceIndex = visible.indexOf(id);
+    setDashboardLayout((current) => {
+      const sourceIndex = current.indexOf(id);
       if (sourceIndex < 0 || sourceIndex === targetIndex) return current;
-      const [moved] = visible.splice(sourceIndex, 1);
-      visible.splice(targetIndex, 0, moved);
-      let visibleIndex = 0;
-      return current.map((widgetId) => hiddenWidgets.includes(widgetId) ? widgetId : visible[visibleIndex++]);
+      const next = [...current];
+      if (next[targetIndex] === null) {
+        next[sourceIndex] = null;
+        next[targetIndex] = id;
+        return next;
+      }
+      const [moved] = next.splice(sourceIndex, 1);
+      next.splice(targetIndex, 0, moved);
+      return next;
     });
     notify("Порядок блоков сохранен");
   };
   const hideWidget = (item) => {
     setHiddenWidgets((current) => current.includes(item.id) ? current : [...current, item.id]);
+    setDashboardLayout((current) => {
+      const visible = current.filter((id) => id !== null && id !== item.id);
+      return [...visible, ...Array(DASHBOARD_SLOTS.length - visible.length).fill(null)];
+    });
     notify(`Виджет «${item.label || ({ trend: "Динамика средней оценки", distribution: "Распределение оценок", categories: "Топ категорий", employees: "Топ сотрудники", attention: "Требует внимания" }[item.id])}» скрыт`);
   };
   const chartItems = [{ id: "trend", type: "chart" }, { id: "distribution", type: "chart" }];
@@ -332,10 +361,9 @@ function HomePage({ setPage, notify }) {
   };
   const dashboardItems = [...stats.map((item) => ({ ...item, type: "metric" })), ...chartItems, ...summaryItems];
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : renderSummary(item);
-  const visibleOrder = dashboardOrder.filter((id) => !hiddenWidgets.includes(id));
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
-    <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={visibleOrder} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} />
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} />
   </section>;
 }
 
@@ -344,12 +372,12 @@ function ReorderableDashboardGrid({ className, items, order, slots, renderItem, 
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
   const [drag, setDrag] = useState(null);
-  const orderedItems = order.map((id) => items.find((item) => item.id === id)).filter(Boolean);
+  const orderedItems = order.map((id) => id === null ? null : items.find((item) => item.id === id) || null);
   const updateDrag = (next) => { dragRef.current = next; setDrag(next); };
   const startDrag = (event, item, sourceIndex) => {
     if (event.button !== 0 || window.matchMedia("(max-width: 820px)").matches || event.target.closest("button, a, input, select, textarea")) return;
     const gridRect = gridRef.current.getBoundingClientRect();
-    const rects = orderedItems.map((orderedItem) => gridRef.current.querySelector(`[data-dashboard-id="${orderedItem.id}"]`).getBoundingClientRect());
+    const rects = orderedItems.map((_, index) => gridRef.current.querySelector(`[data-dashboard-slot="${index}"]`).getBoundingClientRect());
     const cellRect = event.currentTarget.getBoundingClientRect();
     try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* Pointer capture is optional. */ }
     updateDrag({ id: item.id, pointerId: event.pointerId, sourceIndex, targetIndex: sourceIndex, startX: event.clientX, startY: event.clientY, pointerX: event.clientX, pointerY: event.clientY, offsetRatioX: (event.clientX - cellRect.left) / cellRect.width, offsetRatioY: (event.clientY - cellRect.top) / cellRect.height, gridLeft: gridRect.left, gridTop: gridRect.top, width: cellRect.width, height: cellRect.height, rects, active: false });
@@ -397,15 +425,24 @@ function ReorderableDashboardGrid({ className, items, order, slots, renderItem, 
     };
   }, [drag?.pointerId]);
   const previewOrder = drag?.active ? [...order] : order;
-  if (drag?.active) { const [moved] = previewOrder.splice(drag.sourceIndex, 1); previewOrder.splice(drag.targetIndex, 0, moved); }
-  const draggedItem = drag?.active ? orderedItems.find((item) => item.id === drag.id) : null;
+  if (drag?.active) {
+    if (previewOrder[drag.targetIndex] === null) {
+      previewOrder[drag.sourceIndex] = null;
+      previewOrder[drag.targetIndex] = drag.id;
+    } else {
+      const [moved] = previewOrder.splice(drag.sourceIndex, 1);
+      previewOrder.splice(drag.targetIndex, 0, moved);
+    }
+  }
+  const draggedItem = drag?.active ? orderedItems.find((item) => item?.id === drag.id) : null;
   return <div ref={gridRef} className={`${className} dashboard-reorder-grid${drag?.active ? " is-dragging" : ""}`}>
     {orderedItems.map((item, index) => {
+      const slot = slots[index];
+      if (!item) return <div className="dashboard-reorder-item dashboard-empty-slot" data-dashboard-slot={index} style={{ gridColumn: slot.column, gridRow: slot.row }} key={`empty-${index}`} aria-label="Свободное место для виджета"><span>Свободное место</span></div>;
       const destinationIndex = previewOrder.indexOf(item.id);
       const from = drag?.rects[index]; const to = drag?.rects[destinationIndex];
       const transform = drag?.active && item.id !== drag.id && from && to ? `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})` : "translate(0, 0) scale(1)";
-      const slot = slots[index];
-      return <div className={`dashboard-reorder-item dashboard-slot-${slot.kind}${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} data-dashboard-id={item.id} style={{ transform, gridColumn: slot.column, gridRow: slot.row }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
+      return <div className={`dashboard-reorder-item dashboard-slot-${slot.kind}${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} data-dashboard-id={item.id} data-dashboard-slot={index} style={{ transform, gridColumn: slot.column, gridRow: slot.row }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
         {renderItem(item, slot.kind)}
         <span className="dashboard-drag-hint" role="tooltip">Зажмите и переместите</span>
       </div>;

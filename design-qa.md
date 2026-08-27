@@ -186,6 +186,7 @@ final result: passed
 - Cross-size reordered state: `implementation-home-unified-constructor-reordered.png`.
 - Hover affordance: `implementation-home-unified-constructor-hover.png`.
 - Hidden-widget state: `implementation-home-widget-hidden.png`.
+- Free-slot move state: `implementation-home-empty-slot-move.png`.
 - State: Home, Russian locale, desktop light theme. The date and Configure controls remain intentionally absent per the later product decision.
 
 **Findings**
@@ -205,6 +206,7 @@ final result: passed
 - Confirmed all nine widgets can participate in the same reorder sequence; the floating widget follows the pointer, the target placeholder changes size, and surrounding cards translate and scale toward their destination slots.
 - Reloaded after cross-size moves and confirmed the unified order persisted, then restored the approved default order using the same pointer interactions.
 - Hid `Обработано звонков` through its three-dot action. The remaining eight widgets closed the gap, `Вернуть скрытые 1` appeared in the header, and the hidden state persisted after reload.
+- Hid `Требует внимания`, then moved `Обработано звонков` from the first compact slot into the free lower slot. The free position transferred to the original compact slot, the KPI expanded to the lower geometry, and the exact slot layout persisted after reload.
 - Restored all widgets through the header action and confirmed the default nine-widget state returned.
 - At 1680 × 940, document `scrollHeight` equals `clientHeight` (940 px) in both the default and reordered states.
 - Browser console after reorder, hide, reload and restore: no errors or warnings.
