@@ -233,10 +233,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .widget-catalog > header h2 { margin: 5px 0 0; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
 .widget-catalog > header .header-icon { flex: 0 0 auto; }
 .widget-catalog > p { margin: 13px 0 16px; color: #777f7b; font-size: 11px; line-height: 1.5; }
-.widget-catalog-search { height: 42px; display: flex; align-items: center; gap: 8px; border: 1px solid #e2e4e3; border-radius: 10px; padding: 0 11px; color: #999f9c; }
+.widget-catalog-search { height: 42px; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; margin: 0 5px 0 1px; border: 1px solid #e2e4e3; border-radius: 10px; padding: 0 11px; color: #999f9c; }
 .widget-catalog-search:focus-within { border-color: #a8beb3; box-shadow: 0 0 0 3px rgba(23,155,94,.08); }
 .widget-catalog-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #252827; font-size: 12px; }
-.widget-catalog-filters { display: flex; gap: 5px; margin: 12px 0 14px; overflow-x: auto; scrollbar-width: none; }
+.widget-catalog-filters { flex: 0 0 auto; display: flex; gap: 5px; margin: 12px 5px 14px 1px; overflow-x: auto; scrollbar-width: none; }
 .widget-catalog-filters::-webkit-scrollbar { display: none; }
 .widget-catalog-filters button { min-height: 30px; border: 1px solid transparent; border-radius: 8px; background: #f5f6f5; padding: 0 9px; color: #747a77; cursor: pointer; font-size: 9px; font-weight: 600; white-space: nowrap; }
 .widget-catalog-filters button.active { border-color: #cfe4d8; background: #edf8f2; color: #168957; }
