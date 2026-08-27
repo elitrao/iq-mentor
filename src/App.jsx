@@ -468,7 +468,6 @@ function ReorderableDashboardGrid({ className, items, order, slots, renderItem, 
       return <div className={`dashboard-reorder-item dashboard-slot-${slot.kind}${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} data-dashboard-id={item.id} data-dashboard-slot={index} style={{ transform, gridColumn: slot.column, gridRow: slot.row }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
         {renderItem(item, slot.kind)}
         <span className="dashboard-drag-handle" aria-hidden="true"><IconGripVertical size={18} /><small>Перетащить</small></span>
-        <span className="dashboard-drag-hint" role="tooltip">Зажмите и переместите</span>
       </div>;
     })}
     {drag?.active && <span className="dashboard-drop-slot" style={{ left: `${drag.rects[drag.targetIndex].left - drag.gridLeft}px`, top: `${drag.rects[drag.targetIndex].top - drag.gridTop}px`, width: `${drag.rects[drag.targetIndex].width}px`, height: `${drag.rects[drag.targetIndex].height}px` }} aria-hidden="true" />}

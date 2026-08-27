@@ -125,9 +125,6 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .dashboard-reorder-item > .home-kpi, .dashboard-reorder-item > .home-dashboard-panel { width: 100%; height: 100%; transition: box-shadow 180ms ease, border-color 180ms ease; }
 .dashboard-reorder-item:hover > .home-kpi, .dashboard-reorder-item:hover > .home-dashboard-panel { box-shadow: 0 8px 24px rgba(27,35,31,.08); }
 .dashboard-reorder-item.drag-origin { opacity: 0; }
-.dashboard-drag-hint { position: absolute; left: 50%; top: -29px; z-index: 30; transform: translate(-50%, 5px); border: 1px solid #dedfdf; border-radius: 8px; background: rgba(31,31,31,.94); box-shadow: 0 7px 20px rgba(0,0,0,.13); padding: 6px 9px; color: #fff; font-size: 10px; font-weight: 500; line-height: 1; opacity: 0; pointer-events: none; white-space: nowrap; transition: opacity 120ms ease, transform 120ms ease; }
-.dashboard-reorder-item:hover > .dashboard-drag-hint { transform: translate(-50%, 0); opacity: 1; }
-.dashboard-reorder-grid.is-dragging .dashboard-drag-hint { display: none; }
 .dashboard-drop-slot { position: absolute; z-index: 1; border: 1px dashed #aeb7b2; border-radius: 16px; background: linear-gradient(135deg, rgba(32,183,111,.08), rgba(118,82,237,.05)); pointer-events: none; transition: left 210ms cubic-bezier(.2,.75,.2,1), top 210ms cubic-bezier(.2,.75,.2,1), width 210ms ease, height 210ms ease; }
 .dashboard-drag-overlay { position: absolute; z-index: 80; transform: scale(1.018) rotate(.15deg); transform-origin: center; pointer-events: none; transition: width 210ms cubic-bezier(.2,.75,.2,1), height 210ms cubic-bezier(.2,.75,.2,1); }
 .dashboard-drag-overlay > .home-kpi, .dashboard-drag-overlay > .home-dashboard-panel { width: 100%; height: 100%; box-shadow: 0 22px 54px rgba(17,24,20,.2); }
