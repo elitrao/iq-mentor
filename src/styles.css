@@ -214,11 +214,12 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .home-employee-list img, .home-attention-list img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 .home-employee-list strong, .home-attention-list strong { overflow: hidden; font-size: 10px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
 .home-employee-list span { text-align: right; font-size: 10px; }
+.home-employee-list .employee-score { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 10px; font-weight: 500; }.employee-score i { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #e7a61a; box-shadow: 0 0 0 3px rgba(231,166,26,.11); }.employee-score.high i { background: #19ad69; box-shadow: 0 0 0 3px rgba(25,173,105,.11); }.employee-score.low i { background: #ee554f; box-shadow: 0 0 0 3px rgba(238,85,79,.11); }
 .home-attention-list { display: grid; gap: 7px; padding: 10px 18px 0; }
 .home-attention-list > div { min-height: 33px; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto 42px; align-items: center; gap: 8px; }
-.home-attention-list > div > span { max-width: 142px; overflow: hidden; border: 1px solid; border-radius: 6px; padding: 4px 7px; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.home-attention-list > div > span { max-width: 142px; overflow: hidden; border: 1px solid; border-radius: 6px; padding: 4px 7px; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .home-attention-list span.coral, .home-attention-list span.amber, .home-attention-list span.violet { border-color: #ffd7bc; background: #fff4ec; color: #b85a1d; font-weight: 500; }
-.home-attention-list b { color: #ff2b2b; text-align: right; font-size: 15px; font-weight: 500; }
+.home-attention-list b { color: #e54843; text-align: right; font-size: 10px; font-weight: 600; }
 
 .widget-catalog-layer { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 20px; }
 .widget-catalog-backdrop { position: absolute; inset: 0; border: 0; background: rgba(21,24,23,.34); cursor: default; backdrop-filter: blur(3px); animation: widget-catalog-backdrop-in 170ms ease-out; }
