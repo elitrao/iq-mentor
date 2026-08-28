@@ -31,6 +31,8 @@ const NAV_ITEMS = [
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
 const DEFAULT_DASHBOARD_ORDER = ["calls", "duration", "score", "conversion", "trend", "distribution", "categories", "employees", "attention"];
+const CATALOG_WIDGET_IDS = ["catalog-kpi", "catalog-line", "catalog-column", "catalog-donut", "catalog-table", "catalog-map", "catalog-funnel", "catalog-gauge", "catalog-heatmap", "catalog-combo", "catalog-top", "catalog-calendar"];
+const ALL_DASHBOARD_WIDGET_IDS = [...DEFAULT_DASHBOARD_ORDER, ...CATALOG_WIDGET_IDS];
 const DASHBOARD_SLOTS = [
   { kind: "compact", column: "1 / span 3", row: "1" },
   { kind: "compact", column: "4 / span 3", row: "1" },
@@ -116,7 +118,7 @@ function loadDashboardOrder() {
 function loadHiddenWidgets() {
   try {
     const saved = JSON.parse(localStorage.getItem("iq-mentor-hidden-widgets") || "[]");
-    return [...new Set((Array.isArray(saved) ? saved : []).filter((id) => DEFAULT_DASHBOARD_ORDER.includes(id)))];
+    return [...new Set((Array.isArray(saved) ? saved : []).filter((id) => ALL_DASHBOARD_WIDGET_IDS.includes(id)))];
   } catch { return []; }
 }
 
@@ -127,7 +129,7 @@ function loadDashboardLayout() {
     if (Array.isArray(saved) && saved.length === DASHBOARD_SLOTS.length) {
       const used = new Set();
       const layout = saved.map((id) => {
-        if (id === null || hidden.includes(id) || !DEFAULT_DASHBOARD_ORDER.includes(id) || used.has(id)) return null;
+        if (id === null || hidden.includes(id) || !ALL_DASHBOARD_WIDGET_IDS.includes(id) || used.has(id)) return null;
         used.add(id); return id;
       });
       DEFAULT_DASHBOARD_ORDER.filter((id) => !hidden.includes(id) && !used.has(id)).forEach((id) => {
@@ -300,6 +302,21 @@ function PageTitle({ children, badge }) { return <div className="page-title"><h1
 
 function WidgetCatalogPreview({ item }) {
   const Icon = item.catalogIcon;
+  const kind = item.previewKind || item.id;
+  if (kind === "kpi") return <div className="widget-preview widget-reference-kpi" aria-hidden="true"><div><strong>{item.value || "1 250"}{item.suffix && <em>{item.suffix}</em>}</strong><span><IconArrowUp size={10} />{item.badge || "12.5%"}</span></div><small>{item.delta ? `${item.delta} относительно периода` : "vs прошлый период"}</small><svg viewBox="0 0 220 55" preserveAspectRatio="none"><polyline points="3,46 20,38 36,43 55,31 72,38 91,26 110,31 130,18 150,22 172,10 192,15 216,4" /></svg></div>;
+  if (kind === "line") return <div className="widget-preview widget-reference-line" aria-hidden="true"><span>100</span><span>50</span><span>0</span><svg viewBox="0 0 220 90" preserveAspectRatio="none"><polyline className="muted" points="4,66 28,28 54,55 82,44 108,61 139,32 169,54 194,43 216,48"/><polyline points="4,62 28,48 54,25 82,50 108,39 139,17 169,31 194,9 216,12"/></svg><div>{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <i key={day}>{day}</i>)}</div></div>;
+  if (kind === "column") return <div className="widget-preview widget-reference-column" aria-hidden="true"><span>100</span><span>50</span><span>0</span><div>{[52,31,48,70,55,38,66].map((value,index) => <i key={index} style={{ height: `${value}%` }}><small>{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"][index]}</small></i>)}</div></div>;
+  if (kind === "donut") return <div className="widget-preview widget-reference-donut" aria-hidden="true"><div className="widget-reference-donut-ring"></div><ul><li><i></i>Прямой <b>40%</b></li><li><i></i>Органический <b>25%</b></li><li><i></i>Реферальный <b>20%</b></li><li><i></i>Почта <b>15%</b></li></ul></div>;
+  if (kind === "table") return <div className="widget-preview widget-reference-table" aria-hidden="true"><div><b>Название</b><b>Статус</b><b>Сумма</b></div>{[["Продукт A","Активен","12 540 ₽"],["Продукт B","Ожидает","8 200 ₽"],["Продукт C","Завершен","17 800 ₽"]].map((row) => <div key={row[0]}>{row.map((cell) => <span key={cell}>{cell}</span>)}</div>)}</div>;
+  if (kind === "map") return <div className="widget-preview widget-reference-map" aria-hidden="true"><svg viewBox="0 0 260 120"><path d="M11 37l21-18 32 5 12 18-16 12-22-8-8 17-18-7zm75 0 25-11 21 9 7 18-17 12-5 30-17-3-6-25-13-13zm61-15 34-11 43 9 28 27-18 16-24-5-10 21-22 19-19-13 6-22-17-13z"/><circle cx="43" cy="53" r="7"/><circle cx="126" cy="62" r="5"/><circle cx="222" cy="64" r="7"/><circle cx="176" cy="45" r="4"/></svg></div>;
+  if (kind === "funnel") return <div className="widget-preview widget-reference-funnel" aria-hidden="true"><div><i></i><i></i><i></i><i></i></div><ul><li>Просмотры <b>12 500</b></li><li>Клики <b>5 300</b></li><li>Лиды <b>1 250</b></li><li>Продажи <b>320</b></li></ul></div>;
+  if (kind === "gauge") return <div className="widget-preview widget-reference-gauge" aria-hidden="true"><div><span>78%</span><small>Цель: 100%</small></div></div>;
+  if (kind === "heatmap") return <div className="widget-preview widget-reference-heatmap" aria-hidden="true"><div className="widget-heatmap-days">{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <span key={day}>{day}</span>)}</div><div className="widget-heatmap-grid">{Array.from({ length: 49 },(_,index) => <i key={index} style={{ opacity: .14 + ((index * 7 + index % 5) % 10) / 11 }}></i>)}</div><div className="widget-heatmap-hours"><span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span></div></div>;
+  if (kind === "combo") return <div className="widget-preview widget-reference-combo" aria-hidden="true"><div>{[45,70,36,58,78,52,88].map((value,index) => <i key={index} style={{ height: `${value}%` }}></i>)}</div><svg viewBox="0 0 220 92" preserveAspectRatio="none"><polyline points="5,54 38,28 71,49 104,20 137,45 170,18 215,4"/></svg><span>100</span><span>50</span><span>0</span></div>;
+  if (kind === "top") return <div className="widget-preview widget-reference-top" aria-hidden="true">{[["Категория A",92,"2 540"],["Категория Б",76,"1 870"],["Категория В",61,"1 430"],["Категория Г",48,"980"]].map(([label,value,total]) => <div key={label}><span>{label}</span><i><b style={{ width: `${value}%` }}></b></i><strong>{total}</strong></div>)}</div>;
+  if (kind === "calendar") return <div className="widget-preview widget-reference-calendar" aria-hidden="true"><header><span>‹</span><strong>Май 2024</strong><span>›</span></header><div className="widget-calendar-grid">{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <b key={day}>{day}</b>)}{Array.from({ length: 35 },(_,index) => <i className={[9,17,25].includes(index) ? "active" : ""} key={index}>{index < 2 ? 29 + index : index - 1}</i>)}</div></div>;
+  if (kind === "people") return <div className="widget-preview widget-reference-people" aria-hidden="true"><header><span>Сотрудник</span><span>Оценка</span><span>Звонки</span></header>{[[avatar1,"Анна","100%",16],[avatar2,"Дмитрий","92%",10],[avatar3,"Мария","89%",8]].map(([avatar,name,score,calls]) => <div key={name}><img src={avatar} alt=""/><strong>{name}</strong><span>{score}</span><span>{calls}</span></div>)}</div>;
+  if (kind === "attention") return <div className="widget-preview widget-reference-attention" aria-hidden="true">{[[avatar1,"Вежливость","62%"],[avatar3,"Возражения","58%"],[avatar2,"Презентация","52%"]].map(([avatar,issue,score],index) => <div key={issue}><img src={avatar} alt=""/><span className={`tone-${index}`}>{issue}</span><strong>{score}</strong></div>)}</div>;
   if (item.type === "metric") return <div className={`widget-preview widget-preview-metric ${item.tone}`} aria-hidden="true"><div><span><Icon size={16} stroke={1.9} /></span><small>{item.label}</small></div><strong>{item.value}<em>{item.suffix}</em></strong><svg viewBox="0 0 120 34" preserveAspectRatio="none"><polyline points="2,29 18,23 32,25 47,15 62,21 77,9 93,16 108,4 118,8" /></svg></div>;
   if (item.id === "trend") return <div className="widget-preview widget-preview-trend" aria-hidden="true"><span>100%</span><span>50%</span><span>0%</span><svg viewBox="0 0 240 92" preserveAspectRatio="none"><defs><linearGradient id="catalog-trend-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#20b76f" stopOpacity=".28"/><stop offset="1" stopColor="#20b76f" stopOpacity=".02"/></linearGradient></defs><path d="M4 76 L40 58 L78 30 L116 37 L154 25 L194 20 L236 34 L236 88 L4 88 Z" fill="url(#catalog-trend-fill)"/><polyline points="4,76 40,58 78,30 116,37 154,25 194,20 236,34" /></svg></div>;
   if (item.id === "distribution") return <div className="widget-preview widget-preview-distribution" aria-hidden="true"><div className="widget-preview-donut"><span>2 001<small>звонков</small></span></div><div className="widget-preview-legend"><i></i><i></i><i></i><i></i></div></div>;
@@ -336,7 +353,6 @@ function HomePage({ setPage, notify }) {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogFilter, setCatalogFilter] = useState("all");
-  const [catalogView, setCatalogView] = useState("grid");
   useEffect(() => { localStorage.setItem("iq-mentor-dashboard-layout-v2", JSON.stringify(dashboardLayout)); }, [dashboardLayout]);
   useEffect(() => { localStorage.setItem("iq-mentor-hidden-widgets", JSON.stringify(hiddenWidgets)); }, [hiddenWidgets]);
   useEffect(() => {
@@ -381,6 +397,11 @@ function HomePage({ setPage, notify }) {
       const next = [...current];
       const emptyIndex = next.indexOf(null);
       if (emptyIndex >= 0) next[emptyIndex] = item.id;
+      else {
+        const replaced = next[next.length - 1];
+        next[next.length - 1] = item.id;
+        if (replaced) setHiddenWidgets((hidden) => [...new Set([...hidden.filter((id) => id !== item.id), replaced])]);
+      }
       return next;
     });
     notify(`Виджет «${item.label}» добавлен на главную`);
@@ -396,12 +417,27 @@ function HomePage({ setPage, notify }) {
     if (item.id === "employees") return <DashboardPanel title="Топ сотрудники" onHide={() => hideWidget(item)}><div className="home-employee-head"><span>Сотрудник</span><span>Средняя оценка</span><span>Кол-во звонков</span></div><div className="home-employee-list">{employees.map(([avatar, name, score, calls]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span>{score}</span><span>{calls}</span></div>)}</div><button className="home-panel-link" onClick={() => { setPage("settings"); notify("Открыт раздел сотрудников"); }}>Все сотрудники</button></DashboardPanel>;
     return <DashboardPanel title="Требует внимания" onHide={() => hideWidget(item)}><div className="home-attention-list">{attention.map(([avatar, name, issue, score, tone]) => <div key={name}><img src={avatar} alt="" /><strong>{name}</strong><span className={tone}>{issue}</span><b>{score}</b></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все вопросы</button></DashboardPanel>;
   };
-  const dashboardItems = [...stats.map((item) => ({ ...item, type: "metric" })), ...chartItems, ...summaryItems];
-  const catalogItems = dashboardItems.map((item) => ({
+  const referenceCatalogItems = [
+    { id: "catalog-kpi", type: "catalog", previewKind: "kpi", label: "KPI показатели", catalogIcon: IconArrowUp, catalogGroup: "metrics", catalogDescription: "Ключевые показатели с динамикой и сравнением с прошлым периодом." },
+    { id: "catalog-line", type: "catalog", previewKind: "line", label: "Линейный график", catalogIcon: IconReportAnalytics, catalogGroup: "analytics", catalogDescription: "Показывает изменение нескольких показателей во времени." },
+    { id: "catalog-column", type: "catalog", previewKind: "column", label: "Столбчатая диаграмма", catalogIcon: IconAdjustmentsHorizontal, catalogGroup: "analytics", catalogDescription: "Сравнивает значения между периодами или категориями." },
+    { id: "catalog-donut", type: "catalog", previewKind: "donut", label: "Кольцевая диаграмма", catalogIcon: IconChartDonut, catalogGroup: "analytics", catalogDescription: "Показывает доли и проценты в общем объёме." },
+    { id: "catalog-table", type: "catalog", previewKind: "table", label: "Таблица данных", catalogIcon: IconTemplate, catalogGroup: "tables", catalogDescription: "Отображает подробные данные в строках и столбцах." },
+    { id: "catalog-map", type: "catalog", previewKind: "map", label: "Карта", catalogIcon: IconTargetArrow, catalogGroup: "maps", catalogDescription: "Визуализирует данные по регионам и направлениям." },
+    { id: "catalog-funnel", type: "catalog", previewKind: "funnel", label: "Воронка продаж", catalogIcon: IconTargetArrow, catalogGroup: "marketing", catalogDescription: "Показывает этапы конверсии и их эффективность." },
+    { id: "catalog-gauge", type: "catalog", previewKind: "gauge", label: "Спидометр", catalogIcon: IconClock, catalogGroup: "metrics", catalogDescription: "Показывает прогресс достижения цели или KPI." },
+    { id: "catalog-heatmap", type: "catalog", previewKind: "heatmap", label: "Тепловая карта", catalogIcon: IconLayoutGridAdd, catalogGroup: "operations", catalogDescription: "Показывает активность по дням и времени." },
+    { id: "catalog-combo", type: "catalog", previewKind: "combo", label: "Комбинированный график", catalogIcon: IconReportAnalytics, catalogGroup: "analytics", catalogDescription: "Объединяет столбцы и линию для сравнения данных." },
+    { id: "catalog-top", type: "catalog", previewKind: "top", label: "Топ по категориям", catalogIcon: IconMenu2, catalogGroup: "operations", catalogDescription: "Ранжирует лучшие категории по выбранному показателю." },
+    { id: "catalog-calendar", type: "catalog", previewKind: "calendar", label: "Календарь активности", catalogIcon: IconClock, catalogGroup: "operations", catalogDescription: "Показывает события и активность по календарным дням." },
+  ];
+  const dashboardItems = [...stats.map((item) => ({ ...item, type: "metric" })), ...chartItems, ...summaryItems, ...referenceCatalogItems];
+  const catalogItems = [...referenceCatalogItems, ...dashboardItems.filter((item) => item.type !== "catalog").map((item) => ({
     ...item,
     label: item.label || ({ trend: "Динамика средней оценки", distribution: "Распределение оценок", categories: "Топ категорий", employees: "Топ сотрудники", attention: "Требует внимания" }[item.id]),
     catalogIcon: item.icon || ({ trend: IconReportAnalytics, distribution: IconChartDonut, categories: IconTemplate, employees: IconUsers, attention: IconBell }[item.id]),
     catalogGroup: item.type === "metric" ? "metrics" : item.type === "chart" ? "analytics" : "team",
+    previewKind: item.type === "metric" ? "kpi" : ({ trend: "line", distribution: "donut", categories: "top", employees: "people", attention: "attention" })[item.id],
     catalogDescription: ({
       calls: "Количество обработанных звонков и динамика за выбранный период.",
       duration: "Общая длительность разговоров и изменение показателя.",
@@ -413,20 +449,21 @@ function HomePage({ setPage, notify }) {
       employees: "Рейтинг сотрудников по оценке и количеству звонков.",
       attention: "Сотрудники и навыки, которым сейчас требуется внимание.",
     })[item.id],
-  }));
-  const popularWidgetIds = ["calls", "score", "trend", "distribution", "employees", "attention"];
+  }))];
+  const popularWidgetIds = ["catalog-kpi", "catalog-line", "catalog-column", "catalog-donut", "catalog-funnel", "catalog-gauge"];
+  const catalogGroupLabels = { metrics: "Показатели", analytics: "Диаграммы", tables: "Таблицы", maps: "Карты", marketing: "Маркетинг", operations: "Операции", team: "Команда" };
   const shownCatalogItems = catalogItems.filter((item) => {
     const inFilter = catalogFilter === "all" || (catalogFilter === "popular" ? popularWidgetIds.includes(item.id) : item.catalogGroup === catalogFilter);
     return inFilter && item.label.toLowerCase().includes(catalogQuery.trim().toLowerCase());
   });
-  const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : renderSummary(item);
+  const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : item.type === "catalog" ? <DashboardPanel title={item.label} className="home-catalog-widget" onHide={() => hideWidget(item)}><div className="home-catalog-widget-body"><WidgetCatalogPreview item={item} /></div></DashboardPanel> : renderSummary(item);
   return <section className="home-dashboard">
     <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1204 672 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
     <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
-    {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className={`widget-catalog widget-catalog-view-${catalogView}`} role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
-      <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><select value={catalogFilter === "popular" ? "all" : catalogFilter} onChange={(event) => setCatalogFilter(event.target.value)} aria-label="Категория виджетов"><option value="all">Все категории</option><option value="metrics">Показатели</option><option value="analytics">Диаграммы</option><option value="team">Команда</option></select><div className="widget-catalog-view" aria-label="Вид каталога"><button className={catalogView === "grid" ? "active" : ""} aria-label="Плитка" onClick={() => setCatalogView("grid")}><IconLayoutGridAdd size={18} /></button><button className={catalogView === "list" ? "active" : ""} aria-label="Список" onClick={() => setCatalogView("list")}><IconMenu2 size={18} /></button></div><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>
-      <div className="widget-catalog-filters">{[["all", "Все виджеты"], ["popular", "Популярные"], ["analytics", "Диаграммы"], ["metrics", "Показатели"], ["team", "Команда"]].map(([id, label]) => <button className={catalogFilter === id ? "active" : ""} onClick={() => setCatalogFilter(id)} key={id}>{label}</button>)}</div>
-      <div className="widget-catalog-list">{shownCatalogItems.map((item) => { const visible = dashboardLayout.includes(item.id); const CatalogIcon = item.catalogIcon; return <article key={item.id}><header><span><CatalogIcon size={16} /></span><strong>{item.label}</strong></header><WidgetCatalogPreview item={item}/><p>{item.catalogDescription}</p><footer><span className={`widget-category-tag ${item.catalogGroup}`}>{item.catalogGroup === "metrics" ? "Показатели" : item.catalogGroup === "analytics" ? "Диаграммы" : "Команда"}</span><button className={visible ? "visible" : "add"} aria-label={visible ? `Убрать виджет ${item.label}` : `Добавить виджет ${item.label}`} title={visible ? "Убрать с главной" : "Добавить на главную"} onClick={() => visible ? hideWidget(item) : addWidget(item)}>{visible ? <><IconCheck size={15} /><span>На главной</span></> : <><IconPlus size={15} /><span>Добавить</span></>}</button></footer></article>; })}{shownCatalogItems.length === 0 && <div className="widget-catalog-empty">По вашему запросу ничего не найдено</div>}</div>
+    {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className="widget-catalog" role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
+      <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>
+      <div className="widget-catalog-filters">{[["all", "Все виджеты"], ["popular", "Популярные"], ["analytics", "Диаграммы"], ["metrics", "Показатели"], ["tables", "Таблицы"], ["maps", "Карты"], ["marketing", "Маркетинг"], ["operations", "Операции"], ["team", "Команда"]].map(([id, label]) => <button className={catalogFilter === id ? "active" : ""} onClick={() => setCatalogFilter(id)} key={id}>{label}</button>)}</div>
+      <div className="widget-catalog-list">{shownCatalogItems.map((item) => { const visible = dashboardLayout.includes(item.id); const CatalogIcon = item.catalogIcon; return <article key={item.id}><header><span><CatalogIcon size={16} /></span><strong>{item.label}</strong></header><WidgetCatalogPreview item={item}/><p>{item.catalogDescription}</p><footer><span className={`widget-category-tag ${item.catalogGroup}`}>{catalogGroupLabels[item.catalogGroup]}</span><button className={visible ? "visible" : "add"} aria-label={visible ? `Убрать виджет ${item.label}` : `Добавить виджет ${item.label}`} title={visible ? "Убрать с главной" : "Добавить на главную"} onClick={() => visible ? hideWidget(item) : addWidget(item)}>{visible ? <><IconCheck size={15} /><span>На главной</span></> : <><IconPlus size={15} /><span>Добавить</span></>}</button></footer></article>; })}{shownCatalogItems.length === 0 && <div className="widget-catalog-empty">По вашему запросу ничего не найдено</div>}</div>
       <footer className="widget-catalog-bottom"><div><span><IconSparkles size={20} /></span><p><strong>Не нашли нужный виджет?</strong><small>Предложите идею или запросите новый виджет.</small></p></div><div>{hiddenWidgets.length > 0 && <button className="widget-restore-all" onClick={() => { hiddenWidgets.forEach((id) => { const item = catalogItems.find((catalogItem) => catalogItem.id === id); if (item) addWidget(item); }); }}>Вернуть все скрытые</button>}<button className="widget-request-button" onClick={() => notify("Запрос на новый виджет отправлен")}><IconFileText size={16} />Запросить виджет</button><button className="widget-create-button" onClick={() => notify("Конструктор пользовательских виджетов скоро появится")}><IconPlus size={17} />Создать свой виджет</button></div></footer>
     </section></div>}
   </section>;
