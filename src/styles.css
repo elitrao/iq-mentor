@@ -429,7 +429,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .home-customize-status { border: 1px solid #ffd3b5; background: #fff2e8; color: #c45a14; }
 .home-notification i { border-color: #fff; background: #ff7112; color: #fff; }
 .home-unified-grid { gap: 14px; }
-.home-kpi, .home-dashboard-panel { border: 1px solid var(--home-border); border-radius: 18px; background: rgba(255,255,255,.94); box-shadow: 0 12px 32px rgba(29,36,31,.065), inset 0 1px 0 rgba(255,255,255,.9); }
+.home-kpi, .home-dashboard-panel { border: 1px solid var(--home-border); border-radius: 18px; background: rgba(255,255,255,.94); box-shadow: 0 12px 32px rgba(29,36,31,.065); }
 .home-kpi.green { background: linear-gradient(135deg, #22b66c 0%, #21c988 100%); }
 .home-kpi.violet { background: linear-gradient(135deg, #7450ed 0%, #9d68f3 100%); }
 .home-kpi.blue { background: linear-gradient(135deg, #4c78ea 0%, #75aeff 100%); }
