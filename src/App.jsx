@@ -419,7 +419,7 @@ function ReorderableDashboardGrid({ className, items, order, slots, renderItem, 
   const orderedItems = order.map((id) => id === null ? null : items.find((item) => item.id === id) || null);
   const updateDrag = (next) => { dragRef.current = next; setDrag(next); };
   const startDrag = (event, item, sourceIndex) => {
-    if (event.button !== 0 || window.matchMedia("(max-width: 820px)").matches || event.target.closest("button, a, input, select, textarea")) return;
+    if (!editing || event.button !== 0 || window.matchMedia("(max-width: 820px)").matches || event.target.closest("button, a, input, select, textarea")) return;
     const gridRect = gridRef.current.getBoundingClientRect();
     const rects = orderedItems.map((_, index) => gridRef.current.querySelector(`[data-dashboard-slot="${index}"]`).getBoundingClientRect());
     const cellRect = event.currentTarget.getBoundingClientRect();
@@ -488,7 +488,6 @@ function ReorderableDashboardGrid({ className, items, order, slots, renderItem, 
       const transform = drag?.active && item.id !== drag.id && from && to ? `translate(${to.left - from.left}px, ${to.top - from.top}px) scale(${to.width / from.width}, ${to.height / from.height})` : "translate(0, 0) scale(1)";
       return <div className={`dashboard-reorder-item dashboard-slot-${slot.kind}${drag?.active && item.id === drag.id ? " drag-origin" : ""}`} data-dashboard-id={item.id} data-dashboard-slot={index} style={{ transform, gridColumn: slot.column, gridRow: slot.row }} key={item.id} onPointerDown={(event) => startDrag(event, item, index)} onClickCapture={stopSuppressedClick} aria-grabbed={drag?.active && item.id === drag.id}>
         {renderItem(item, slot.kind)}
-        <span className="dashboard-drag-handle" aria-hidden="true"><IconGripVertical size={18} /><small>Перетащить</small></span>
       </div>;
     })}
     {drag?.active && <span className="dashboard-drop-slot" style={{ left: `${drag.rects[drag.targetIndex].left - drag.gridLeft}px`, top: `${drag.rects[drag.targetIndex].top - drag.gridTop}px`, width: `${drag.rects[drag.targetIndex].width}px`, height: `${drag.rects[drag.targetIndex].height}px` }} aria-hidden="true" />}
