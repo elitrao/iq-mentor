@@ -303,6 +303,7 @@ function PageTitle({ children, badge }) { return <div className="page-title"><h1
 function WidgetCatalogPreview({ item }) {
   const Icon = item.catalogIcon;
   const kind = item.previewKind || item.id;
+  if (kind === "home-kpi") return <div className={`widget-preview widget-reference-home-kpi ${item.tone}`} aria-hidden="true"><div><strong>{item.value}{item.suffix && <em>{item.suffix}</em>}</strong><svg viewBox="0 0 120 42" preserveAspectRatio="none"><polyline points="2,35 18,27 32,30 47,18 62,25 77,11 93,19 108,4 118,8" /></svg></div><footer><span><IconArrowUp size={10} />{item.delta}</span><b>{item.badge} <IconArrowUp size={9} /></b></footer></div>;
   if (kind === "kpi") return <div className="widget-preview widget-reference-kpi" aria-hidden="true"><div><strong>{item.value || "1 250"}{item.suffix && <em>{item.suffix}</em>}</strong><span><IconArrowUp size={10} />{item.badge || "12.5%"}</span></div><small>{item.delta ? `${item.delta} относительно периода` : "vs прошлый период"}</small><svg viewBox="0 0 220 55" preserveAspectRatio="none"><polyline points="3,46 20,38 36,43 55,31 72,38 91,26 110,31 130,18 150,22 172,10 192,15 216,4" /></svg></div>;
   if (kind === "line") return <div className="widget-preview widget-reference-line" aria-hidden="true"><span>100</span><span>50</span><span>0</span><svg viewBox="0 0 220 90" preserveAspectRatio="none"><polyline className="muted" points="4,66 28,28 54,55 82,44 108,61 139,32 169,54 194,43 216,48"/><polyline points="4,62 28,48 54,25 82,50 108,39 139,17 169,31 194,9 216,12"/></svg><div>{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map((day) => <i key={day}>{day}</i>)}</div></div>;
   if (kind === "column") return <div className="widget-preview widget-reference-column" aria-hidden="true"><span>100</span><span>50</span><span>0</span><div>{[52,31,48,70,55,38,66].map((value,index) => <i key={index} style={{ height: `${value}%` }}><small>{["Пн","Вт","Ср","Чт","Пт","Сб","Вс"][index]}</small></i>)}</div></div>;
@@ -437,7 +438,7 @@ function HomePage({ setPage, notify }) {
     label: item.label || ({ trend: "Динамика средней оценки", distribution: "Распределение оценок", categories: "Топ категорий", employees: "Топ сотрудники", attention: "Требует внимания" }[item.id]),
     catalogIcon: item.icon || ({ trend: IconReportAnalytics, distribution: IconChartDonut, categories: IconTemplate, employees: IconUsers, attention: IconBell }[item.id]),
     catalogGroup: item.type === "metric" ? "metrics" : item.type === "chart" ? "analytics" : "team",
-    previewKind: item.type === "metric" ? "kpi" : ({ trend: "line", distribution: "donut", categories: "top", employees: "people", attention: "attention" })[item.id],
+    previewKind: item.type === "metric" ? "home-kpi" : ({ trend: "line", distribution: "donut", categories: "top", employees: "people", attention: "attention" })[item.id],
     catalogDescription: ({
       calls: "Количество обработанных звонков и динамика за выбранный период.",
       duration: "Общая длительность разговоров и изменение показателя.",
