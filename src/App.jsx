@@ -45,6 +45,139 @@ const DASHBOARD_SLOTS = [
   { kind: "summary", column: "9 / span 4", row: "3" },
 ];
 
+const TREND_POINTS = [
+  {
+    date: "22.06.2025",
+    shortDate: "22.06",
+    score: 20,
+    delta: -11,
+    factors: [["Вежливость", 42, "low"], ["Выявление потребностей", 35, "low"], ["Презентация продукта", 28, "low"], ["Работа с возражениями", 22, "low"], ["Завершение сделки", 18, "low"]],
+    reasons: [["Слабая работа с возражениями", -15], ["Низкая вежливость", -12], ["Не выявлена потребность", -10]],
+    influencers: [[avatar6, "Сидоров Алексей", -0.24], [avatar5, "Смирнова Елена", -0.19], [avatar1, "Иванов Сергей", -0.15]],
+    calls: [
+      { time: "10:12", employee: "Сидоров Алексей", avatar: avatar6, client: "ООО Альфа", duration: "03:48", score: 18, reason: "Закрытие сделки", impact: true },
+      { time: "11:35", employee: "Смирнова Елена", avatar: avatar5, client: "Ритейл Плюс", duration: "04:12", score: 22, reason: "Работа с возражениями", impact: true },
+      { time: "15:04", employee: "Иванов Сергей", avatar: avatar1, client: "Строй Маркет", duration: "02:55", score: 20, reason: "Низкая вежливость", impact: true },
+    ],
+  },
+  {
+    date: "25.06.2025",
+    shortDate: "25.06",
+    score: 38,
+    delta: 18,
+    factors: [["Вежливость", 55, "medium"], ["Выявление потребностей", 48, "low"], ["Презентация продукта", 41, "low"], ["Работа с возражениями", 36, "low"], ["Завершение сделки", 30, "low"]],
+    reasons: [["Лучше выявляли потребности", 10], ["Меньше резких завершений", 7], ["Выросла презентация", 5]],
+    influencers: [[avatar3, "Петрова Ольга", 0.12], [avatar2, "Федоров Дмитрий", 0.08], [avatar5, "Возакова Нина", 0.06]],
+    calls: [
+      { time: "09:42", employee: "Петрова Ольга", avatar: avatar3, client: "Медиа Софт", duration: "05:06", score: 46, reason: "Выявление потребностей" },
+      { time: "13:21", employee: "Федоров Дмитрий", avatar: avatar2, client: "Логистика 24", duration: "06:18", score: 41, reason: "Презентация продукта" },
+      { time: "16:50", employee: "Смирнова Елена", avatar: avatar5, client: "Город Сервис", duration: "03:30", score: 28, reason: "Возражения", impact: true },
+    ],
+  },
+  {
+    date: "29.06.2025",
+    shortDate: "29.06",
+    score: 80,
+    delta: 42,
+    factors: [["Вежливость", 88, "high"], ["Выявление потребностей", 82, "high"], ["Презентация продукта", 80, "high"], ["Работа с возражениями", 75, "medium"], ["Завершение сделки", 74, "medium"]],
+    reasons: [["Стабильная презентация", 18], ["Лучше закрывали сделки", 12], ["Выше вежливость", 9]],
+    influencers: [[avatar1, "Кузнецова Анна", 0.18], [avatar3, "Потапова Мария", 0.13], [avatar2, "Федоров Дмитрий", 0.11]],
+    calls: [
+      { time: "10:05", employee: "Кузнецова Анна", avatar: avatar1, client: "Пром Контур", duration: "07:34", score: 92, reason: "В норме" },
+      { time: "12:48", employee: "Потапова Мария", avatar: avatar3, client: "Финанс Групп", duration: "05:11", score: 84, reason: "В норме" },
+      { time: "17:02", employee: "Романов Олег", avatar: avatar2, client: "Техно Мир", duration: "04:46", score: 64, reason: "Возражения", impact: true },
+    ],
+  },
+  {
+    date: "03.07.2025",
+    shortDate: "03.07",
+    score: 93,
+    delta: 13,
+    factors: [["Вежливость", 96, "high"], ["Выявление потребностей", 94, "high"], ["Презентация продукта", 92, "high"], ["Работа с возражениями", 88, "medium"], ["Завершение сделки", 91, "high"]],
+    reasons: [["Улучшилась работа с возражениями", 12], ["Сильнее презентация продукта", 9], ["Лучше выявление потребностей", 7]],
+    influencers: [[avatar1, "Кузнецова Анна", 0.21], [avatar3, "Потапова Мария", 0.17], [avatar2, "Федоров Дмитрий", 0.13]],
+    calls: [
+      { time: "09:10", employee: "Кузнецова Анна", avatar: avatar1, client: "Бизнес Линия", duration: "08:12", score: 98, reason: "В норме" },
+      { time: "12:16", employee: "Потапова Мария", avatar: avatar3, client: "Смарт Дом", duration: "06:44", score: 94, reason: "В норме" },
+      { time: "18:05", employee: "Федоров Дмитрий", avatar: avatar2, client: "Авто Профи", duration: "05:49", score: 87, reason: "Возражения" },
+    ],
+  },
+  {
+    date: "06.07.2025",
+    shortDate: "06.07",
+    score: 88,
+    delta: -5,
+    factors: [["Вежливость", 91, "high"], ["Выявление потребностей", 88, "high"], ["Презентация продукта", 85, "high"], ["Работа с возражениями", 78, "medium"], ["Завершение сделки", 72, "medium"]],
+    reasons: [["Слабая работа с возражениями", -12], ["Недостаточная презентация", -8], ["Низкая вежливость", -6]],
+    influencers: [[avatar1, "Иванов Сергей", -0.18], [avatar3, "Петрова Ольга", -0.14], [avatar6, "Сидоров Алексей", -0.11]],
+    calls: [
+      { time: "09:36", employee: "Иванов Сергей", avatar: avatar1, client: "Магнит Сервис", duration: "04:20", score: 62, reason: "Низкая вежливость", impact: true },
+      { time: "11:18", employee: "Петрова Ольга", avatar: avatar3, client: "Норд Трейд", duration: "05:03", score: 58, reason: "Возражения", impact: true },
+      { time: "14:22", employee: "Романов Олег", avatar: avatar2, client: "Айти Парк", duration: "07:11", score: 92, reason: "В норме" },
+      { time: "16:40", employee: "Сидоров Алексей", avatar: avatar6, client: "Оптима", duration: "03:58", score: 72, reason: "Закрытие сделки", impact: true },
+    ],
+  },
+  {
+    date: "13.07.2025",
+    shortDate: "13.07",
+    score: 91,
+    delta: 3,
+    factors: [["Вежливость", 94, "high"], ["Выявление потребностей", 91, "high"], ["Презентация продукта", 90, "high"], ["Работа с возражениями", 84, "medium"], ["Завершение сделки", 88, "medium"]],
+    reasons: [["Улучшилась работа с возражениями", 6], ["Больше успешных закрытий", 4], ["Ровнее скрипт", 3]],
+    influencers: [[avatar1, "Кузнецова Анна", 0.15], [avatar2, "Федоров Дмитрий", 0.12], [avatar5, "Возакова Нина", 0.08]],
+    calls: [
+      { time: "10:24", employee: "Кузнецова Анна", avatar: avatar1, client: "Склад Про", duration: "06:51", score: 96, reason: "В норме" },
+      { time: "13:12", employee: "Федоров Дмитрий", avatar: avatar2, client: "Вектор", duration: "05:40", score: 91, reason: "В норме" },
+      { time: "17:43", employee: "Возакова Нина", avatar: avatar5, client: "Прайм", duration: "04:02", score: 84, reason: "Возражения" },
+    ],
+  },
+  {
+    date: "20.07.2025",
+    shortDate: "20.07",
+    score: 94,
+    delta: 3,
+    factors: [["Вежливость", 96, "high"], ["Выявление потребностей", 93, "high"], ["Презентация продукта", 91, "high"], ["Работа с возражениями", 88, "medium"], ["Завершение сделки", 90, "high"]],
+    reasons: [["Улучшилась работа с возражениями", 12], ["Сильнее презентация продукта", 9], ["Лучше выявление потребностей", 7]],
+    influencers: [[avatar1, "Кузнецова Анна", 0.21], [avatar3, "Потапова Мария", 0.17], [avatar2, "Федоров Дмитрий", 0.13]],
+    calls: [
+      { time: "09:18", employee: "Кузнецова Анна", avatar: avatar1, client: "Грант", duration: "07:20", score: 100, reason: "В норме" },
+      { time: "12:36", employee: "Потапова Мария", avatar: avatar3, client: "Сити Маркет", duration: "06:07", score: 96, reason: "В норме" },
+      { time: "15:55", employee: "Федоров Дмитрий", avatar: avatar2, client: "Лига", duration: "05:12", score: 91, reason: "В норме" },
+      { time: "18:14", employee: "Мальцев Дмитрий", avatar: avatar6, client: "Контакт", duration: "04:44", score: 87, reason: "Закрытие сделки" },
+    ],
+  },
+  {
+    date: "24.07.2025",
+    shortDate: "24.07",
+    score: 96,
+    delta: 2,
+    factors: [["Вежливость", 97, "high"], ["Выявление потребностей", 95, "high"], ["Презентация продукта", 94, "high"], ["Работа с возражениями", 91, "high"], ["Завершение сделки", 92, "high"]],
+    reasons: [["Стабильное соблюдение скрипта", 8], ["Точнее выявлены потребности", 6], ["Меньше слабых звонков", 5]],
+    influencers: [[avatar1, "Кузнецова Анна", 0.19], [avatar3, "Потапова Мария", 0.15], [avatar5, "Возакова Нина", 0.11]],
+    calls: [
+      { time: "10:02", employee: "Кузнецова Анна", avatar: avatar1, client: "Альянс", duration: "08:01", score: 99, reason: "В норме" },
+      { time: "13:47", employee: "Потапова Мария", avatar: avatar3, client: "Формат", duration: "06:16", score: 96, reason: "В норме" },
+      { time: "16:21", employee: "Возакова Нина", avatar: avatar5, client: "Бета", duration: "05:25", score: 93, reason: "В норме" },
+    ],
+  },
+  {
+    date: "27.07.2025",
+    shortDate: "27.07",
+    score: 82,
+    delta: -14,
+    factors: [["Вежливость", 86, "high"], ["Выявление потребностей", 83, "high"], ["Презентация продукта", 80, "high"], ["Работа с возражениями", 68, "medium"], ["Завершение сделки", 64, "medium"]],
+    reasons: [["Слабая работа с возражениями", -16], ["Недостаточная презентация", -10], ["Низкая вежливость", -8]],
+    influencers: [[avatar6, "Сидоров Алексей", -0.22], [avatar5, "Смирнова Елена", -0.17], [avatar1, "Иванов Сергей", -0.12]],
+    calls: [
+      { time: "09:28", employee: "Кузнецова Анна", avatar: avatar1, client: "Профи Центр", duration: "07:02", score: 92, reason: "В норме" },
+      { time: "11:06", employee: "Иванов Сергей", avatar: avatar1, client: "Юнит", duration: "04:18", score: 66, reason: "Низкая вежливость", impact: true },
+      { time: "13:34", employee: "Петрова Ольга", avatar: avatar3, client: "Маркет Ком", duration: "05:27", score: 78, reason: "Возражения", impact: true },
+      { time: "15:11", employee: "Сидоров Алексей", avatar: avatar6, client: "Точка", duration: "03:52", score: 61, reason: "Закрытие сделки", impact: true },
+      { time: "17:49", employee: "Смирнова Елена", avatar: avatar5, client: "Решение", duration: "06:09", score: 72, reason: "Работа с возражениями", impact: true },
+    ],
+  },
+];
+
 const SETTINGS_GROUPS = [
   { title: "Общие", items: [
     { id: "documents", label: "Документы", icon: IconFileText },
@@ -352,6 +485,7 @@ function HomePage({ setPage, notify }) {
   const [hiddenWidgets, setHiddenWidgets] = useState(loadHiddenWidgets);
   const [customizing, setCustomizing] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
+  const [trendPoint, setTrendPoint] = useState(null);
   const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogFilter, setCatalogFilter] = useState("all");
   useEffect(() => { localStorage.setItem("iq-mentor-dashboard-layout-v2", JSON.stringify(dashboardLayout)); }, [dashboardLayout]);
@@ -411,7 +545,7 @@ function HomePage({ setPage, notify }) {
   const summaryItems = [{ id: "categories", type: "summary" }, { id: "employees", type: "summary" }, { id: "attention", type: "summary" }];
   const renderMetric = (item) => { const Icon = item.icon; return <article className={`home-kpi ${item.tone}`}><div className="home-kpi-top"><span className="home-kpi-icon"><Icon size={23} stroke={1.8} /></span><strong>{item.label}</strong><button aria-label={`Скрыть виджет: ${item.label}`} title="Скрыть виджет" onClick={() => hideWidget(item)}><IconDotsVertical size={20} /></button></div><div className="home-kpi-main"><div><b>{item.value}</b>{item.suffix && <em>{item.suffix}</em>}</div><Sparkline values={item.spark} color="#fff" /></div><div className="home-kpi-footer"><span><IconArrowUp size={15} />{item.delta}</span><em>{item.badge} <IconArrowUp size={13} /></em></div></article>; };
   const renderChart = (item) => item.id === "trend"
-    ? <DashboardPanel title="Динамика средней оценки" className="home-trend-panel" onHide={() => hideWidget(item)} action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart /></DashboardPanel>
+    ? <DashboardPanel title="Динамика средней оценки" className="home-trend-panel" onHide={() => hideWidget(item)} action={<button>По дням <IconChevronDown size={16} /></button>}><DashboardLineChart onPointSelect={setTrendPoint} /></DashboardPanel>
     : <DashboardPanel title="Распределение оценок" className="home-distribution-panel" onHide={() => hideWidget(item)}><div className="home-distribution-body"><DonutChart /><div className="home-distribution-legend">{[["#16ad67", "Отлично (80–100%)", "65%"], ["#f3b400", "Хорошо (60–80%)", "20%"], ["#f2750a", "Удовлетворительно (40–60%)", "10%"], ["#f13b35", "Плохо (0–40%)", "5%"]].map(([color, label, value]) => <div key={label}><i style={{ background: color }}></i><span>{label}</span><strong>{value}</strong></div>)}</div></div></DashboardPanel>;
   const renderSummary = (item) => {
     if (item.id === "categories") return <DashboardPanel title="Топ категорий" onHide={() => hideWidget(item)}><div className="home-category-list">{categories.map(([label, value, delta, color]) => <div className="home-category-item" key={label}><div><span>{label}</span><strong style={{ color }}>{value}%</strong><em className={delta < 0 ? "down" : ""}>{delta < 0 ? <IconArrowDown size={13} /> : <IconArrowUp size={13} />}{Math.abs(delta)}%</em></div><progress max="100" value={value} style={{ "--progress-color": color }} /></div>)}</div><button className="home-panel-link" onClick={() => setPage("analytics")}>Все категории</button></DashboardPanel>;
@@ -466,6 +600,7 @@ function HomePage({ setPage, notify }) {
       <div className="widget-catalog-filters">{[["all", "Все виджеты"], ["popular", "Популярные"], ["analytics", "Диаграммы"], ["metrics", "Показатели"], ["tables", "Таблицы"], ["maps", "Карты"], ["marketing", "Маркетинг"], ["operations", "Операции"], ["team", "Команда"]].map(([id, label]) => <button className={catalogFilter === id ? "active" : ""} onClick={() => setCatalogFilter(id)} key={id}>{label}</button>)}</div>
       <div className="widget-catalog-list">{shownCatalogItems.map((item) => { const visible = dashboardLayout.includes(item.id); const CatalogIcon = item.catalogIcon; return <article key={item.id}><header><span><CatalogIcon size={16} /></span><strong>{item.label}</strong></header><WidgetCatalogPreview item={item}/><p>{item.catalogDescription}</p><footer><span className={`widget-category-tag ${item.catalogGroup}`}>{catalogGroupLabels[item.catalogGroup]}</span><button className={visible ? "visible" : "add"} aria-label={visible ? `Убрать виджет ${item.label}` : `Добавить виджет ${item.label}`} title={visible ? "Убрать с главной" : "Добавить на главную"} onClick={() => visible ? hideWidget(item) : addWidget(item)}>{visible ? <><IconCheck size={15} /><span>На главной</span></> : <><IconPlus size={15} /><span>Добавить</span></>}</button></footer></article>; })}{shownCatalogItems.length === 0 && <div className="widget-catalog-empty">По вашему запросу ничего не найдено</div>}</div>
     </section></div>}
+    {trendPoint && <TrendCallsModal point={trendPoint} close={() => setTrendPoint(null)} />}
   </section>;
 }
 
@@ -586,20 +721,189 @@ function Sparkline({ values, color = "#85b91d" }) {
   const ref = useCanvas(draw); return <canvas ref={ref} className="home-sparkline" aria-hidden="true" />;
 }
 
-function DashboardLineChart() {
-  const values = [20, 38, 80, 93, 88, 91, 94, 96, 82];
-  const labels = ["22.06", "", "29.06", "", "06.07", "13.07", "20.07", "", "27.07"];
+function DashboardLineChart({ onPointSelect }) {
+  const pointsRef = useRef([]);
+  const animationRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [hoverIndex, setHoverIndex] = useState(null);
+  const [pulse, setPulse] = useState(0);
+  const values = TREND_POINTS.map((point) => point.score);
+  const labels = TREND_POINTS.map((point, index) => index % 2 === 0 ? point.shortDate : "");
   const draw = (context, width, height) => {
-    const left = 45, right = 10, top = 12, bottom = 28, chartW = width - left - right, chartH = height - top - bottom;
+    const left = 45, right = 28, top = 12, bottom = 28, chartW = width - left - right, chartH = height - top - bottom;
     context.font = "10px Inter, Arial, sans-serif"; context.fillStyle = "#7b8082"; context.textAlign = "right"; context.textBaseline = "middle";
     [0, 25, 50, 75, 100].forEach((tick) => { const y = top + chartH - (tick / 100) * chartH; context.strokeStyle = "#e8ecea"; context.lineWidth = 1; context.beginPath(); context.moveTo(left, y); context.lineTo(width - right, y); context.stroke(); context.fillText(`${tick}%`, left - 10, y); });
     const points = values.map((value, index) => [left + (index / (values.length - 1)) * chartW, top + chartH - (value / 100) * chartH]);
+    pointsRef.current = points.map(([x, y], index) => ({ x, y, index }));
     const fill = context.createLinearGradient(0, top, 0, top + chartH); fill.addColorStop(0, "rgba(20,173,103,.28)"); fill.addColorStop(1, "rgba(20,173,103,.02)"); context.beginPath(); context.moveTo(points[0][0], top + chartH); points.forEach(([x, y]) => context.lineTo(x, y)); context.lineTo(points.at(-1)[0], top + chartH); context.closePath(); context.fillStyle = fill; context.fill();
     context.beginPath(); points.forEach(([x, y], index) => index ? context.lineTo(x, y) : context.moveTo(x, y)); context.strokeStyle = "#12aa66"; context.lineWidth = 2; context.stroke();
-    points.forEach(([x, y]) => { context.beginPath(); context.arc(x, y, 4, 0, Math.PI * 2); context.fillStyle = "#fff"; context.fill(); context.strokeStyle = "#12aa66"; context.lineWidth = 2; context.stroke(); });
-    context.textAlign = "center"; context.textBaseline = "top"; context.fillStyle = "#6f7476"; labels.forEach((label, index) => label && context.fillText(label, left + (index / (labels.length - 1)) * chartW, height - 18));
+    points.forEach(([x, y], index) => {
+      const active = index === activeIndex;
+      const hovered = index === hoverIndex;
+      const glow = hovered ? .55 + pulse * .35 : active ? .42 : 0;
+      if (glow) {
+        context.beginPath();
+        context.arc(x, y, active ? 14 + pulse * 3 : 12 + pulse * 4, 0, Math.PI * 2);
+        context.fillStyle = `rgba(255,123,26,${0.1 + glow * .14})`;
+        context.shadowBlur = 12 + glow * 16;
+        context.shadowColor = "rgba(255,123,26,.65)";
+        context.fill();
+        context.shadowBlur = 0;
+      }
+      context.beginPath();
+      context.arc(x, y, active || hovered ? 6 : 4, 0, Math.PI * 2);
+      context.fillStyle = "#fff";
+      context.fill();
+      context.strokeStyle = active || hovered ? "#ff7b1a" : "#12aa66";
+      context.lineWidth = active || hovered ? 3 : 2;
+      context.stroke();
+    });
+    context.textBaseline = "top"; context.fillStyle = "#6f7476"; labels.forEach((label, index) => {
+      if (!label) return;
+      const x = left + (index / (labels.length - 1)) * chartW;
+      context.textAlign = index === 0 ? "left" : index === labels.length - 1 ? "right" : "center";
+      context.fillText(label, x, height - 18);
+    });
   };
-  const ref = useCanvas(draw); return <canvas ref={ref} className="home-line-chart" aria-label="Динамика средней оценки от 20 до 96 процентов" />;
+  const ref = useCanvas(draw);
+  useEffect(() => {
+    if (hoverIndex === null) {
+      setPulse(0);
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+      return undefined;
+    }
+    let start = performance.now();
+    const tick = (time) => {
+      setPulse((Math.sin((time - start) / 360) + 1) / 2);
+      animationRef.current = requestAnimationFrame(tick);
+    };
+    animationRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    };
+  }, [hoverIndex]);
+  const nearestPoint = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return pointsRef.current.reduce((closest, point) => {
+      const distance = Math.hypot(point.x - x, point.y - y);
+      return distance < closest.distance ? { point, distance } : closest;
+    }, { point: null, distance: Number.POSITIVE_INFINITY });
+  };
+  const selectPoint = (index) => {
+    setActiveIndex(index);
+    onPointSelect?.(TREND_POINTS[index]);
+  };
+  return <canvas
+    ref={ref}
+    className="home-line-chart is-clickable"
+    role="button"
+    tabIndex={0}
+    aria-label="Динамика средней оценки. Нажмите на точку графика, чтобы увидеть звонки за выбранный день"
+    title="Нажмите на точку, чтобы открыть звонки за день"
+    onClick={(event) => { const { point, distance } = nearestPoint(event); if (point && distance <= 18) selectPoint(point.index); }}
+    onMouseMove={(event) => { const { point, distance } = nearestPoint(event); const hovered = point && distance <= 18 ? point.index : null; event.currentTarget.style.cursor = hovered === null ? "default" : "pointer"; setHoverIndex((current) => current === hovered ? current : hovered); }}
+    onMouseLeave={(event) => { event.currentTarget.style.cursor = "default"; setHoverIndex(null); }}
+    onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectPoint(activeIndex ?? TREND_POINTS.length - 1); } }}
+  />;
+}
+
+function TrendCallsModal({ point, close }) {
+  const isGrowth = point.delta >= 0;
+  const sortedCalls = [...point.calls].sort((first, second) => second.score - first.score);
+  const scoreTone = (score) => score >= 85 ? "high" : score >= 70 ? "medium" : "low";
+  useEffect(() => {
+    const closeOnEscape = (event) => { if (event.key === "Escape") close(); };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [close]);
+  return <div className="trend-modal-layer" onMouseDown={(event) => event.target === event.currentTarget && close()}>
+    <section className={`trend-modal ${isGrowth ? "growth" : "drop"}`} role="dialog" aria-modal="true" aria-labelledby="trend-modal-title">
+      <header className="trend-modal-head">
+        <div>
+          <h2 id="trend-modal-title">{isGrowth ? "Почему выросла средняя оценка" : "Почему снизилась средняя оценка"}</h2>
+          <span>Данные за {point.date}</span>
+        </div>
+        <button className="trend-modal-close" aria-label="Закрыть" onClick={close}><IconX size={22} /></button>
+      </header>
+
+      <div className="trend-modal-hero">
+        <div>
+          <strong>{point.score}%</strong>
+          <small>Средняя оценка</small>
+        </div>
+        <em className={isGrowth ? "up" : "down"}>{isGrowth ? <IconArrowUp size={17} /> : <IconArrowDown size={17} />}{Math.abs(point.delta)}%</em>
+        <MiniTrendChart activePoint={point} />
+      </div>
+
+      <div className="trend-modal-section">
+        <h3>Что сформировало оценку</h3>
+        <div className="trend-factor-grid">{point.factors.map(([label, value, tone]) => <div className={`trend-factor ${tone}`} key={label}><span>{label}</span><strong>{value}%</strong><i style={{ width: `${value}%` }}></i></div>)}</div>
+      </div>
+
+      <div className="trend-modal-section">
+        <h3>Все звонки за день</h3>
+        <div className="trend-call-table-head"><span>Сотрудник</span><span>Средняя оценка</span><span>Причина</span><span>Влияние</span></div>
+        <div className="trend-call-list">{sortedCalls.map((call) => <article className={call.impact ? "impact" : ""} key={`${call.time}-${call.employee}`}>
+          <img src={call.avatar} alt="" />
+          <div><strong>{call.employee}</strong></div>
+          <em className={`trend-call-score ${scoreTone(call.score)}`}><i></i>{call.score}%</em>
+          {call.reason === "В норме" ? <b className="empty">—</b> : <b className={call.impact && !isGrowth ? "danger" : ""}>{call.reason}</b>}
+          <small className={call.impact ? "impact" : ""}>{call.impact ? (isGrowth ? "Сдержал рост" : "Повлиял на просадку") : "Без влияния"}</small>
+        </article>)}</div>
+      </div>
+
+      <footer className="trend-modal-foot">
+        <button onClick={close}>Понятно</button>
+      </footer>
+    </section>
+  </div>;
+}
+
+function MiniTrendChart({ activePoint }) {
+  const values = TREND_POINTS.map((point) => point.score);
+  const activeIndex = TREND_POINTS.findIndex((point) => point.date === activePoint.date);
+  const draw = (context, width, height) => {
+    const padding = 10;
+    const chartW = width - padding * 2;
+    const chartH = height - padding * 2;
+    const points = values.map((value, index) => [padding + (index / (values.length - 1)) * chartW, padding + chartH - (value / 100) * chartH]);
+    const color = activePoint.delta >= 0 ? "#12aa66" : "#ff4e4a";
+    const fill = context.createLinearGradient(0, 0, 0, height);
+    fill.addColorStop(0, activePoint.delta >= 0 ? "rgba(18,170,102,.22)" : "rgba(255,78,74,.22)");
+    fill.addColorStop(1, "rgba(255,255,255,0)");
+    context.beginPath();
+    context.moveTo(points[0][0], height - padding);
+    points.forEach(([x, y]) => context.lineTo(x, y));
+    context.lineTo(points.at(-1)[0], height - padding);
+    context.closePath();
+    context.fillStyle = fill;
+    context.fill();
+    context.beginPath();
+    points.forEach(([x, y], index) => index ? context.lineTo(x, y) : context.moveTo(x, y));
+    context.strokeStyle = color;
+    context.lineWidth = 2;
+    context.stroke();
+    points.forEach(([x, y], index) => {
+      context.beginPath();
+      context.arc(x, y, index === activeIndex ? 5 : 3, 0, Math.PI * 2);
+      context.fillStyle = "#fff";
+      context.fill();
+      context.strokeStyle = color;
+      context.lineWidth = index === activeIndex ? 3 : 1.5;
+      context.stroke();
+    });
+  };
+  const ref = useCanvas(draw);
+  return <canvas ref={ref} className="trend-mini-chart" aria-hidden="true" />;
 }
 
 function DonutChart() {
