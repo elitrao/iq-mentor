@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
@@ -12,21 +12,24 @@ import avatar3 from "./assets/avatars/employee-3.webp";
 import avatar4 from "./assets/avatars/employee-4.webp";
 import avatar5 from "./assets/avatars/employee-5.webp";
 import avatar6 from "./assets/avatars/employee-6.webp";
+import { BillingSimulator } from "./BillingSimulator.jsx";
+import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
   IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconDeviceFloppy, IconFile,
   IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
   IconChartDonut, IconGripVertical, IconLayoutGridAdd, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
   IconPhoneCall, IconShieldCheck, IconSchool, IconSparkles, IconStar, IconSwitchHorizontal, IconTargetArrow, IconTemplate, IconUpload,
-  IconUser, IconUsers, IconX,
+  IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", trainer: "Тренер", settings: "Настройки" };
+const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", trainer: "Тренер", billing: "Тарификация", settings: "Настройки" };
 const NAV_ITEMS = [
   { id: "home", label: "Главная", icon: IconHome },
   { id: "analytics", label: "Аналитик", icon: IconBook2, arrow: true },
   { id: "templates", label: "Шаблоны", icon: IconFolder },
   { id: "trainer", label: "Тренер", icon: IconSchool, arrow: true },
+  { id: "billing", label: "Тарификация", icon: IconWallet },
   { id: "settings", label: "Настройки", icon: IconSettings, arrow: true },
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
@@ -235,6 +238,10 @@ function loadNavOrder() {
       const settingsIndex = valid.indexOf("settings");
       valid.splice(settingsIndex < 0 ? valid.length : settingsIndex, 0, "trainer");
     }
+    if (!valid.includes("billing")) {
+      const settingsIndex = valid.indexOf("settings");
+      valid.splice(settingsIndex < 0 ? valid.length : settingsIndex, 0, "billing");
+    }
     return [...new Set([...valid, ...DEFAULT_NAV_ORDER])];
   } catch { return DEFAULT_NAV_ORDER; }
 }
@@ -283,10 +290,21 @@ export function App() {
   const [navOrder, setNavOrder] = useState(loadNavOrder);
   const [toast, setToast] = useState("");
   const [settingSection, setSettingSection] = useState(() => window.location.hash === "#employees" ? "employees" : "documents");
+  const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
+  const [billingAutoplay, setBillingAutoplay] = useState(false);
 
   useEffect(() => { window.location.hash = page; }, [page]);
   useEffect(() => { localStorage.setItem("iq-mentor-settings", JSON.stringify(settings)); }, [settings]);
   useEffect(() => { localStorage.setItem("iq-mentor-nav-order", JSON.stringify(navOrder)); }, [navOrder]);
+  useEffect(() => { localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(billing)); }, [billing]);
+  useEffect(() => {
+    if (!billingAutoplay || !billing.trainerSessions.some((session) => session.status === "active")) {
+      if (billingAutoplay) setBillingAutoplay(false);
+      return undefined;
+    }
+    const interval = window.setInterval(() => dispatchBilling({ type: "TRAINER_TICK" }), 1000);
+    return () => window.clearInterval(interval);
+  }, [billingAutoplay, billing.trainerSessions]);
   useEffect(() => {
     const available = SETTINGS_GROUPS.some((group) => group.items.some((item) => item.id === settingSection));
     if (!available) setSettingSection(SETTINGS_GROUPS[0].items[0].id);
@@ -314,12 +332,13 @@ export function App() {
   return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
     <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} />
     <div className="app-column">
-      <Topbar page={page} setPage={setPage} />
+      <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} />
       <main className="page-area">
-        {page === "home" && <HomePage setPage={setPage} notify={notify} />}
+        {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} />}
         {page === "analytics" && <AnalyticsPage notify={notify} />}
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
+        {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} />}
         {page === "settings" && <SettingsPage active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} />}
       </main>
     </div>
@@ -422,12 +441,12 @@ function NavDragOverlay({ item, active, top, width }) {
   </div>;
 }
 
-function Topbar({ page, setPage }) {
+function Topbar({ page, setPage, balanceCents }) {
   if (page === "home") return null;
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
     <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
-    <div className="topbar-actions"><div className="balance">Баланс <strong>990 / 500</strong></div><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={18} /></button></div>
+    <div className="topbar-actions"><button className="balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong></button><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={18} /></button></div>
   </header>;
 }
 
@@ -459,7 +478,7 @@ function WidgetCatalogPreview({ item }) {
   return <div className="widget-preview widget-preview-attention" aria-hidden="true">{[[avatar1, "Вежливость", "62%"], [avatar3, "Возражения", "58%"], [avatar2, "Презентация", "52%"]].map(([avatar, issue, score], index) => <div key={issue}><img src={avatar} alt=""/><span className={`tone-${index}`}>{issue}</span><strong>{score}</strong></div>)}</div>;
 }
 
-function HomePage({ setPage, notify }) {
+function HomePage({ setPage, notify, balanceCents }) {
   // Dashboard data mirrors the approved IQ Mentor home-page reference.
   const stats = [
     { id: "calls", label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", sparkColor: "#85b91d", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
@@ -593,7 +612,7 @@ function HomePage({ setPage, notify }) {
   });
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : item.type === "catalog" ? <DashboardPanel title={item.label} className="home-catalog-widget" onHide={() => hideWidget(item)}><div className="home-catalog-widget-body"><WidgetCatalogPreview item={item} /></div></DashboardPanel> : renderSummary(item);
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<div className="home-balance">Баланс <strong>1 203 885 / 5 000</strong></div><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<button className="home-balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong></button><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
     <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
     {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className="widget-catalog" role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
       <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>

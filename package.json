@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
-    "test:sites": "node --test tests/sites-worker.test.mjs"
+    "test:sites": "node --test tests/sites-worker.test.mjs",
+    "test:billing": "node --test tests/billing-engine.test.mjs",
+    "restore:prod-baseline": "node scripts/restore-prod-baseline.mjs",
+    "restore:prod-baseline:dry-run": "node scripts/restore-prod-baseline.mjs --dry-run"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

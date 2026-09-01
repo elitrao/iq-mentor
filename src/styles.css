@@ -64,7 +64,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .mentor-brand > span { width: 1px; height: 36px; background: #7c7c7c; }
 .mentor-brand em { color: #aaa; font-style: normal; font-size: 14px; }
 .topbar-actions { justify-self: end; display: flex; align-items: center; gap: 8px; }
-.balance { display: flex; align-items: center; gap: 5px; margin-right: 17px; font-size: 14px; font-weight: 500; }
+.balance { display: flex; align-items: center; gap: 5px; margin-right: 17px; border: 0; background: transparent; padding: 0; cursor: pointer; font-size: 14px; font-weight: 500; }
 .balance strong { padding: 5px 6px; border-radius: 8px; background: var(--orange); color: #fff; font-weight: 600; }
 .header-icon { width: 45px; height: 45px; border: 1px solid var(--line); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: #f7f7f7; color: #555; cursor: pointer; }
 .header-icon:hover { border-color: #d7d7d7; background: #f2f2f2; }
@@ -91,7 +91,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .home-dashboard-header { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
 .home-dashboard-header h1 { margin: 0; color: #101010; font-size: 26px; font-weight: 600; letter-spacing: -.025em; }
 .home-header-controls { display: flex; align-items: center; gap: 12px; }
-.home-balance { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.home-balance { display: flex; align-items: center; gap: 6px; margin-left: auto; border: 0; background: transparent; padding: 0; cursor: pointer; font-size: 13px; font-weight: 500; white-space: nowrap; }
 .home-balance strong { border-radius: 6px; background: var(--orange); padding: 5px 7px; color: #fff; font-size: 12px; font-weight: 600; }
 .home-dashboard-header .header-icon, .home-dashboard-header .lk-small { width: 44px; height: 44px; min-height: 44px; border-radius: 11px; background: #fff; }
 .home-dashboard-header .lk-small { width: auto; }
