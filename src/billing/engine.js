@@ -44,6 +44,7 @@ function activeAnalystOperations(state) {
 }
 
 export function selectTrainerReserve(state) {
+  // Soft reserve covers each active session's next minute without debiting the balance.
   return activeTrainers(state).length * BILLING_RATES.trainer;
 }
 
