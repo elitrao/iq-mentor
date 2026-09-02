@@ -13,6 +13,7 @@ import avatar4 from "./assets/avatars/employee-4.webp";
 import avatar5 from "./assets/avatars/employee-5.webp";
 import avatar6 from "./assets/avatars/employee-6.webp";
 import { BillingSimulator } from "./BillingSimulator.jsx";
+import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
@@ -292,6 +293,7 @@ export function App() {
   const [settingSection, setSettingSection] = useState(() => window.location.hash === "#employees" ? "employees" : "documents");
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
+  const [knowledgeOpen, setKnowledgeOpen] = useState(false);
 
   useEffect(() => { window.location.hash = page; }, [page]);
   useEffect(() => { localStorage.setItem("iq-mentor-settings", JSON.stringify(settings)); }, [settings]);
@@ -330,7 +332,7 @@ export function App() {
   };
 
   return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} />
+    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} />
       <main className="page-area">
@@ -343,10 +345,11 @@ export function App() {
       </main>
     </div>
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
+    {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
   </div>;
 }
 
-function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavItem }) {
+function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavItem, openKnowledge }) {
   const navRef = useRef(null);
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
@@ -422,7 +425,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
     </nav>
     <div className="sidebar-bottom">
-      <button className="nav-item muted-item"><IconInfoCircle size={18} stroke={1.7} /><span>База знаний</span></button>
+      <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>База знаний</span></button>
       <button className="nav-item muted-item"><IconHeadphones size={18} stroke={1.7} /><span>Поддержка</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
       <button className="lk-button">Перейти в ЛК <IconSwitchHorizontal size={19} /></button>

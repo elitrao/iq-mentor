@@ -405,3 +405,94 @@ final result: passed
 - Production build and the site test suite passed.
 
 final result: passed
+
+---
+
+# Knowledge base modal — visual QA
+
+## Target and normalization
+
+- Source visual truth: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-a41d7462-240e-446e-a433-5b362e89fddf.png` (1305 × 748 pixels).
+- Preserved source modal crop: `artifacts/knowledge-base/knowledge-modal-reference.png`.
+- Implementation: `http://localhost:4173/#billing`, after clicking **База знаний**.
+- Implementation screenshot: `artifacts/knowledge-base/knowledge-modal-full.png` (1280 × 720 pixels, CSS viewport 1280 × 720, DPR 1).
+- Compared region: the **Помощь** dialog, 914 × 508 CSS/pixel units in both images. Source crop starts at (175,121); implementation crop at (183,106). No density scaling was used for the full-view comparison.
+- The background is intentionally the existing billing page, not the call-report page from the source. Opening help preserves the user's current route; the background is excluded from the modal fidelity comparison.
+- State: Главная selected, all images loaded, default scroll position.
+
+## Comparison evidence
+
+- Full-view paired comparison: `artifacts/knowledge-base/knowledge-modal-comparison.png` — source left, implementation right.
+- Focused typography/navigation comparison: `artifacts/knowledge-base/knowledge-modal-type-comparison.png` — the same top-left regions enlarged 2×, source left, implementation right.
+- Final normalized modal: `artifacts/knowledge-base/knowledge-modal-qa.png`.
+- Responsive check: `artifacts/knowledge-base/knowledge-modal-mobile.png` (390 × 844 CSS/pixels, DPR 1).
+
+## Findings and iteration history
+
+### First comparison — blocked
+
+- [P2] Fractional card widths and a 161px sidebar banner slot resampled the supplied 471px/230px/162px artwork. Fixed by using its native desktop dimensions and adjusting the sidebar/content padding.
+- [P2] Navigation group spacing shifted the lower menu entries by approximately 8px. Reduced the group padding and margins; the final paired comparison shows the rows aligned with the source.
+- [P2] The inherited font produced visibly different heading widths. Matched the modal's compact Roboto typography, independently of the rest of the application; adjusted heading sizes and retained the source artwork's embedded text.
+
+### Post-fix comparison — passed
+
+- **Fonts/typography:** compact menu, header and section hierarchy match the reference. Residual glyph antialiasing and roughly 1–2px optical differences are P3, not layout/wrapping defects.
+- **Spacing/layout rhythm:** 914 × 508 dialog; 44px header; 183px sidebar; 264px featured grid; matching card ordering, padding, radii and onboarding row. No substantive composition or density drift remains.
+- **Colors/tokens:** white modal, subtle dividers, gray selected navigation, muted headings and a 20% dark backdrop match the source treatment. Original raster cards retain their exact source colors.
+- **Image quality/assets:** all eight supplied artwork/banner cards plus the two small decorative marks were extracted from the provided source. No substitute illustrations, generated approximations or CSS artwork. Desktop cards use native pixel dimensions.
+- **Copy/content:** all visible navigation labels and home headings retained. Embedded banner/case copy remains in the source artwork, with accessible button/image labels. Unseen article pages contain local demonstration copy, not claimed original source content.
+
+## Interaction checks
+
+- Sidebar **База знаний** opens a modal over the unchanged billing route.
+- Native dialog keeps background controls inert; close button, Escape and backdrop click close it.
+- Focus returns to the opening **База знаний** button.
+- Case card opens its article; Back returns to the home view.
+- **Посмотреть все кейсы** opens the case list.
+- Sidebar sections and article search work, including filtering unrelated results out.
+- Trainer onboarding opens its guide; Главная returns to the reference state.
+- Locked CRM card stays disabled.
+- At 390px viewport width: dialog width/scrollWidth are both 374px, close control remains visible, content scrolls inside the modal. Desktop viewport restored afterward.
+- Browser warning/error log: empty.
+- Build passed; Sites tests 4/4 passed; billing tests 13/13 passed; diff whitespace check passed.
+
+## Scope and follow-up polish
+
+- The provided screenshot limits raster resolution. Original high-resolution artwork would improve enlarged views without changing the composition.
+- Telegram destination and real chat/video services were not supplied and are not connected. Chat is explicitly local/demo; no messages are sent externally.
+- No new application routes, production billing changes or deployment were introduced.
+
+## Implementation checklist
+
+- [x] Open from existing sidebar on all pages.
+- [x] Reproduce the supplied modal home composition and assets.
+- [x] Verify native modal behavior and primary internal navigation.
+- [x] Compare source and rendered result in paired full/focused evidence.
+- [x] Fix P2 fidelity findings and re-capture.
+- [x] Preserve the running local preview.
+
+final result: passed
+
+---
+
+# Knowledge base modal — responsive sizing follow-up
+
+- User-requested override: the fixed 914 × 508 reproduction was too small. Preserve its artwork and ordering, but prioritize readable typography and use the available viewport.
+- Before: `codex-clipboard-484b8e5d-a627-47ad-9819-e50ef76b1118.png`, 1010 × 576.
+- After at the same viewport/state: `artifacts/knowledge-base/knowledge-modal-responsive-1010.png`.
+- Paired visual comparison: `artifacts/knowledge-base/knowledge-modal-responsive-comparison.png` (before left, after right, no scaling).
+- Additional captures: `knowledge-modal-responsive-desktop.png` (1440 × 900) and `knowledge-modal-responsive-mobile.png` (390 × 844), in the same artifact directory.
+
+## Findings and verification
+
+- Dialog now uses the viewport with 8–24px outer spacing and a 1440 × 900 maximum. At 1010 × 576, its measured bounds are 978 × 544 at (16,16).
+- Navigation is 14px instead of miniature source sizing; modal title is 20px, primary headings 22–24px, article text 16px. Source colors, divider treatment, artwork, card ordering and rounded corners are retained.
+- Sidebar and main content scroll independently on shorter screens. The close button stays in the fixed header; content is not compressed to fit vertically.
+- Desktop cards grow fluidly. At narrower widths they reflow, and phone navigation becomes a horizontal strip. Phone dialog width and scrollWidth both measure 374px; content width and scrollWidth both measure 364px, with 1423px of scrollable content in a 703px region.
+- Combined before/after inspection confirms the intended typography increase and viewport fit. No overlapping labels or horizontal content clipping found. Artwork remains limited by the raster resolution supplied in the original screenshot; high-resolution originals would improve enlarged embedded text.
+- Case-list navigation and Escape close checked after resizing. Existing native-dialog behavior is unchanged.
+- Build passed; Sites tests 4/4 passed; billing tests 13/13 passed.
+- No billing data, payment behavior, backend or production hosting configuration changed.
+
+final result: passed
