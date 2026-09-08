@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateBillingEstimate } from "../src/billing/calculator.js";
+import { calculateBillingEstimate, calculateTrainerRecommendation } from "../src/billing/calculator.js";
 
 test("calculates Analyst, Trainer and combined monthly budgets", () => {
   assert.deepEqual(calculateBillingEstimate({ managers: 10, callsPerManager: 300, averageDurationMinutes: 4, trainerMinutesPerManager: 60 }), {
@@ -16,4 +16,9 @@ test("calculates Analyst, Trainer and combined monthly budgets", () => {
 test("supports fractional duration and clamps negative input", () => {
   assert.deepEqual(calculateBillingEstimate({ managers: 2, callsPerManager: 25, averageDurationMinutes: 3.5, trainerMinutesPerManager: 30 }), { monthlyCalls: 50, analystMinutes: 175, trainerMinutes: 60, analystCostCents: 87500, trainerCostCents: 72000, totalCostCents: 159500 });
   assert.deepEqual(calculateBillingEstimate({ managers: -2, callsPerManager: 25, averageDurationMinutes: 3, trainerMinutesPerManager: 30 }), { monthlyCalls: 0, analystMinutes: 0, trainerMinutes: 0, analystCostCents: 0, trainerCostCents: 0, totalCostCents: 0 });
+});
+
+test("recommends Trainer as 25% of the Analyst budget", () => {
+  assert.deepEqual(calculateTrainerRecommendation(6000000), { trainerCostCents: 1500000, trainerMinutes: 1250 });
+  assert.deepEqual(calculateTrainerRecommendation(-100), { trainerCostCents: 0, trainerMinutes: 0 });
 });
