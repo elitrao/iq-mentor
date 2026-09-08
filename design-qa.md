@@ -529,3 +529,31 @@ final result: passed
 - No billing data, payment behavior, backend or production hosting configuration changed.
 
 final result: passed
+
+---
+
+# Tariff calculator — Analyst and Trainer follow-up
+
+## Target and evidence
+
+- Product source remains the supplied calculator reference `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-d50f1a7e-9f86-408d-a97d-1598b51bb6c2.png` (1539 × 701 px), with the user-directed addition of a blue Trainer calculation at 12 ₽/minute.
+- Prior calculator capture: `artifacts/tariff-calculator/tariff-calculator-final.png`.
+- Revised browser capture: `artifacts/tariff-calculator/tariff-calculator-analyst-trainer.png` (1570 × 908 px, desktop viewport, DPR 1).
+- Mobile capture: `artifacts/tariff-calculator/tariff-calculator-analyst-trainer-mobile.png` (390 × 844 CSS viewport, DPR 1).
+- Combined before/after evidence: `artifacts/tariff-calculator/tariff-calculator-analyst-trainer-comparison.png`.
+- State: 10 managers, 300 calls per manager, 4 minutes per call and 60 Trainer minutes per manager; formula expanded.
+- No extra focused crop was needed because all module labels, tariff lines and formulas remain legible in the combined evidence.
+
+## Findings and verification
+
+- Earlier visual finding [P2]: the first total-card class collided with a legacy global `.total` style and produced a pill-shaped card with incorrect text color. Fixed by using a calculator-scoped `.combined` class. Post-fix capture shows three aligned rectangular result cards.
+- Typography retains the established calculator hierarchy and tabular number alignment. Analyst, Trainer and combined results use the same label/value/caption anatomy.
+- Layout follows the reference's four-control left column and three-result right column. The new fourth control is Trainer-specific and uses a blue slider accent; the blue result card is visually distinct without changing the orange Analyst language.
+- Colors are semantic and consistent: Analyst orange, Trainer blue, combined budget deep orange. White input cards and neutral borders remain unchanged.
+- No new imagery was required. The existing Tabler disclosure icon remains the only non-text visual asset.
+- Copy explicitly names both modules and rates. The expanded formula separates `managers × calls × duration × 5 ₽` from `managers × training minutes × 12 ₽`.
+- Verified recalculation: changing Trainer use to 90 minutes per manager produces 10,800 ₽ Trainer cost and 70,800 ₽ combined cost; restoring 60 minutes returns 7,200 ₽ and 67,200 ₽.
+- Mobile document width remains 375px inside a 390px viewport, with no horizontal overflow. Browser console warnings/errors: none.
+- Production build passed; billing tests 15/15 passed; Sites tests 4/4 passed.
+
+final result: passed
