@@ -21,7 +21,7 @@ function CalculatorControl({ label, hint, value, min, max, step, suffix, onChang
 
 function ResultCard({ label, value, description, tone = "analyst" }) {
   return <article className={`tariff-result-card ${tone}`}>
-    <span>{label}</span><strong>{value}</strong><p>{description}</p>
+    <span>{label}</span><strong>{value}</strong><p className="tariff-volume"><span>Объём в месяц</span><b>{description}</b></p>
   </article>;
 }
 
@@ -40,7 +40,7 @@ export function BillingSimulator() {
     <div className="tariff-module-grid">
       <section className="tariff-module tariff-module-trainer" aria-labelledby="tariff-trainer-title">
         <header className="tariff-module-heading"><h2 id="tariff-trainer-title">AI Тренер</h2><span>{formatRubles(BILLING_RATES.trainer)} / мин</span></header>
-        <div aria-live="polite"><ResultCard tone="trainer" label="Тренировки · бюджет в месяц" value={formatRubles(trainer.trainerCostCents)} description={`${formatter.format(trainer.trainerMinutes)} минут практики для команды`} /></div>
+        <div aria-live="polite"><ResultCard tone="trainer" label="Тренировки · бюджет в месяц" value={formatRubles(trainer.trainerCostCents)} description={`${formatter.format(trainer.trainerMinutes)} мин`} /></div>
         <div className="tariff-module-controls">
           <CalculatorControl label="Количество менеджеров" accessibleLabel="Тренер: количество менеджеров" hint="Сколько сотрудников будут тренироваться" value={trainerManagers} min={0} max={100} step={1} suffix="чел." onChange={setTrainerManagers} tone="trainer" />
           <CalculatorControl label="Тренировки на менеджера в месяц" hint="Среднее время практики с AI Тренером" value={trainerMinutes} min={0} max={600} step={15} suffix="мин." onChange={setTrainerMinutes} tone="trainer" />
@@ -48,7 +48,7 @@ export function BillingSimulator() {
       </section>
       <section className="tariff-module tariff-module-analyst" aria-labelledby="tariff-analyst-title">
         <header className="tariff-module-heading"><h2 id="tariff-analyst-title">AI Аналитик</h2><span>{formatRubles(BILLING_RATES.analyst)} / мин</span></header>
-        <div aria-live="polite"><ResultCard label="Анализ звонков · бюджет в месяц" value={formatRubles(analyst.analystCostCents)} description={`${formatter.format(analyst.monthlyCalls)} звонков · ${formatter.format(analyst.analystMinutes)} минут анализа`} /></div>
+        <div aria-live="polite"><ResultCard label="Анализ звонков · бюджет в месяц" value={formatRubles(analyst.analystCostCents)} description={`${formatter.format(analyst.analystMinutes)} мин`} /></div>
         <div className="tariff-module-controls">
           <CalculatorControl label="Количество менеджеров" accessibleLabel="Аналитик: количество менеджеров" hint="Сотрудников, чьи звонки нужно анализировать" value={managers} min={0} max={100} step={1} suffix="чел." onChange={setManagers} />
           <CalculatorControl label="Среднее количество звонков в месяц" hint="На одного менеджера" value={callsPerManager} min={10} max={2000} step={10} suffix="звонков" onChange={setCallsPerManager} />

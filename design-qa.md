@@ -571,3 +571,25 @@ final result: passed
 - Build and all 19 existing tests passed. No actionable P0/P1/P2 visual findings remain. No separate focused crop required after full-size desktop/mobile review.
 
 final result: passed
+
+---
+
+# Tariff calculator — one-screen desktop layout
+
+- Request: fit all module inputs, estimates and the combined budget without scrolling down.
+- Source: user screenshot `codex-clipboard-866746e8-d377-4f99-be02-fc931a7a144b.png` (1498 × 826, content only). Implementation: `artifacts/tariff-calculator/tariff-compact-desktop.png` (1280 × 720, DPR 1, includes app navigation).
+- Paired evidence: `artifacts/tariff-calculator/tariff-compact-comparison.png`. Different framing is intentional; the source is a content crop while verification includes the full app and its header.
+- Compact horizontal label/value rows replace tall input cards. The blue Trainer and orange Analyst panels remain aligned; fonts remain Inter with 13px labels, 27px input values and 32px module totals. The supplied colors and card style remain recognizable. No imagery added or changed.
+- Verified at 1280 × 720: document height exactly 720px, all inputs inside the viewport, combined budget bottom at 646px. At 1024 × 768: document dimensions exactly 1024 × 768, combined budget bottom at 646px. No hidden overflow or scaling was used to force this fit.
+- “Как считаем” opens as a panel above its button and does not increase document height; opening and closing checked. Existing phone layout continues to scroll vertically to preserve readability.
+- Build and all four Sites tests passed. Calculation code was unchanged. Full-size screenshot review found no actionable P0/P1/P2 issue; no additional focused crop needed for this spacing change.
+
+final result: passed
+
+## Caption simplification follow-up
+
+- User flagged the call/minute prose in colored cards as noise. Replaced it in both modules with a consistent two-part row: “Объём в месяц” on the left, a minute value on the right. Budget remains the dominant figure.
+- Evidence: `artifacts/tariff-calculator/tariff-compact-quiet-captions.png`, 1280 × 720 at DPR 1. Both labels and values fit without wrapping. Document height remains exactly 720px, so the no-scroll requirement is preserved.
+- Default volumes verified in the browser: Trainer 600 minutes and Analyst 12,000 minutes. No calculation changes.
+
+final result: passed
