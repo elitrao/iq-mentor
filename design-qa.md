@@ -176,6 +176,39 @@
 
 final result: passed
 
+---
+
+# Tariff calculator redesign — visual QA
+
+## Target and evidence
+
+- Source visual truth: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-d50f1a7e-9f86-408d-a97d-1598b51bb6c2.png` (1539 × 701 px).
+- Browser-rendered implementation: `artifacts/tariff-calculator/tariff-calculator-final.png` (1570 × 908 px, desktop viewport, DPR 1).
+- Responsive evidence: `artifacts/tariff-calculator/tariff-calculator-mobile.png` (390 × 844 CSS viewport, DPR 1).
+- Full-view comparison: `artifacts/tariff-calculator/tariff-calculator-comparison.png`. The source calculator and implementation content region are shown together at normalized review scale.
+- State: default values — 10 managers, 300 monthly calls per manager, 4 minutes per call; formula expanded in final evidence.
+- A separate focused comparison was not needed: the combined evidence keeps every label, slider, output and formula legible.
+
+## Findings
+
+- No actionable P0/P1/P2 differences remain. The implementation intentionally has three controls and three output cards instead of the reference's four ROI controls because the user explicitly replaced the source business inputs and requested a tariff calculation.
+- Typography: the existing product's Inter typography is retained. Control labels, 38px editable values and 34–46px results reproduce the source hierarchy without the former simulator's miniature UI text.
+- Spacing and layout: desktop uses the source's narrow left control column and wide right results column, with matched 14–20px gaps, 15px radii and stacked card rhythm. At 820px the layout stacks; at 640px controls become a single column.
+- Colors and tokens: source blue is intentionally translated to the IQ Mentor orange range. White control cards, neutral borders and orange slider progress preserve the supplied composition.
+- Imagery: the source contains no raster imagery or custom visual assets. The only icon is sourced from the installed Tabler library.
+- Copy and content: all three requested variables are present. Results clearly distinguish total calls, total minutes and monthly budget; the expandable formula explains the 5 ₽/minute Analyst rate.
+
+## Interaction and technical checks
+
+- Number inputs and sliders remain synchronized and recalculate outputs immediately.
+- Verified scenario: 25 managers × 500 calls × 6 minutes = 12,500 calls, 75,000 minutes and 375,000 ₽ per month.
+- “Как считаем” expands and collapses correctly.
+- Browser console warnings/errors: none.
+- Production build passed; billing tests 15/15 passed; Sites tests 4/4 passed.
+- Mobile viewport has no horizontal document overflow (`body.scrollWidth` 375 within the 390px viewport).
+
+final result: passed
+
 ## Light bento dashboard refinement — 2026-08-27
 
 **Scope and evidence**
