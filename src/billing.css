@@ -42,3 +42,34 @@
 @media (max-width: 1050px) { .tariff-calculator-grid { grid-template-columns: minmax(300px, .8fr) minmax(420px, 1.2fr); } .tariff-control { padding-inline: 18px; } .tariff-result-card { padding-inline: 22px; } }
 @media (max-width: 820px) { .tariff-calculator-page { padding: 8px 0 36px; } .tariff-calculator-grid { grid-template-columns: 1fr; } .tariff-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); } .tariff-control { min-height: 190px; } .tariff-control-value input { max-width: 100%; font-size: 32px; } }
 @media (max-width: 640px) { .tariff-heading { margin-bottom: 20px; } .tariff-heading h1 { font-size: 25px; } .tariff-heading p { font-size: 13px; } .tariff-controls { grid-template-columns: 1fr; } .tariff-control { min-height: 150px; } .tariff-result-card { min-height: 142px; padding: 20px; } .tariff-result-card strong { font-size: 32px; } }
+
+/* Each module owns its inputs and estimate so the two budgets can be read independently. */
+.tariff-module-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+.tariff-module { min-width: 0; padding: 20px; border: 1px solid #e3e7e4; border-radius: 18px; background: #fff; }
+.tariff-module-trainer { border-color: #dbe9f9; }
+.tariff-module-analyst { border-color: #f5e2d4; }
+.tariff-module-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+.tariff-module-heading h2 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+.tariff-module-heading > span { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.tariff-module-trainer .tariff-module-heading { color: #2476d3; }
+.tariff-module-analyst .tariff-module-heading { color: #cf5906; }
+.tariff-module .tariff-result-card { min-height: 138px; padding: 20px; box-shadow: none; }
+.tariff-module .tariff-result-card strong { font-size: clamp(28px, 3vw, 40px); overflow-wrap: anywhere; }
+.tariff-module-controls { display: grid; gap: 12px; margin-top: 16px; }
+.tariff-module .tariff-control { min-height: 132px; padding: 14px 16px; gap: 2px 8px; background: #fbfcfb; border-color: #edf0ee; border-radius: 12px; }
+.tariff-module .tariff-control-label { font-size: 13px; font-weight: 500; }
+.tariff-module .tariff-control-value input { width: 5ch; max-width: 70%; font-size: 30px; line-height: 38px; }
+.tariff-module .tariff-control-value input:focus-visible { outline: 2px solid #ff7918; outline-offset: 2px; border-radius: 4px; }
+.tariff-module-trainer .tariff-control-value input:focus-visible { outline-color: #3188ef; }
+.tariff-module .tariff-control small { color: #777f79; }
+.tariff-module .tariff-range { margin-top: 5px; }
+.tariff-bottom-summary { margin-top: 24px; }
+.tariff-combined-budget { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 24px; border: 1px solid #e3e7e4; border-radius: 14px; background: #f8f9f8; }
+.tariff-combined-budget h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.tariff-combined-budget p { margin: 5px 0 0; font-size: 13px; color: #747b77; }
+.tariff-combined-budget > strong { font-size: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tariff-bottom-summary > .tariff-formula { margin-top: 12px; }
+.tariff-formula-body p.trainer-line strong { color: #2476d3; }
+@media (max-width: 1050px) { .tariff-module-grid { gap: 16px; } .tariff-module { padding: 16px; } }
+@media (max-width: 820px) { .tariff-module-grid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .tariff-module { padding: 14px; } .tariff-combined-budget { align-items: flex-start; flex-direction: column; padding: 20px; } }

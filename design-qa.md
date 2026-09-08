@@ -557,3 +557,17 @@ final result: passed
 - Production build passed; billing tests 15/15 passed; Sites tests 4/4 passed.
 
 final result: passed
+
+---
+
+# Tariff calculator — separate module panels (2026-09-08)
+
+- User-directed layout change: blue Trainer occupies the left panel, orange Analyst the right. Each module owns its parameters and result, with a neutral combined budget underneath.
+- Reference for existing typography and color: `artifacts/tariff-calculator/tariff-calculator-analyst-trainer.png`; revised desktop evidence: `artifacts/tariff-calculator/tariff-split-desktop.png` (1440 × 1000 viewport, DPR 1). The comparison `tariff-split-comparison.png` shows the earlier mixed calculator and revised panels together. Different viewport height/scroll positions are intentional comparison limitations; this is a structural change, not a pixel clone.
+- Mobile evidence: `artifacts/tariff-calculator/tariff-split-mobile.png` (390 × 844); Analyst and summary region. Panels stack Trainer first, Analyst second. Panel width 351px and scrollWidth 349px; no horizontal overflow.
+- Fonts and typography retain Inter, matching module headings and result hierarchy. Compact inputs use 30px numeric text and readable 13px labels. Colors remain blue/orange; the combined budget is neutral to avoid implying ownership by Analyst.
+- Equal desktop columns, aligned headers and results, and module-contained controls make ownership explicit. No new assets needed; the existing Tabler disclosure icon is reused. Copy explains independent manager counts and per-module usage.
+- Browser checks: five Trainer managers give 3,600 ₽ while Analyst remains 60,000 ₽; combined total 63,600 ₽. Zero Analyst managers give zero Analyst cost. Defaults restored to 7,200 ₽ + 60,000 ₽ = 67,200 ₽. Browser warnings/errors empty.
+- Build and all 19 existing tests passed. No actionable P0/P1/P2 visual findings remain. No separate focused crop required after full-size desktop/mobile review.
+
+final result: passed
