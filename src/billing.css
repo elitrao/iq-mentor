@@ -14,10 +14,10 @@
 .tariff-survey-results { width: min(100%, 680px); border: 1px solid #e3e7e4; border-radius: 22px; background: #fff; padding: 30px 32px 28px; box-shadow: 0 18px 50px rgb(24 28 26 / 8%); animation: tariff-results-shell-enter .92s cubic-bezier(.16,1,.3,1) both; }
 .tariff-survey-results h1 { max-width: none; margin: 0 auto 22px; color: #1c201e; font-size: clamp(22px, 2.2vw, 24px); line-height: 1.2; letter-spacing: -.035em; font-weight: 600; text-align: center; white-space: nowrap; animation: tariff-benefit-copy-enter .82s .18s cubic-bezier(.16,1,.3,1) both; }
 .tariff-benefit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.tariff-benefit-card { position: relative; min-width: 0; min-height: 126px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; overflow: hidden; border-radius: 15px; padding: 16px; color: #fff; isolation: isolate; animation: tariff-benefit-card-enter .96s cubic-bezier(.16,1,.3,1) both; }
-.tariff-benefit-card:nth-child(1) { animation-delay: .3s; }
-.tariff-benefit-card:nth-child(2) { animation-delay: .5s; }
-.tariff-benefit-card:nth-child(3) { grid-column: 1 / -1; min-height: 106px; animation-delay: .7s; }
+.tariff-benefit-card { position: relative; min-width: 0; min-height: 126px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; overflow: hidden; border-radius: 15px; padding: 16px; color: #fff; isolation: isolate; animation: tariff-benefit-card-enter .85s cubic-bezier(.16,1,.3,1) both; }
+.tariff-benefit-card:nth-child(1) { animation-delay: .35s; }
+.tariff-benefit-card:nth-child(2) { animation-delay: .65s; }
+.tariff-benefit-card:nth-child(3) { grid-column: 1 / -1; min-height: 106px; animation-delay: .95s; }
 .tariff-benefit-card.analyst { background: linear-gradient(135deg, #ff9c49, #ff5f0a); }
 .tariff-benefit-card.trainer { background: linear-gradient(135deg, #8587f7, #5c5fe9); }
 .tariff-benefit-card.coverage { background: linear-gradient(135deg, #8ad51d, #60b313); }
@@ -28,7 +28,7 @@
 .tariff-benefit-pattern svg { position: absolute; color: #fff; opacity: .12; }
 .tariff-benefit-pattern svg:first-child { width: 76px; height: 76px; top: -20px; right: -10px; transform: rotate(10deg); }
 .tariff-benefit-pattern svg:last-child { width: 28px; height: 28px; right: 32%; bottom: -7px; transform: rotate(-12deg); }
-.tariff-survey-results-actions { display: flex; justify-content: center; gap: 10px; margin-top: 18px; opacity: 0; animation: tariff-benefit-actions-enter .82s .96s cubic-bezier(.16,1,.3,1) forwards; }
+.tariff-survey-results-actions { display: flex; justify-content: center; gap: 10px; margin-top: 18px; opacity: 0; animation: tariff-benefit-actions-enter .72s 1.9s cubic-bezier(.16,1,.3,1) forwards; }
 .tariff-survey-results-actions button { min-height: 44px; border-radius: 11px; padding: 0 18px; font-size: 13px; font-weight: 650; cursor: pointer; transition: transform .28s cubic-bezier(.2,.72,.2,1), background-color .28s ease; }
 .tariff-survey-results-actions button:hover { transform: translateY(-1px); }
 .tariff-survey-results-actions .primary { border: 0; background: linear-gradient(135deg, #ff9d4a, #ff5f0a); color: #fff; }

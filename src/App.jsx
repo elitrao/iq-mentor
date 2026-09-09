@@ -12,6 +12,7 @@ import avatar3 from "./assets/avatars/employee-3.webp";
 import avatar4 from "./assets/avatars/employee-4.webp";
 import avatar5 from "./assets/avatars/employee-5.webp";
 import avatar6 from "./assets/avatars/employee-6.webp";
+import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
@@ -294,7 +295,6 @@ export function App() {
   const [settingSection, setSettingSection] = useState(() => window.location.hash === "#employees" ? "employees" : "documents");
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
-  const [billingSurveyRequest, setBillingSurveyRequest] = useState(0);
   const [knowledgeOpen, setKnowledgeOpen] = useState(false);
 
   useEffect(() => { window.location.hash = page; }, [page]);
@@ -321,6 +321,7 @@ export function App() {
 
   const notify = (message) => setToast(message);
   const update = (recipe) => setSettings((current) => { const next = structuredClone(current); recipe(next); return next; });
+  const openBillingSurvey = () => setPage("account-survey");
   const reorderNavItem = (id, targetIndex) => {
     setNavOrder((current) => {
       const from = current.indexOf(id);
@@ -333,8 +334,23 @@ export function App() {
     notify("Порядок разделов сохранен");
   };
 
+  if (page === "account" || page === "account-tariff" || page === "account-survey") return <>
+    <AccountPortal
+      page={page}
+      profile={settings.profile}
+      balanceCents={billing.balanceCents}
+      dispatch={dispatchBilling}
+      setPage={setPage}
+      openKnowledge={() => setKnowledgeOpen(true)}
+      openSurvey={openBillingSurvey}
+      notify={notify}
+    />
+    {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
+    {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
+  </>;
+
   return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} openBillingSurvey={() => { setPage("billing"); setBillingSurveyRequest((current) => current + 1); }} />
+    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} />
       <main className="page-area">
@@ -342,7 +358,7 @@ export function App() {
         {page === "analytics" && <AnalyticsPage notify={notify} />}
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
-        {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} onboardingRequest={billingSurveyRequest} onOnboardingOpened={() => setBillingSurveyRequest(0)} />}
+        {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
         {page === "settings" && <SettingsPage active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} />}
       </main>
     </div>
@@ -351,7 +367,7 @@ export function App() {
   </div>;
 }
 
-function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavItem, openKnowledge, openBillingSurvey }) {
+function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavItem, openKnowledge }) {
   const navRef = useRef(null);
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
@@ -426,12 +442,11 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       {drag?.active && <span className="nav-drop-slot" style={{ top: `${drag.firstTop - drag.navTop + drag.targetIndex * drag.slotHeight}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
     </nav>
-    <button className="nav-item tariff-survey-shortcut" onClick={openBillingSurvey}><IconSparkles size={18} stroke={1.7} /><span>Пройти опрос</span></button>
     <div className="sidebar-bottom">
       <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>База знаний</span></button>
       <button className="nav-item muted-item"><IconHeadphones size={18} stroke={1.7} /><span>Поддержка</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
-      <button className="lk-button">Перейти в ЛК <IconSwitchHorizontal size={19} /></button>
+      <button className="lk-button" onClick={() => setPage("account")}>Перейти в ЛК <IconSwitchHorizontal size={19} /></button>
     </div>
   </aside>;
 }
@@ -452,7 +467,7 @@ function Topbar({ page, setPage, balanceCents }) {
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
     <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
-    <div className="topbar-actions"><button className="balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(BONUS_BALANCE_CENTS)}</span></button><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={18} /></button></div>
+    <div className="topbar-actions"><button className="balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(BONUS_BALANCE_CENTS)}</span></button><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={18} /></button></div>
   </header>;
 }
 
@@ -618,7 +633,7 @@ function HomePage({ setPage, notify, balanceCents }) {
   });
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : item.type === "catalog" ? <DashboardPanel title={item.label} className="home-catalog-widget" onHide={() => hideWidget(item)}><div className="home-catalog-widget-body"><WidgetCatalogPreview item={item} /></div></DashboardPanel> : renderSummary(item);
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<button className="home-balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(BONUS_BALANCE_CENTS)}</span></button><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small">в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<button className="home-balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(BONUS_BALANCE_CENTS)}</span></button><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
     <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
     {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className="widget-catalog" role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
       <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>

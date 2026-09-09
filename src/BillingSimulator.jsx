@@ -154,15 +154,15 @@ function SurveyResults({ analyst, trainer, onCustomize, onRestart }) {
   </section>;
 }
 
-export function BillingSimulator({ dispatch, onConsultation, onboardingRequest = 0, onOnboardingOpened }) {
+export function BillingSimulator({ dispatch, onConsultation, startInOnboarding = false }) {
   const [preferences] = useState(loadCalculatorPreferences);
-  const [managers, setManagers] = useState(preferences.managers);
-  const [callsPerManager, setCallsPerManager] = useState(preferences.callsPerManager);
-  const [averageDuration, setAverageDuration] = useState(preferences.averageDuration);
+  const [managers, setManagers] = useState(startInOnboarding ? BUSINESS_AVERAGES.managers : preferences.managers);
+  const [callsPerManager, setCallsPerManager] = useState(startInOnboarding ? BUSINESS_AVERAGES.callsPerManager : preferences.callsPerManager);
+  const [averageDuration, setAverageDuration] = useState(startInOnboarding ? BUSINESS_AVERAGES.averageDuration : preferences.averageDuration);
   const [trainerEnabled, setTrainerEnabled] = useState(typeof preferences.trainerEnabled === "boolean" ? preferences.trainerEnabled : true);
   const [analystEnabled, setAnalystEnabled] = useState(typeof preferences.analystEnabled === "boolean" ? preferences.analystEnabled : true);
-  const [onboardingComplete, setOnboardingComplete] = useState(Boolean(preferences.completed) && !preferences.surveyInProgress);
-  const [onboardingStep, setOnboardingStep] = useState(() => Math.min(2, Math.max(0, Number(preferences.onboardingStep) || 0)));
+  const [onboardingComplete, setOnboardingComplete] = useState(!startInOnboarding);
+  const [onboardingStep, setOnboardingStep] = useState(() => startInOnboarding ? 0 : Math.min(2, Math.max(0, Number(preferences.onboardingStep) || 0)));
   const [onboardingLeaving, setOnboardingLeaving] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [showSurveyResults, setShowSurveyResults] = useState(false);
@@ -198,21 +198,6 @@ export function BillingSimulator({ dispatch, onConsultation, onboardingRequest =
       analystEnabled,
     }));
   }, [onboardingComplete, onboardingStep, managers, callsPerManager, averageDuration, trainerEnabled, analystEnabled]);
-
-  useEffect(() => {
-    if (!onboardingRequest) return;
-    window.clearTimeout(onboardingTransitionTimer.current);
-    setOnboardingLeaving(false);
-    setManagers(BUSINESS_AVERAGES.managers);
-    setCallsPerManager(BUSINESS_AVERAGES.callsPerManager);
-    setAverageDuration(BUSINESS_AVERAGES.averageDuration);
-    setCalculating(false);
-    setShowSurveyResults(false);
-    setCalculationMessage(0);
-    setOnboardingStep(0);
-    setOnboardingComplete(false);
-    onOnboardingOpened?.();
-  }, [onboardingRequest, onOnboardingOpened]);
 
   useEffect(() => () => window.clearTimeout(onboardingTransitionTimer.current), []);
 
