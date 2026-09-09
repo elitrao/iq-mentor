@@ -25,7 +25,7 @@ function AccountHeader({ page, profile, setPage, openKnowledge, notify }) {
     { id: "account", label: "Главная", onClick: () => setPage("account") },
     { id: "account-tariff", label: "Пополнение баланса", onClick: () => setPage("account-tariff") },
     { id: "settings", label: "Настройки", onClick: () => setPage("settings") },
-    { id: "knowledge", label: "База знаний", onClick: openKnowledge },
+    { id: "knowledge", label: "Помощь", onClick: openKnowledge },
   ];
 
   return <header className="account-header">

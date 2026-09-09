@@ -38,6 +38,7 @@ const NAV_ITEMS = [
   { id: "settings", label: "Настройки", icon: IconSettings, arrow: true },
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
+const HIDDEN_NAV_ITEMS = new Set(["templates", "trainer", "billing"]);
 const DEFAULT_DASHBOARD_ORDER = ["calls", "duration", "score", "conversion", "trend", "distribution", "categories", "employees", "attention"];
 const CATALOG_WIDGET_IDS = ["catalog-kpi", "catalog-line", "catalog-column", "catalog-donut", "catalog-table", "catalog-map", "catalog-funnel", "catalog-gauge", "catalog-heatmap", "catalog-combo", "catalog-top", "catalog-calendar"];
 const ALL_DASHBOARD_WIDGET_IDS = [...DEFAULT_DASHBOARD_ORDER, ...CATALOG_WIDGET_IDS];
@@ -370,7 +371,12 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
   const [drag, setDrag] = useState(null);
-  const orderedItems = navOrder.map((id) => NAV_ITEMS.find((item) => item.id === id)).filter(Boolean);
+  const [analyticsOpen, setAnalyticsOpen] = useState(page === "analytics");
+  const orderedItems = navOrder.map((id) => NAV_ITEMS.find((item) => item.id === id)).filter((item) => item && !HIDDEN_NAV_ITEMS.has(item.id));
+
+  useEffect(() => {
+    setAnalyticsOpen(page === "analytics");
+  }, [page]);
 
   const updateDrag = (next) => { dragRef.current = next; setDrag(next); };
   const startDrag = (event, item, index) => {
@@ -415,6 +421,10 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
   };
   const openPage = (id) => {
     if (suppressClickRef.current) { suppressClickRef.current = false; return; }
+    if (id === "analytics" && !collapsed && !window.matchMedia("(max-width: 767px)").matches) {
+      setAnalyticsOpen((current) => !current);
+      return;
+    }
     setPage(id);
   };
   const draggedItem = drag?.active ? orderedItems.find((item) => item.id === drag.id) : null;
@@ -428,12 +438,19 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       {orderedItems.map((item, index) => {
         const Icon = item.icon;
         const shift = !drag?.active || index === drag.sourceIndex ? 0 : drag.sourceIndex < drag.targetIndex && index > drag.sourceIndex && index <= drag.targetIndex ? -drag.slotHeight : drag.sourceIndex > drag.targetIndex && index >= drag.targetIndex && index < drag.sourceIndex ? drag.slotHeight : 0;
-        return <div className={drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
-          <button className={page === item.id ? "nav-item active" : "nav-item"} onClick={() => openPage(item.id)} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} aria-describedby={`nav-drag-hint-${item.id}`}>
+        const isAnalytics = item.id === "analytics";
+        const isExpanded = isAnalytics && analyticsOpen;
+        return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
+          <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} onClick={() => openPage(item.id)} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} aria-describedby={`nav-drag-hint-${item.id}`} aria-expanded={isAnalytics ? isExpanded : undefined}>
             <Icon size={18} stroke={1.7} />
             <span>{item.label}</span>
-            {item.arrow && <IconChevronRight className="nav-arrow" size={18} stroke={1.5} />}
+            {item.arrow && <IconChevronRight className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={18} stroke={1.5} />}
           </button>
+          {isAnalytics && <div className={isExpanded ? "nav-submenu open" : "nav-submenu"} aria-hidden={!isExpanded}>
+            <button className={page === "analytics" ? "nav-subitem active" : "nav-subitem"} type="button" tabIndex={isExpanded ? 0 : -1} onClick={() => setPage("analytics")}>
+              <span>Список звонков</span>
+            </button>
+          </div>}
           <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Зажмите, чтобы переместить</span>
         </div>;
       })}
@@ -441,7 +458,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
     </nav>
     <div className="sidebar-bottom">
-      <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>База знаний</span></button>
+      <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>Помощь</span></button>
       <button className="nav-item muted-item"><IconHeadphones size={18} stroke={1.7} /><span>Поддержка</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
       <button className="lk-button" onClick={() => setPage("account")}>Перейти в ЛК <IconSwitchHorizontal size={19} /></button>
