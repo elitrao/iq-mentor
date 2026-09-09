@@ -50,13 +50,14 @@
 .tariff-onboarding-question.analyst .tariff-onboarding-progress span { background: #ff7918; }
 .tariff-onboarding-step { margin: 24px 0 8px; color: #858b87; font-size: 13px; font-weight: 600; }
 .tariff-onboarding-question h1 { max-width: 580px; margin: 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.16; letter-spacing: -.035em; font-weight: 650; }
-.tariff-onboarding-answer { display: flex; align-items: baseline; gap: 10px; margin-top: 38px; }
+.tariff-onboarding-answer-wrap { position: relative; width: max-content; margin-top: 38px; padding-top: 18px; }
+.tariff-onboarding-answer { display: flex; align-items: baseline; gap: 10px; margin: 0; }
 .tariff-onboarding-answer input { width: 5ch; appearance: textfield; border: 0; border-bottom: 2px solid #dfe4e1; outline: 0; background: transparent; color: #111; font-size: 52px; line-height: 1.1; font-weight: 560; font-variant-numeric: tabular-nums; transition: border-color .25s ease, color .25s ease; }
 .tariff-onboarding-answer input::-webkit-inner-spin-button, .tariff-onboarding-answer input::-webkit-outer-spin-button { margin: 0; appearance: none; }
 .tariff-onboarding-answer input:focus, .tariff-onboarding-answer input:focus-visible { border-color: #dfe4e1; outline: 0; box-shadow: none; }
 .tariff-onboarding-answer span { color: #6f7672; font-size: 16px; font-weight: 500; }
-.tariff-onboarding-slider-field { --range-progress: 0%; position: relative; margin-top: 24px; padding: 22px 0 14px; }
-.tariff-business-average { position: absolute; top: 0; left: clamp(66px, var(--average-position), calc(100% - 66px)); display: inline-flex; align-items: center; gap: 5px; transform: translateX(-50%); color: #8a918d; font-size: 10px; line-height: 14px; font-weight: 550; white-space: nowrap; pointer-events: none; }
+.tariff-onboarding-slider-field { --range-progress: 0%; position: relative; margin-top: 24px; padding: 0 0 14px; }
+.tariff-business-average { position: absolute; top: 0; right: 0; display: inline-flex; align-items: center; gap: 5px; color: #8a918d; font-size: 10px; line-height: 14px; font-weight: 550; white-space: nowrap; pointer-events: none; }
 .tariff-business-average i { width: 9px; height: 9px; flex: 0 0 auto; border: 2px solid #ff7918; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgb(255 121 24 / 8%); }
 .tariff-onboarding-range { width: 100%; height: 22px; display: block; margin: 0; appearance: none; background: transparent; cursor: pointer; }
 .tariff-onboarding-range::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: linear-gradient(to right, #ffad5c 0%, #ff5f0a var(--range-progress), #e3e7e5 var(--range-progress), #e3e7e5 100%); }

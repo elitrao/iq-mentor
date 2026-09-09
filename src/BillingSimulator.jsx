@@ -86,7 +86,6 @@ function ModuleToggle({ label, checked, tone, onChange }) {
 function OnboardingQuestion({ step, total, label, value, min, max, stepValue, suffix, tone, businessAverage, leaving, onChange, onBack, onNext }) {
   const progress = ((step + 1) / total) * 100;
   const rangeProgress = ((value - min) / (max - min)) * 100;
-  const averageProgress = ((businessAverage - min) / (max - min)) * 100;
 
   return <section className={`tariff-onboarding-question ${tone}${leaving ? " is-leaving" : ""}`}>
     <div className="tariff-onboarding-progress" aria-label={`Шаг ${step + 1} из ${total}`}>
@@ -94,12 +93,14 @@ function OnboardingQuestion({ step, total, label, value, min, max, stepValue, su
     </div>
     <p className="tariff-onboarding-step">Вопрос {step + 1} из {total}</p>
     <h1>{label}</h1>
-    <label className="tariff-onboarding-answer">
-      <input type="number" min={min} max={max} step={stepValue} value={value} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} aria-label={label} autoFocus />
-      <span>{suffix}</span>
-    </label>
+    <div className="tariff-onboarding-answer-wrap">
+      <span className="tariff-business-average" title={`Среднее значение по бизнесу — ${controlFormatter.format(businessAverage)} ${suffix}`}><i />Среднее по бизнесу</span>
+      <label className="tariff-onboarding-answer">
+        <input type="number" min={min} max={max} step={stepValue} value={value} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} aria-label={label} autoFocus />
+        <span>{suffix}</span>
+      </label>
+    </div>
     <div className="tariff-onboarding-slider-field" style={{ "--range-progress": `${rangeProgress}%` }}>
-      <span className="tariff-business-average" style={{ "--average-position": `${averageProgress}%` }} title={`Среднее значение по бизнесу — ${controlFormatter.format(businessAverage)} ${suffix}`}><i />Среднее по бизнесу</span>
       <input className="tariff-onboarding-range" type="range" min={min} max={max} step={stepValue} value={value} onChange={(event) => onChange(Number(event.target.value))} aria-label={`${label}: ползунок`} />
       <span className="tariff-range-limits" aria-hidden="true"><span>{controlFormatter.format(min)}</span><span>{controlFormatter.format(max)}</span></span>
     </div>
@@ -160,8 +161,8 @@ export function BillingSimulator({ dispatch, onConsultation, onboardingRequest =
   const [averageDuration, setAverageDuration] = useState(preferences.averageDuration);
   const [trainerEnabled, setTrainerEnabled] = useState(typeof preferences.trainerEnabled === "boolean" ? preferences.trainerEnabled : true);
   const [analystEnabled, setAnalystEnabled] = useState(typeof preferences.analystEnabled === "boolean" ? preferences.analystEnabled : true);
-  const [onboardingComplete, setOnboardingComplete] = useState(Boolean(preferences.completed));
-  const [onboardingStep, setOnboardingStep] = useState(0);
+  const [onboardingComplete, setOnboardingComplete] = useState(Boolean(preferences.completed) && !preferences.surveyInProgress);
+  const [onboardingStep, setOnboardingStep] = useState(() => Math.min(2, Math.max(0, Number(preferences.onboardingStep) || 0)));
   const [onboardingLeaving, setOnboardingLeaving] = useState(false);
   const [calculating, setCalculating] = useState(false);
   const [showSurveyResults, setShowSurveyResults] = useState(false);
@@ -183,6 +184,20 @@ export function BillingSimulator({ dispatch, onConsultation, onboardingRequest =
     if (!onboardingComplete) return;
     localStorage.setItem(CALCULATOR_STORAGE_KEY, JSON.stringify({ completed: true, managers, callsPerManager, averageDuration, trainerEnabled, analystEnabled }));
   }, [onboardingComplete, managers, callsPerManager, averageDuration, trainerEnabled, analystEnabled]);
+
+  useEffect(() => {
+    if (onboardingComplete) return;
+    localStorage.setItem(CALCULATOR_STORAGE_KEY, JSON.stringify({
+      completed: false,
+      surveyInProgress: true,
+      onboardingStep,
+      managers,
+      callsPerManager,
+      averageDuration,
+      trainerEnabled,
+      analystEnabled,
+    }));
+  }, [onboardingComplete, onboardingStep, managers, callsPerManager, averageDuration, trainerEnabled, analystEnabled]);
 
   useEffect(() => {
     if (!onboardingRequest) return;
