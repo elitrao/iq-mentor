@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { IconChartDots3, IconHeadphones, IconMessages, IconSparkles } from "@tabler/icons-react";
+import { IconChartDots3, IconCurrencyRuble, IconHeadphones, IconMessages, IconSparkles } from "@tabler/icons-react";
 import { BILLING_RATES, formatRubles } from "./billing/engine.js";
 import { calculateBillingEstimate, calculateTrainerRecommendation } from "./billing/calculator.js";
 import "./billing.css";
@@ -8,6 +8,7 @@ const hoursFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 1
 const controlFormatter = new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 1 });
 const CALCULATOR_STORAGE_KEY = "iq-mentor-tariff-calculator-v1";
 const CONSULTATION_THRESHOLD_CENTS = 35000000;
+const WORK_HOUR_COST_RUBLES = 600;
 const BUSINESS_AVERAGES = { managers: 10, callsPerManager: 600, averageDuration: 10 };
 const DEFAULT_CALCULATOR_VALUES = { ...BUSINESS_AVERAGES };
 const CALCULATION_MESSAGES = ["Собираем ваши ответы", "Считаем бюджет", "Ещё чуть-чуть — почти готово"];
@@ -123,27 +124,34 @@ function CalculationLoading({ message }) {
 }
 
 function SurveyResults({ analyst, trainer, onCustomize, onRestart }) {
-  const analystHours = hoursFormatter.format(analyst.analystMinutes / 60);
-  const trainerHours = hoursFormatter.format(trainer.trainerMinutes / 60);
+  const analystSavingsCents = Math.round((analyst.analystMinutes / 60) * WORK_HOUR_COST_RUBLES * 100);
+  const trainerSavingsCents = Math.round((trainer.trainerMinutes / 60) * WORK_HOUR_COST_RUBLES * 100);
+  const totalSavingsCents = analystSavingsCents + trainerSavingsCents;
 
   return <section className="tariff-onboarding-page">
     <div className="tariff-survey-results">
-      <h1>Вот сколько времени вернётся вашей команде</h1>
+      <h1>Вот сколько денег сэкономит ваша команда</h1>
       <div className="tariff-benefit-grid">
         <article className="tariff-benefit-card analyst">
-          <strong>≈ {analystHours} ч</strong>
-          <p>вы сэкономите на прослушивании записей</p>
+          <strong>≈ {formatRubles(analystSavingsCents)}</strong>
+          <p>экономия на прослушивании записей</p>
           <span className="tariff-benefit-pattern" aria-hidden="true"><IconHeadphones /><IconSparkles /></span>
         </article>
         <article className="tariff-benefit-card trainer">
-          <strong>Более {trainerHours} ч</strong>
-          <p>тренировок для вашей команды</p>
+          <strong>≈ {formatRubles(trainerSavingsCents)}</strong>
+          <p>экономия на тренировках команды</p>
           <span className="tariff-benefit-pattern" aria-hidden="true"><IconMessages /><IconSparkles /></span>
         </article>
         <article className="tariff-benefit-card coverage">
           <strong>{controlFormatter.format(analyst.monthlyCalls)} звонков</strong>
           <p>будут проанализированы каждый месяц</p>
           <span className="tariff-benefit-pattern" aria-hidden="true"><IconChartDots3 /><IconSparkles /></span>
+        </article>
+        <article className="tariff-benefit-card total-savings">
+          <strong>≈ {formatRubles(totalSavingsCents)}</strong>
+          <p>общая экономия в месяц</p>
+          <small>при стоимости рабочего часа {formatRubles(WORK_HOUR_COST_RUBLES * 100)}</small>
+          <span className="tariff-benefit-pattern" aria-hidden="true"><IconCurrencyRuble /><IconSparkles /></span>
         </article>
       </div>
       <div className="tariff-survey-results-actions">
