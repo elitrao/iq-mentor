@@ -23,7 +23,7 @@ const rubleNumber = new Intl.NumberFormat("ru-RU");
 function AccountHeader({ page, profile, setPage, openKnowledge, notify }) {
   const navItems = [
     { id: "account", label: "Главная", onClick: () => setPage("account") },
-    { id: "account-tariff", label: "Мой тариф", onClick: () => setPage("account-tariff") },
+    { id: "account-tariff", label: "Пополнение баланса", onClick: () => setPage("account-tariff") },
     { id: "settings", label: "Настройки", onClick: () => setPage("settings") },
     { id: "knowledge", label: "База знаний", onClick: openKnowledge },
   ];
