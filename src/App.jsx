@@ -342,7 +342,7 @@ export function App() {
         {page === "analytics" && <AnalyticsPage notify={notify} />}
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
-        {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onboardingRequest={billingSurveyRequest} onOnboardingOpened={() => setBillingSurveyRequest(0)} />}
+        {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} onboardingRequest={billingSurveyRequest} onOnboardingOpened={() => setBillingSurveyRequest(0)} />}
         {page === "settings" && <SettingsPage active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} />}
       </main>
     </div>
