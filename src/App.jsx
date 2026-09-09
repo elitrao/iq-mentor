@@ -15,6 +15,8 @@ import avatar6 from "./assets/avatars/employee-6.webp";
 import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
+import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
+import { CallsReportPage } from "./CallsReportPage.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
@@ -292,7 +294,7 @@ export function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [navOrder, setNavOrder] = useState(loadNavOrder);
   const [toast, setToast] = useState("");
-  const [settingSection, setSettingSection] = useState(() => window.location.hash === "#employees" ? "employees" : "documents");
+  const [settingSection, setSettingSection] = useState(() => window.location.hash === "#employees" ? "employees" : "personal");
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
   const [knowledgeOpen, setKnowledgeOpen] = useState(false);
@@ -309,10 +311,6 @@ export function App() {
     const interval = window.setInterval(() => dispatchBilling({ type: "TRAINER_TICK" }), 1000);
     return () => window.clearInterval(interval);
   }, [billingAutoplay, billing.trainerSessions]);
-  useEffect(() => {
-    const available = SETTINGS_GROUPS.some((group) => group.items.some((item) => item.id === settingSection));
-    if (!available) setSettingSection(SETTINGS_GROUPS[0].items[0].id);
-  }, [settingSection]);
   useEffect(() => {
     if (!toast) return undefined;
     const timeout = window.setTimeout(() => setToast(""), 2600);
@@ -355,11 +353,11 @@ export function App() {
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} />
       <main className="page-area">
         {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} />}
-        {page === "analytics" && <AnalyticsPage notify={notify} />}
+        {page === "analytics" && <CallsReportPage />}
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
-        {page === "settings" && <SettingsPage active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} />}
+        {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} />}
       </main>
     </div>
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
