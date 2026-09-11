@@ -120,9 +120,11 @@ function openingEntry(balanceCents, title = "Стартовый баланс") {
 
 export function createInitialBillingState(overrides = {}) {
   const balanceCents = clampMoney(overrides.balanceCents ?? 250000);
+  const bonusBalanceCents = clampMoney(overrides.bonusBalanceCents ?? 50000);
   return {
     version: 1,
     balanceCents,
+    bonusBalanceCents,
     simulationDate: DEFAULT_DATE,
     simulationMinute: 0,
     sequence: 2,
@@ -148,6 +150,7 @@ export function hydrateBillingState(raw) {
     return createInitialBillingState({
       ...parsed,
       balanceCents: clampMoney(parsed.balanceCents),
+      bonusBalanceCents: clampMoney(parsed.bonusBalanceCents ?? 50000),
       modules: { analyst: true, trainer: true, ...parsed.modules },
       policies: { ...createInitialBillingState().policies, ...parsed.policies },
     });
@@ -215,6 +218,7 @@ function toggleModule(state, action) {
 
 function topUp(state, action) {
   const amountCents = clampMoney(action.amountCents);
+  const bonusCents = clampMoney(action.bonusCents ?? Math.floor(amountCents * 0.01));
   if (amountCents < 100000) {
     const next = addEntries(state, [entry(state, {
       kind: "top_up_failed",
@@ -237,8 +241,12 @@ function topUp(state, action) {
     kind: "top_up",
     title: "Пополнение общего баланса",
     amountCents,
-  })], { balanceCents: state.balanceCents + amountCents });
-  return notice(next, "success", `Баланс пополнен на ${formatRubles(amountCents)}.`);
+    meta: { bonusCents },
+  })], {
+    balanceCents: state.balanceCents + amountCents,
+    bonusBalanceCents: (state.bonusBalanceCents || 0) + bonusCents,
+  });
+  return notice(next, "success", `Баланс пополнен на ${formatRubles(amountCents)}. Начислено ${formatRubles(bonusCents)} бонусами.`);
 }
 
 function migrationCredit(state, action) {

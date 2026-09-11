@@ -99,6 +99,7 @@ test("failed top-up leaves balance unchanged and successful top-up updates it", 
   assert.equal(failed.balanceCents, 0);
   const successful = billingReducer(failed, { type: "TOP_UP", amountCents: 500000, success: true });
   assert.equal(successful.balanceCents, 500000);
+  assert.equal(successful.bonusBalanceCents, initial.bonusBalanceCents + 5000);
 });
 
 test("migration converts remaining module minutes using current rates", () => {

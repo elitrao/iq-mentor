@@ -28,7 +28,6 @@ import {
 } from "@tabler/icons-react";
 
 const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", trainer: "Тренер", billing: "Тарификация", settings: "Настройки" };
-const BONUS_BALANCE_CENTS = 50000;
 const NAV_ITEMS = [
   { id: "home", label: "Главная", icon: IconHome },
   { id: "analytics", label: "Аналитик", icon: IconBook2, arrow: true },
@@ -351,9 +350,9 @@ export function App() {
   return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
     <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
-      <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} />
+      <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} />
       <main className="page-area">
-        {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} />}
+        {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} />}
         {page === "analytics" && <CallsReportPage />}
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
@@ -477,12 +476,12 @@ function NavDragOverlay({ item, active, top, width }) {
   </div>;
 }
 
-function Topbar({ page, setPage, balanceCents }) {
+function Topbar({ page, setPage, balanceCents, bonusBalanceCents }) {
   if (page === "home") return null;
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
     <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
-    <div className="topbar-actions"><button className="balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(BONUS_BALANCE_CENTS)}</span></button><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={18} /></button></div>
+    <div className="topbar-actions"><button className="balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(bonusBalanceCents)}</span></button><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={18} /></button></div>
   </header>;
 }
 
@@ -514,7 +513,7 @@ function WidgetCatalogPreview({ item }) {
   return <div className="widget-preview widget-preview-attention" aria-hidden="true">{[[avatar1, "Вежливость", "62%"], [avatar3, "Возражения", "58%"], [avatar2, "Презентация", "52%"]].map(([avatar, issue, score], index) => <div key={issue}><img src={avatar} alt=""/><span className={`tone-${index}`}>{issue}</span><strong>{score}</strong></div>)}</div>;
 }
 
-function HomePage({ setPage, notify, balanceCents }) {
+function HomePage({ setPage, notify, balanceCents, bonusBalanceCents }) {
   // Dashboard data mirrors the approved IQ Mentor home-page reference.
   const stats = [
     { id: "calls", label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", sparkColor: "#85b91d", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
@@ -648,7 +647,7 @@ function HomePage({ setPage, notify, balanceCents }) {
   });
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : item.type === "catalog" ? <DashboardPanel title={item.label} className="home-catalog-widget" onHide={() => hideWidget(item)}><div className="home-catalog-widget-body"><WidgetCatalogPreview item={item} /></div></DashboardPanel> : renderSummary(item);
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<button className="home-balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(BONUS_BALANCE_CENTS)}</span></button><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<button className="home-balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(bonusBalanceCents)}</span></button><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
     <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
     {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className="widget-catalog" role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
       <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>

@@ -6,10 +6,10 @@ import {
   IconClock,
   IconDotsVertical,
   IconHeadphones,
+  IconInfoCircle,
   IconPlus,
   IconSearch,
   IconSettings,
-  IconSparkles,
   IconUser,
   IconX,
 } from "@tabler/icons-react";
@@ -17,8 +17,15 @@ import { formatRubles } from "./billing/engine.js";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import "./account.css";
 
-const QUICK_TOP_UP_AMOUNTS = [1000, 5000, 10000, 15000];
 const rubleNumber = new Intl.NumberFormat("ru-RU");
+const MIN_TOP_UP = 25000;
+const MAX_TOP_UP = 200000;
+const TOP_UP_STEP = 1000;
+const PAYMENT_METHODS = [
+  { id: "invoice", label: "Безналичный расчет для юрлиц" },
+  { id: "card", label: "Банковская карта" },
+];
+const EMAIL_DOMAINS = ["gmail.com", "yandex.ru", "mail.ru", "vk.com"];
 
 function AccountHeader({ page, profile, setPage, openKnowledge, notify }) {
   const navItems = [
@@ -77,24 +84,56 @@ function AccountHome({ profile, balanceCents, setPage, notify }) {
   </main>;
 }
 
-function AccountTariff({ balanceCents, dispatch, openSurvey, notify }) {
-  const [amount, setAmount] = useState("");
+function AccountTariff({ balanceCents, dispatch, notify }) {
+  const [amount, setAmount] = useState(MIN_TOP_UP);
+  const [email, setEmail] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [hasRequisites, setHasRequisites] = useState(false);
   const [error, setError] = useState("");
   const amountRubles = Math.max(0, Math.round(Number(String(amount).replace(/\s/g, "")) || 0));
+  const amountTooLow = String(amount).trim() !== "" && amountRubles < MIN_TOP_UP;
+  const selectedMethod = PAYMENT_METHODS.find((method) => method.id === paymentMethod);
+  const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const requisitesAreReady = paymentMethod === "card" || hasRequisites;
+  const canTopUp = amountRubles >= MIN_TOP_UP && emailIsValid && Boolean(paymentMethod) && requisitesAreReady;
+  const bonusPoints = Math.floor(amountRubles * 0.01);
+  const sliderProgress = ((Math.max(MIN_TOP_UP, Math.min(MAX_TOP_UP, amountRubles)) - MIN_TOP_UP) / (MAX_TOP_UP - MIN_TOP_UP)) * 100;
 
-  const selectAmount = (value) => {
-    setAmount(String(value));
+  const normalizeAmount = (value) => {
+    const clamped = Math.max(MIN_TOP_UP, Math.min(MAX_TOP_UP, Number(value) || MIN_TOP_UP));
+    return Math.round(clamped / TOP_UP_STEP) * TOP_UP_STEP;
+  };
+
+  const updateAmount = (value) => {
+    setAmount(value);
     setError("");
   };
 
+  const appendDomain = (domain) => {
+    const localPart = email.split("@")[0].trim();
+    setEmail(`${localPart}@${domain}`);
+  };
+
   const topUp = () => {
-    if (amountRubles < 1000) {
-      setError("Минимальная сумма пополнения — 1 000 ₽");
+    if (amountRubles < MIN_TOP_UP) {
+      setError("Минимальная сумма пополнения — 25 000 ₽");
+      return;
+    }
+    if (!emailIsValid) {
+      setError("Укажите корректную почту для чека");
+      return;
+    }
+    if (!paymentMethod) {
+      setError("Выберите способ оплаты");
+      return;
+    }
+    if (!requisitesAreReady) {
+      setError("Добавьте реквизиты компании");
       return;
     }
     dispatch({ type: "TOP_UP", amountCents: amountRubles * 100, success: true });
     setError("");
-    notify(`Баланс пополнен на ${rubleNumber.format(amountRubles)} ₽`);
+    notify(`Баланс пополнен на ${rubleNumber.format(amountRubles)} ₽ · +${rubleNumber.format(bonusPoints)} Б`);
   };
 
   return <main className="account-tariff-page">
@@ -102,26 +141,75 @@ function AccountTariff({ balanceCents, dispatch, openSurvey, notify }) {
       <h1>Расчет и оплата</h1>
       <div className="account-tariff-balance">
         <span>Баланс: <strong>{formatRubles(balanceCents)}</strong></span>
-        <button className="account-tariff-topup" type="button" onClick={() => document.getElementById("account-topup-amount")?.focus()}><IconPlus size={16} />Пополнить</button>
         <button className="account-tariff-history" type="button" onClick={() => notify("История операций сохранена в прототипе")} aria-label="История операций"><IconClock size={16} /></button>
       </div>
     </header>
     <div className="account-payment-grid">
-      <section className="account-payment-card">
-        <div className="account-payment-copy"><div><h2>Общий баланс</h2><p>Расходуется по фактическому использованию модулей</p></div></div>
-        <div className="account-payment-form">
-          <label><input id="account-topup-amount" inputMode="numeric" value={amount} onChange={(event) => { setAmount(event.target.value.replace(/[^0-9\s]/g, "")); setError(""); }} placeholder="Сумма пополнения" aria-label="Сумма пополнения" /><span>₽</span></label>
-          <div className="account-quick-amounts">{QUICK_TOP_UP_AMOUNTS.map((value) => <button className={amountRubles === value ? "is-selected" : ""} type="button" onClick={() => selectAmount(value)} key={value}>{rubleNumber.format(value)} ₽</button>)}</div>
-          {error && <p className="account-payment-error" role="alert">{error}</p>}
-          <button className="account-payment-submit" type="button" onClick={topUp}>Пополнить баланс</button>
+      <section className="account-topup-card account-amount-card">
+        <div className="account-card-title"><h2>Общий баланс</h2><IconInfoCircle size={13} stroke={2} aria-hidden="true" /></div>
+        <label className={amountTooLow ? "account-amount-field is-error" : "account-amount-field"}>
+          <input
+            id="account-topup-amount"
+            inputMode="numeric"
+            value={rubleNumber.format(amountRubles)}
+            onChange={(event) => updateAmount(event.target.value.replace(/\D/g, ""))}
+            onBlur={() => setAmount(normalizeAmount(amountRubles))}
+            aria-label="Сумма пополнения"
+            aria-invalid={amountTooLow}
+            aria-describedby={amountTooLow ? "account-amount-minimum" : undefined}
+          />
+          <span>₽</span>
+        </label>
+        {amountTooLow && <p className="account-amount-hint" id="account-amount-minimum" role="alert">Минимальная сумма пополнения — 25 000 ₽</p>}
+        <input
+          className="account-amount-range"
+          type="range"
+          min={MIN_TOP_UP}
+          max={MAX_TOP_UP}
+          step={TOP_UP_STEP}
+          value={Math.max(MIN_TOP_UP, Math.min(MAX_TOP_UP, amountRubles || MIN_TOP_UP))}
+          onChange={(event) => updateAmount(Number(event.target.value))}
+          style={{ "--range-progress": `${sliderProgress}%` }}
+          aria-label="Сумма пополнения ползунком"
+        />
+        <div className="account-range-labels" aria-hidden="true"><span>25K</span><span>50K</span><span>100K</span><span>150K</span><span>200K</span></div>
+      </section>
+
+      <section className="account-topup-card account-email-card">
+        <h2>Почта для чека/счета</h2>
+        <label className="account-email-field"><input type="email" value={email} onChange={(event) => { setEmail(event.target.value); setError(""); }} placeholder="E-mail" aria-label="Почта для чека или счета" /></label>
+        <div className="account-email-domains">{EMAIL_DOMAINS.map((domain) => <button type="button" onClick={() => appendDomain(domain)} key={domain}>{domain}</button>)}</div>
+      </section>
+
+      <section className="account-topup-card account-method-card">
+        <h2>Способ оплаты</h2>
+        <div className="account-payment-methods">
+          {PAYMENT_METHODS.map((method) => <button className={paymentMethod === method.id ? "is-selected" : ""} type="button" onClick={() => { setPaymentMethod(method.id); setError(""); }} key={method.id}>
+            <span>{method.label}</span><i aria-hidden="true" />
+          </button>)}
         </div>
       </section>
 
-      <aside className="account-survey-card">
-        <span><IconSparkles size={21} stroke={1.7} /></span>
-        <h2>Не знаете, сколько пополнить?</h2>
-        <p>Ответьте на 3 вопроса — рассчитаем рекомендуемый бюджет AI Аналитика и AI Тренера.</p>
-        <button type="button" onClick={openSurvey}>Рассчитать тариф<IconChevronRight size={16} /></button>
+      <section className="account-topup-card account-requisites-card">
+        <h2>Реквизиты</h2>
+        <button className={hasRequisites ? "is-added" : ""} type="button" onClick={() => { setHasRequisites((value) => !value); setError(""); }}>
+          <span><IconPlus size={18} stroke={1.5} /></span>{hasRequisites ? "Реквизиты компании добавлены" : "Добавить реквизиты"}
+        </button>
+      </section>
+
+      <aside className="account-payment-summary">
+        <h2>Информация об оплате</h2>
+        <dl>
+          <div><dt>Почта</dt><dd>{emailIsValid ? email.trim() : "–"}</dd></div>
+          <div><dt>Способ оплаты</dt><dd>{selectedMethod?.label || "–"}</dd></div>
+          <div><dt>Реквизиты</dt><dd>{paymentMethod === "card" ? "Не требуются" : hasRequisites ? "Реквизиты компании" : "–"}</dd></div>
+        </dl>
+        <div className="account-summary-total">
+          <strong>{rubleNumber.format(amountRubles)} ₽</strong>
+          <span title="Бонус 1% от суммы пополнения">+ {rubleNumber.format(bonusPoints)} Б</span>
+        </div>
+        <button className="account-payment-submit" type="button" onClick={topUp} aria-disabled={!canTopUp}>Пополнить</button>
+        {error && <p className="account-summary-error" role="alert">{error}</p>}
       </aside>
     </div>
   </main>;
@@ -140,7 +228,7 @@ function AccountSurvey({ dispatch, notify }) {
 export function AccountPortal({ page, profile, balanceCents, dispatch, setPage, openKnowledge, openSurvey, notify }) {
   return <div className="account-portal">
     <AccountHeader page={page} profile={profile} setPage={setPage} openKnowledge={openKnowledge} notify={notify} />
-    {page === "account-tariff" && <AccountTariff balanceCents={balanceCents} dispatch={dispatch} openSurvey={openSurvey} notify={notify} />}
+    {page === "account-tariff" && <AccountTariff balanceCents={balanceCents} dispatch={dispatch} notify={notify} />}
     {page === "account-survey" && <AccountSurvey dispatch={dispatch} notify={notify} />}
     {page === "account" && <AccountHome profile={profile} balanceCents={balanceCents} setPage={setPage} notify={notify} />}
   </div>;
