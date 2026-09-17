@@ -19,7 +19,9 @@
 .kb-modal::backdrop { background: rgb(29 33 37 / 23%); }
 .kb-modal button { font: inherit; cursor: pointer; }
 .kb-modal button:focus-visible,
-.kb-modal input:focus-visible { outline: 2px solid #ff7948; outline-offset: 2px; }
+.kb-modal input:focus-visible,
+.kb-modal select:focus-visible,
+.kb-modal textarea:focus-visible { outline: 2px solid #ff7948; outline-offset: 2px; }
 
 .kb-header {
   height: 70px;
