@@ -459,8 +459,8 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
     </nav>
     <div className="sidebar-bottom">
-      <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>Помощь</span></button>
       <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>
+      <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>Помощь</span></button>
       <button className="nav-item muted-item"><IconHeadphones size={18} stroke={1.7} /><span>Поддержка</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
       <button className="lk-button" onClick={() => setPage("account")}>Перейти в ЛК <IconSwitchHorizontal size={19} /></button>
