@@ -28,17 +28,17 @@ import {
   IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
+const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", trainer: "Тренажер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
 const NAV_ITEMS = [
   { id: "home", label: "Главная", icon: IconHome },
   { id: "analytics", label: "Аналитик", icon: IconBook2, arrow: true },
   { id: "templates", label: "Шаблоны", icon: IconFolder },
-  { id: "trainer", label: "Тренер", icon: IconSchool, arrow: true },
+  { id: "trainer", label: "Тренажер", icon: IconSchool, arrow: true },
   { id: "billing", label: "Тарификация", icon: IconWallet },
   { id: "settings", label: "Настройки", icon: IconSettings, arrow: true },
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
-const HIDDEN_NAV_ITEMS = new Set(["templates", "trainer", "billing"]);
+const HIDDEN_NAV_ITEMS = new Set(["templates", "billing"]);
 const DEFAULT_DASHBOARD_ORDER = ["calls", "duration", "score", "conversion", "trend", "distribution", "categories", "employees", "attention"];
 const CATALOG_WIDGET_IDS = ["catalog-kpi", "catalog-line", "catalog-column", "catalog-donut", "catalog-table", "catalog-map", "catalog-funnel", "catalog-gauge", "catalog-heatmap", "catalog-combo", "catalog-top", "catalog-calendar"];
 const ALL_DASHBOARD_WIDGET_IDS = [...DEFAULT_DASHBOARD_ORDER, ...CATALOG_WIDGET_IDS];
