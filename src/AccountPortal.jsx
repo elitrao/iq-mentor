@@ -1,26 +1,27 @@
 import { useMemo, useState } from "react";
 import {
   IconBell,
+  IconArrowUpRight,
   IconChevronDown,
   IconChevronRight,
   IconClock,
   IconDotsVertical,
+  IconGift,
   IconHeadphones,
   IconInfoCircle,
   IconPlus,
   IconSearch,
   IconSettings,
+  IconSparkles,
   IconUser,
   IconX,
 } from "@tabler/icons-react";
 import { formatRubles } from "./billing/engine.js";
+import { MIN_TOP_UP, MAX_TOP_UP, TOP_UP_STEP, BONUS_TIERS, getTopUpBonus } from "./billing/topup.js";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import "./account.css";
 
 const rubleNumber = new Intl.NumberFormat("ru-RU");
-const MIN_TOP_UP = 25000;
-const MAX_TOP_UP = 200000;
-const TOP_UP_STEP = 1000;
 const PAYMENT_METHODS = [
   { id: "invoice", label: "Безналичный расчет для юрлиц" },
   { id: "card", label: "Банковская карта" },
@@ -92,16 +93,18 @@ function AccountTariff({ balanceCents, dispatch, notify }) {
   const [error, setError] = useState("");
   const amountRubles = Math.max(0, Math.round(Number(String(amount).replace(/\s/g, "")) || 0));
   const amountTooLow = String(amount).trim() !== "" && amountRubles < MIN_TOP_UP;
+  const amountTooHigh = amountRubles > MAX_TOP_UP;
   const selectedMethod = PAYMENT_METHODS.find((method) => method.id === paymentMethod);
   const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   const requisitesAreReady = paymentMethod === "card" || hasRequisites;
-  const canTopUp = amountRubles >= MIN_TOP_UP && emailIsValid && Boolean(paymentMethod) && requisitesAreReady;
-  const bonusPoints = Math.floor(amountRubles * 0.01);
+  const { currentTier, nextTier, bonusPoints, amountToNextTier, potentialBonus, additionalBonus, showBonusHook } = getTopUpBonus(amountRubles);
+  const currentBonusRate = currentTier.rate;
+  const canTopUp = amountRubles >= MIN_TOP_UP && amountRubles <= MAX_TOP_UP && emailIsValid && Boolean(paymentMethod) && requisitesAreReady;
   const sliderProgress = ((Math.max(MIN_TOP_UP, Math.min(MAX_TOP_UP, amountRubles)) - MIN_TOP_UP) / (MAX_TOP_UP - MIN_TOP_UP)) * 100;
 
   const normalizeAmount = (value) => {
     const clamped = Math.max(MIN_TOP_UP, Math.min(MAX_TOP_UP, Number(value) || MIN_TOP_UP));
-    return Math.round(clamped / TOP_UP_STEP) * TOP_UP_STEP;
+    return Math.round(clamped);
   };
 
   const updateAmount = (value) => {
@@ -119,6 +122,10 @@ function AccountTariff({ balanceCents, dispatch, notify }) {
       setError("Минимальная сумма пополнения — 25 000 ₽");
       return;
     }
+    if (amountRubles > MAX_TOP_UP) {
+      setError("Максимальная сумма пополнения — 750 000 ₽");
+      return;
+    }
     if (!emailIsValid) {
       setError("Укажите корректную почту для чека");
       return;
@@ -131,7 +138,7 @@ function AccountTariff({ balanceCents, dispatch, notify }) {
       setError("Добавьте реквизиты компании");
       return;
     }
-    dispatch({ type: "TOP_UP", amountCents: amountRubles * 100, success: true });
+    dispatch({ type: "TOP_UP", amountCents: amountRubles * 100, bonusCents: bonusPoints * 100, success: true });
     setError("");
     notify(`Баланс пополнен на ${rubleNumber.format(amountRubles)} ₽ · +${rubleNumber.format(bonusPoints)} Б`);
   };
@@ -147,20 +154,21 @@ function AccountTariff({ balanceCents, dispatch, notify }) {
     <div className="account-payment-grid">
       <section className="account-topup-card account-amount-card">
         <div className="account-card-title"><h2>Общий баланс</h2><IconInfoCircle size={13} stroke={2} aria-hidden="true" /></div>
-        <label className={amountTooLow ? "account-amount-field is-error" : "account-amount-field"}>
+        <label className={amountTooLow || amountTooHigh ? "account-amount-field is-error" : "account-amount-field"}>
           <input
             id="account-topup-amount"
             inputMode="numeric"
-            value={rubleNumber.format(amountRubles)}
+            value={amount === "" ? "" : rubleNumber.format(amountRubles)}
             onChange={(event) => updateAmount(event.target.value.replace(/\D/g, ""))}
             onBlur={() => setAmount(normalizeAmount(amountRubles))}
             aria-label="Сумма пополнения"
-            aria-invalid={amountTooLow}
-            aria-describedby={amountTooLow ? "account-amount-minimum" : undefined}
+            aria-invalid={amountTooLow || amountTooHigh}
+            aria-describedby={amountTooLow ? "account-amount-minimum" : amountTooHigh ? "account-amount-maximum" : undefined}
           />
           <span>₽</span>
         </label>
         {amountTooLow && <p className="account-amount-hint" id="account-amount-minimum" role="alert">Минимальная сумма пополнения — 25 000 ₽</p>}
+        {amountTooHigh && <p className="account-amount-hint" id="account-amount-maximum" role="alert">Максимальная сумма пополнения — 750 000 ₽</p>}
         <input
           className="account-amount-range"
           type="range"
@@ -172,7 +180,26 @@ function AccountTariff({ balanceCents, dispatch, notify }) {
           style={{ "--range-progress": `${sliderProgress}%` }}
           aria-label="Сумма пополнения ползунком"
         />
-        <div className="account-range-labels" aria-hidden="true"><span>25K</span><span>50K</span><span>100K</span><span>150K</span><span>200K</span></div>
+        <div className="account-range-labels" aria-hidden="true"><span>25K</span><span>250K</span><span>500K</span><span>750K</span></div>
+      </section>
+
+      <section className="account-topup-card account-bonus-card">
+        <div className="account-bonus-card-heading"><div><IconGift size={17} stroke={1.8} /><h2>Бонус за пополнение</h2></div><span>Больше сумма — больше выгода</span></div>
+        <div className="account-bonus-levels" aria-label="Бонусные уровни">
+          {BONUS_TIERS.map((tier) => {
+            const isCurrent = tier.threshold === currentTier.threshold;
+            const isNext = tier.threshold === nextTier?.threshold;
+            return <div className={`${isCurrent ? "is-current" : ""}${isNext ? " is-next" : ""}`} key={tier.threshold}>
+              <strong>{tier.rate}%</strong>
+              <span>от {rubleNumber.format(tier.threshold)} ₽</span>
+            </div>;
+          })}
+        </div>
+        {showBonusHook && <div className="account-bonus-hook" role="status" aria-live="polite">
+          <span className="account-bonus-hook-icon"><IconGift size={21} stroke={1.8} /></span>
+          <div><strong>Ещё немного — и бонус вырастет до {nextTier.rate}%!</strong><p>Добавьте {rubleNumber.format(amountToNextTier)} ₽ и получите {rubleNumber.format(potentialBonus)} ₽ бонусами.</p></div>
+          <button type="button" onClick={() => updateAmount(nextTier.threshold)}>Довести до следующего уровня<IconArrowUpRight size={16} /></button>
+        </div>}
       </section>
 
       <section className="account-topup-card account-email-card">
@@ -206,8 +233,17 @@ function AccountTariff({ balanceCents, dispatch, notify }) {
         </dl>
         <div className="account-summary-total">
           <strong>{rubleNumber.format(amountRubles)} ₽</strong>
-          <span title="Бонус 1% от суммы пополнения">+ {rubleNumber.format(bonusPoints)} Б</span>
+          <span title={`Бонус ${currentBonusRate}% от суммы пополнения`}>+ {rubleNumber.format(bonusPoints)} Б</span>
         </div>
+        {!amountTooLow && !amountTooHigh && amount !== "" && <div className={showBonusHook ? "account-bonus-benefit is-visible" : "account-bonus-benefit"}>
+          <div className="account-bonus-benefit-title"><IconSparkles size={16} /><span>{showBonusHook ? "Ваша выгода может быть больше" : currentBonusRate === 20 ? "Максимальная выгода активна" : "Бонус за пополнение"}</span></div>
+          {showBonusHook ? <div className="account-bonus-compare">
+            <div><small>Сейчас</small><strong>{currentBonusRate}%</strong><span>{rubleNumber.format(bonusPoints)} ₽</span></div>
+            <IconArrowUpRight size={20} />
+            <div><small>При {rubleNumber.format(nextTier.threshold)} ₽</small><strong>{nextTier.rate}%</strong><span>{rubleNumber.format(potentialBonus)} ₽</span></div>
+          </div> : <p><strong>{currentBonusRate}%</strong> · {rubleNumber.format(bonusPoints)} ₽ бонусами</p>}
+          {showBonusHook && <p className="account-bonus-extra">Добавьте {rubleNumber.format(amountToNextTier)} ₽ — и получите на <strong>{rubleNumber.format(additionalBonus)} ₽</strong> больше бонусов.</p>}
+        </div>}
         <button className="account-payment-submit" type="button" onClick={topUp} aria-disabled={!canTopUp}>Пополнить</button>
         {error && <p className="account-summary-error" role="alert">{error}</p>}
       </aside>

@@ -70,7 +70,7 @@
 .account-tariff-balance strong { margin-left: 4px; color: #344247; font-weight: 650; }
 .account-tariff-history { width: 31px; height: 31px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 7px; background: #ffebe5; color: #ff6840; padding: 0; cursor: pointer; }
 .account-tariff-history:hover { background: #ffe0d6; }
-.account-payment-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(315px, 1fr); grid-template-areas: "amount email summary" "method method summary" "requisites requisites summary"; gap: 14px; align-items: stretch; }
+.account-payment-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(315px, 1fr); grid-template-areas: "amount email summary" "bonus bonus summary" "method method summary" "requisites requisites summary"; gap: 14px; align-items: stretch; }
 .account-topup-card, .account-payment-summary { border-radius: 15px; background: #fafafa; }
 .account-topup-card { padding: 21px 20px; }
 .account-topup-card h2, .account-payment-summary h2 { margin: 0; color: #566267; font-size: 15px; line-height: 1.3; font-weight: 550; }
@@ -78,6 +78,26 @@
 .account-card-title svg { color: #abb0b1; }
 .account-amount-card { grid-area: amount; min-height: 157px; }
 .account-email-card { grid-area: email; min-height: 157px; }
+.account-bonus-card { grid-area: bonus; display: grid; gap: 14px; overflow: hidden; border: 1px solid #eeeafd; background: linear-gradient(135deg, #fbf9ff 0%, #fff 58%, #f5fff8 100%); }
+.account-bonus-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.account-bonus-card-heading > div { display: flex; align-items: center; gap: 8px; }
+.account-bonus-card-heading svg { color: #7658ed; }
+.account-bonus-card-heading > span { color: #8d84ae; font-size: 10px; font-weight: 550; }
+.account-bonus-levels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; }
+.account-bonus-levels > div { min-width: 0; display: grid; justify-items: center; gap: 3px; border: 1px solid #ececef; border-radius: 10px; background: rgba(255, 255, 255, .84); padding: 9px 4px 8px; color: #a0a4a7; transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease, transform .25s ease; }
+.account-bonus-levels strong { font-size: 17px; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.account-bonus-levels span { overflow: hidden; max-width: 100%; color: #777f83; font-size: 10px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.account-bonus-levels > div.is-current { border-color: #8ee2ae; background: #ecfff3; color: #0da14a; box-shadow: 0 5px 16px rgba(19, 170, 83, .1); }
+.account-bonus-levels > div.is-current span { color: #37965d; }
+.account-bonus-levels > div.is-next { border-color: #c9bdfc; background: #f5f1ff; color: #6c4ce5; transform: translateY(-2px); }
+.account-bonus-levels > div.is-next span { color: #7f70b8; }
+.account-bonus-hook { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 11px; border: 1px solid #dfd5ff; border-radius: 12px; background: linear-gradient(100deg, #f2edff, #fbf9ff); padding: 12px; color: #392680; animation: account-hook-in .46s cubic-bezier(.2, .8, .2, 1) both; }
+.account-bonus-hook-icon { width: 35px; height: 35px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: #e4d9ff; color: #704fe9; }
+.account-bonus-hook strong { display: block; font-size: 14px; line-height: 1.4; font-weight: 650; }
+.account-bonus-hook p { margin: 3px 0 0; color: #71649e; font-size: 12px; line-height: 1.45; }
+.account-bonus-hook button { grid-column: 2; justify-self: start; min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 9px; background: #7555e9; color: #fff; padding: 0 12px; cursor: pointer; font-size: 12px; font-weight: 600; white-space: normal; transition: background-color .2s ease, transform .2s ease; }
+.account-bonus-hook button:hover { background: #6443dc; transform: translateY(-1px); }
+@keyframes account-hook-in { from { opacity: 0; transform: translateY(6px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .account-method-card { grid-area: method; min-height: 108px; }
 .account-requisites-card { grid-area: requisites; min-height: 102px; }
 .account-payment-summary { grid-area: summary; min-height: 348px; display: flex; flex-direction: column; padding: 21px 20px; }
@@ -85,6 +105,7 @@
 .account-amount-field:focus-within, .account-email-field:focus-within { border-color: #ffc5b3; box-shadow: 0 0 0 3px rgba(255, 108, 67, .08); }
 .account-amount-field.is-error, .account-amount-field.is-error:focus-within { border-color: #e74c4c; box-shadow: 0 0 0 3px rgba(231, 76, 76, .1); }
 .account-amount-field input, .account-email-field input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: #303b3f; font-size: 13px; font-weight: 500; }
+.account-amount-field input:focus-visible, .account-email-field input:focus-visible { outline: 0; }
 .account-amount-field span { color: #c5c9ca; font-size: 13px; font-weight: 600; }
 .account-email-field input::placeholder { color: #b6bcbd; }
 .account-amount-hint { margin: 6px 0 -5px; color: #d94141; font-size: 10px; line-height: 1.3; font-weight: 500; }
@@ -108,9 +129,22 @@
 .account-payment-summary dl div { display: grid; gap: 6px; }
 .account-payment-summary dt { color: #b0b5b6; font-size: 11px; font-weight: 450; }
 .account-payment-summary dd { min-height: 14px; margin: 0; overflow-wrap: anywhere; color: #8f9799; font-size: 11px; font-weight: 500; }
-.account-summary-total { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+.account-summary-total { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: auto; padding-top: 24px; }
 .account-summary-total strong { color: #252a2c; font-size: 27px; line-height: 1; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .account-summary-total span { min-height: 30px; display: inline-flex; align-items: center; border: 1px solid #ffe0d6; border-radius: 999px; background: #fff5f1; color: #ff6840; padding: 0 12px; font-size: 13px; line-height: 1; font-weight: 550; white-space: nowrap; }
+.account-bonus-benefit { display: grid; gap: 10px; margin-top: 13px; border: 1px solid #dff3e6; border-radius: 12px; background: #f4fff7; padding: 11px; color: #18894a; }
+.account-bonus-benefit-title { display: flex; align-items: center; gap: 6px; font-size: 11px; line-height: 1.4; font-weight: 650; }
+.account-bonus-benefit > p { margin: 0; color: #4e6557; font-size: 11px; }
+.account-bonus-benefit > p strong { color: #16964d; font-size: 16px; }
+.account-bonus-compare { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 7px; }
+.account-bonus-compare > svg { color: #28b966; }
+.account-bonus-compare > div { min-width: 0; display: grid; gap: 2px; border-radius: 9px; background: #fff; padding: 8px; }
+.account-bonus-compare small { color: #61746a; font-size: 11px; line-height: 1.4; }
+.account-bonus-compare strong { color: #0d9d49; font-size: 24px; line-height: 1.2; }
+.account-bonus-compare span { color: #506158; font-size: 12px; font-weight: 600; }
+.account-bonus-benefit .account-bonus-extra { font-size: 12px; line-height: 1.5; }
+.account-bonus-benefit .account-bonus-extra strong { font-size: inherit; }
+@media (prefers-reduced-motion: reduce) { .account-bonus-hook { animation: none; } .account-bonus-levels > div, .account-bonus-hook button { transition: none; } }
 .account-payment-submit { width: 100%; min-height: 39px; margin-top: 14px; border: 0; border-radius: 9px; background: #ff6c43; color: #fff; cursor: pointer; font-size: 12px; font-weight: 650; transition: background-color .2s ease, transform .2s ease; }
 .account-payment-submit:hover { background: #f65e35; transform: translateY(-1px); }
 .account-summary-error { min-height: 13px; margin: 7px 0 -4px; color: #d74c2e; text-align: center; font-size: 10px; line-height: 1.3; font-weight: 500; }
@@ -120,6 +154,6 @@
 @media (max-width: 1360px) { .account-home { max-width: none; margin: 0 16px; } }
 @media (max-width: 1220px) { .account-tariff-page { max-width: none; margin: 0 32px; } }
 @media (max-width: 1080px) { .account-profile { min-width: 210px; } .account-nav { gap: 20px; } }
-@media (max-width: 900px) { .account-header { grid-template-columns: auto 1fr auto; } .account-nav { justify-content: center; gap: 13px; } .account-profile { min-width: 42px; width: 42px; padding: 0 4px; grid-template-columns: 34px; } .account-profile-copy, .account-profile > svg { display: none; } .account-module-grid { grid-template-columns: 1fr 1fr; } .account-mentor-card { grid-column: 1 / -1; min-height: 86px; } .account-payment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "amount email" "method method" "requisites requisites" "summary summary"; } .account-payment-summary { min-height: 285px; } }
-@media (max-width: 680px) { .account-header { height: auto; min-height: 58px; grid-template-columns: 1fr auto; padding: 4px 12px; } .account-nav { grid-column: 1 / -1; grid-row: 2; order: 3; width: calc(100vw - 24px); height: 42px; justify-content: flex-start; overflow-x: auto; } .account-nav button::after { bottom: 5px; } .account-header-actions { grid-column: 2; } .account-icon-button { display: none; } .account-home, .account-tariff-page { margin: 0; padding: 24px 12px 48px; } .account-company-row { align-items: flex-start; flex-direction: column; } .account-company-title h1 { font-size: 16px; } .account-balance-actions { width: 100%; flex-wrap: wrap; } .account-module-grid { grid-template-columns: 1fr; } .account-mentor-card { grid-column: auto; } .account-employees > header { flex-direction: column; } .account-employee-actions, .account-employee-actions label { width: 100%; } .account-employee-actions > button { min-width: 128px; } .account-payment-grid { grid-template-columns: 1fr; grid-template-areas: "amount" "email" "method" "requisites" "summary"; } .account-payment-methods { grid-template-columns: 1fr; } .account-tariff-heading { align-items: flex-start; flex-direction: column; } .account-tariff-balance { width: 100%; flex-wrap: wrap; } .account-payment-summary { min-height: 300px; } .account-survey-page { min-height: calc(100vh - 100px); } .account-survey-page .tariff-onboarding-page, .account-survey-page .tariff-loading-page { min-height: calc(100vh - 100px); } .account-survey-page .tariff-calculator-page { padding: 24px 12px 48px; } }
+@media (max-width: 900px) { .account-header { grid-template-columns: auto 1fr auto; } .account-nav { justify-content: center; gap: 13px; } .account-profile { min-width: 42px; width: 42px; padding: 0 4px; grid-template-columns: 34px; } .account-profile-copy, .account-profile > svg { display: none; } .account-module-grid { grid-template-columns: 1fr 1fr; } .account-mentor-card { grid-column: 1 / -1; min-height: 86px; } .account-payment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "amount email" "bonus bonus" "method method" "requisites requisites" "summary summary"; } .account-payment-summary { min-height: 285px; } }
+@media (max-width: 680px) { .account-header { height: auto; min-height: 58px; grid-template-columns: 1fr auto; padding: 4px 12px; } .account-nav { grid-column: 1 / -1; grid-row: 2; order: 3; width: calc(100vw - 24px); height: 42px; justify-content: flex-start; overflow-x: auto; } .account-nav button::after { bottom: 5px; } .account-header-actions { grid-column: 2; } .account-icon-button { display: none; } .account-home, .account-tariff-page { margin: 0; padding: 24px 12px 48px; } .account-company-row { align-items: flex-start; flex-direction: column; } .account-company-title h1 { font-size: 16px; } .account-balance-actions { width: 100%; flex-wrap: wrap; } .account-module-grid { grid-template-columns: 1fr; } .account-mentor-card { grid-column: auto; } .account-employees > header { flex-direction: column; } .account-employee-actions, .account-employee-actions label { width: 100%; } .account-employee-actions > button { min-width: 128px; } .account-payment-grid { grid-template-columns: 1fr; grid-template-areas: "amount" "email" "bonus" "method" "requisites" "summary"; } .account-payment-methods { grid-template-columns: 1fr; } .account-bonus-card-heading, .account-bonus-hook { align-items: flex-start; grid-template-columns: auto 1fr; } .account-bonus-card-heading { display: grid; } .account-bonus-card-heading > span { grid-column: 1 / -1; } .account-bonus-hook button { grid-column: 1 / -1; width: 100%; } .account-bonus-levels { grid-template-columns: repeat(3, minmax(0, 1fr)); } .account-tariff-heading { align-items: flex-start; flex-direction: column; } .account-tariff-balance { width: 100%; flex-wrap: wrap; } .account-payment-summary { min-height: 300px; } .account-survey-page { min-height: calc(100vh - 100px); } .account-survey-page .tariff-onboarding-page, .account-survey-page .tariff-loading-page { min-height: calc(100vh - 100px); } .account-survey-page .tariff-calculator-page { padding: 24px 12px 48px; } }
 @media (max-width: 430px) { .account-employee-actions { align-items: stretch; flex-direction: column; } .account-employee-actions > button { width: 100%; } .account-email-domains { grid-template-columns: repeat(2, 1fr); } }
