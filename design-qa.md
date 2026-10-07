@@ -832,3 +832,140 @@ final result: passed
 - [x] Desktop/mobile визуально проверены, localhost 4170 оставлен запущенным.
 
 final result: passed
+
+## 2026-10-07 — Структура настроек: Общие / Аналитик / Тренер
+
+**Source and comparison scope**
+
+- Source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-54291670-dfac-4c21-837e-4d4b2609af96.png` (782 × 665 px).
+- The reference is an information-architecture document, not an app-screen mock. Its section names, order and nesting are authoritative; existing IQ Mentor application typography, shell and white surfaces remain intentionally unchanged.
+- Rendered evidence: `artifacts/settings-structure/desktop.jpg` (employees), `reports.jpg` (calls report), `navigation.jpg` (focused navigation crop), `mobile.jpg` (mobile viewport).
+- Desktop CSS viewport: 1440 × 900; browser capture excludes the vertical scrollbar (1425 × 900). Mobile CSS viewport: 390 × 844. No density scaling used. Focused navigation crop: 300 × 707 from the desktop calls-report screenshot.
+- Full-view source and employee implementation were opened together in one comparison call. Source and corrected navigation crop were opened together in a second focused comparison. The native screenshot clip ignored its x/y coordinates; the final focused evidence was therefore cropped from the original browser screenshot rather than treated as an independent capture.
+
+**Comparison history and fixes**
+
+- [P2, fixed] Initial navigation placed the last Trainer report below the 900px viewport. Reduced group gaps and row heights without truncating long labels. Final navigation bottom measured 860.7px; both Trainer report types are visible.
+- [P2, fixed] The employee table would not fit beside the department column at desktop width. Narrowed the department area and adjusted table tracks; final table clientWidth and scrollWidth both measured 599px (no clipped columns).
+- Active rows use the same white background and neutral border in all groups; group headings and selected icons use neutral General, muted-orange Analyst and muted-violet Trainer accents.
+- No remaining actionable P0/P1/P2 differences against the supplied hierarchy.
+
+**Required fidelity surfaces**
+
+- Typography: existing Inter retained; 13px primary navigation, 12px report children, readable two-line document label rather than ellipsis; 21px content heading. Document-style numerals/highlights intentionally replaced by app navigation affordances.
+- Spacing/layout: three clearly separated groups, consistent icon/text alignment, indented report types with a thin vertical divider; desktop group separators and mobile horizontal group strip.
+- Colors/tokens: subdued existing product accents; no bright filled categories or colored active-row backgrounds.
+- Assets/icons: Tabler icons for all nine primary navigation items and five report types; supplied integration logos preserved. No generated or substituted image assets were needed.
+- Copy/content: all section names, placement and report nesting match the source. Personal-account, CRM and Additional navigation are omitted from this Settings workspace; unrelated stored company/profile data remains preserved.
+
+**Interactions and verification**
+
+- All three groups and each report type open the corresponding content; report parent expand/collapse verified.
+- Analyst calls day schedule was saved, did not affect Analyst summary or Trainer training, and remained checked after page reload. Restored the test toggle afterwards.
+- Four new schema tests cover exact structure, unique/icon-bearing items, legacy section fallback and independent report schedules including legacy migration.
+- Existing integration service switching preserves Yandex warning/OAuth content and Bitrix token controls; no real external connection or credential change performed.
+- General notification product tabs show independent Analyst/Trainer events.
+- Scoring Close/reset restores the original duration; document keyword addition works.
+- Criteria enabled state saves across section changes, and adding a criterion adds an editable row. Test checkbox restored; incomplete test row not saved.
+- Mobile page width remains within the viewport: document width 375px at CSS viewport 390px, with horizontal scrolling confined to the category navigation and relevant tables.
+- Historical console logs included a temporary `renderSection` error while its caller was being updated and an earlier Vite websocket error. After the completed implementation was reloaded, there were no new browser errors.
+- Final production build passed; all 27 settings, billing and Sites packaging tests passed.
+
+**Follow-up polish / limitations**
+
+- Desktop is the primary target. Mobile keeps categories in a horizontally scrollable strip rather than inventing an alternative navigation architecture.
+- This remains a local interactive prototype; scheduling reports and applying criteria to real analysis require the product backend.
+
+final result: passed
+
+## 2026-10-07 — Settings navigation: latest Notion reference
+
+**Source and comparison scope**
+
+- Latest source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-9744d878-b3f6-4cdc-8f55-a6fd552087ea.png` (340 × 746). This supersedes the earlier GitHub visual direction; the existing three-category information architecture remains authoritative.
+- Implemented a warm light-gray menu surface, neutral 20px outline icons, quiet uppercase category captions, spacious 38px primary rows, soft gray selected/hover fills and no colored active-edge marker. Nested reports remain text-only, with a 42px label inset aligned to primary labels.
+- The source's larger screenshot typography is adapted to the existing desktop IQ interface: Inter 14px navigation / 13px children / 12px group captions. Existing settings content and outer application shell are intentionally retained. Thin quiet dividers preserve the user's explicit category-separation request.
+- Evidence: `artifacts/settings-structure/notion-desktop.jpg` (1425 × 900 capture from a 1440 × 900 CSS viewport), `notion-navigation.jpg` (300 × 713 focused crop), `notion-mobile.jpg` (390 × 844 viewport). Source and implementation crop were opened together in the same comparison call, without rescaling.
+
+**Comparison and refinements**
+
+- Earlier GitHub iteration removed nested icons, neutralized all category colors and used a blue active marker. Latest Notion refinement replaces that marker with a soft gray full-row selection and adds the warm-gray surface, larger icons and roomier rows.
+- All categories share the same neutral caption color; no orange/violet category highlighting remains in the navigation. Trainer's final report is visible within the 900px desktop viewport (navigation bottom 867px).
+- Long document labels wrap rather than truncate. Primary icon/label and nested text alignment verified. No unresolved actionable P0/P1/P2 visual differences within the scoped adaptation.
+
+**Interactions and verification**
+
+- Analyst report parent collapse/reopen and Trainer summary selection verified; correct content opens. No saved configuration or external account changes made during this visual check.
+- Navigation contains zero nested SVG icons. Desktop has no horizontal overflow. After responsive layout settled, mobile document width measured 375px within a 390px viewport; category strip scrolling stays internal (351px client width, 840px scroll width).
+- Production build and all four settings schema tests passed; diff whitespace check passed. Current browser error log is empty. Temporary viewport overrides reset before handoff.
+- This is a navigation-only visual refinement; no backend features or new settings fields are introduced.
+
+final result: passed
+
+## 2026-10-07 — Softer selection and lighter menu surface
+
+- User refinement: the menu looked too gray and selection lacked a pleasant click response. Surface lightened to almost-white `#fcfcfb`; only hover/selection retain quiet warm-gray tones.
+- A shared rounded selection background now eases between rows over 320ms, with a restrained 1px press response. No category colors, heavy shadows or text scaling added. Reduced-motion CSS disables movement.
+- Selected report rows and collapsed parent fallback verified; settled highlight matches selected bounds exactly (zero x/y/width/height differences). ResizeObserver keeps alignment current when the navigation layout changes.
+- Browser error log empty, production build passed after motion implementation, all four settings tests passed after the lighter-color refinement; diff check passed.
+- Evidence: `artifacts/settings-structure/soft-selection-desktop.jpg`, captured at the normal browser size. The lower menu extends below this viewport; a failed out-of-bounds crop was discarded and is not used as evidence.
+
+final result: passed
+
+## 2026-10-07 — Collapsed report navigation on entry
+
+- Both report parents initialize collapsed on every Settings mount; opening them remains explicit and independent. Category headings and primary links stay visible.
+- Verified initial reload and the sequence open Analyst reports → leave for Home → return to Settings: both report child lists are hidden again. Previously selected report content remains available, with the shared highlight falling back to its collapsed parent.
+- Responsive selection alignment also verified at 390px: no highlight offset and 375px document width. Temporary viewport override reset. Final production build passed.
+- Evidence: `artifacts/settings-structure/collapsed-light-menu.jpg`.
+
+final result: passed
+
+## 2026-10-07 — Product-colored selection transition
+
+- Latest user direction permits color on the selected item: soft orange for Analyst, product violet for Trainer, neutral for General. Category captions and the almost-white menu remain unchanged.
+- Shared highlight interpolates background color over 420ms while easing position over 320ms. A static translucent-white gradient adds slight tonal variation without trying to transition a gradient image. Selected primary icons transition to their product accent; child links stay icon-free.
+- Verified Analyst target `rgba(238,112,60,.11)` and Trainer settled fill `rgba(100,103,242,.11)`, with selected Trainer icon `#6467F2`. All category captions remain the same gray. Collapsed-parent fallback retains the correct product color.
+- Production build, all four settings tests and diff check passed. Evidence: `artifacts/settings-structure/selection-analyst.jpg` and `selection-trainer.jpg`.
+
+final result: passed
+
+## 2026-10-07 — Scoring moved into Analyst call reports
+
+- Removed the standalone scoring navigation entry and mapped its legacy identifier to Analyst → Автогенерация отчётов → Звонки.
+- Existing minimum call duration and automatic-analysis checkbox now appear beneath call-report periods, separated by a quiet divider and the heading «Параметры анализа звонков». One shared Save stores both report schedule and existing scoring values; Close resets both drafts. No storage migration or loss of existing scoring data.
+- Verified a temporary 45-second minimum, automatic analysis and daily reports save across section changes. Analyst summary shows no analysis fields and its independent schedule remains untouched. Restored the original 30 seconds, disabled analysis and disabled daily report; tested unsaved duration/schedule changes reset correctly.
+- Final schema test covers the removed menu id and legacy scoring alias. Production build passed. Evidence: `artifacts/settings-structure/call-report-analysis.jpg`.
+
+final result: passed
+
+## 2026-10-07 — Criteria templates and nested documents
+
+- Source: supplied template-management screenshot, 1599×809. Compared source and implementation together twice, final implementation content crop 1599×829 at a 2193×1080 viewport. The existing Settings navigation and product-context heading are intentionally retained; other sections are unchanged.
+- Preserved the three-panel hierarchy, quiet gray surfaces, orange template selection/checks, blue format badges, category rows and dark employee-binding action. All icons use existing Tabler assets; no generated raster assets are needed. Chevrons adjusted to sit beside category text, and CSS specificity fixed to remove an unintended outer card. Final recapture: `artifacts/settings-structure/criteria-content-final.jpg`.
+- Existing saved category names/rules are migrated and retained rather than overwritten to match screenshot copy. Mock template counts are calculated from actual included categories/employees, so fixture counts differ from the source's static badges. Lists scroll internally rather than dropping rows.
+- Verified template selection, isolated category toggles, restored original values, required blank-name validation, create-dialog cancellation, category Save, employee search and binding Save, and persistence after reload. New template construction and immutable model updates are additionally covered by unit tests. No real backend employee directory or external writes are involved.
+- Documents renamed «Критерии из документов», nested under call criteria with no child icon. Verified parent opens templates, child opens the preserved upload/format/keyword controls, and its heading/breadcrumb match the new hierarchy. All expandable parents start collapsed on reload.
+- Responsive checks: 1440px view stacks category columns inside the narrower Settings workspace; 390px view stacks panels and uses the existing internally scrolling navigation strip. After layout settles, mobile document width is 375px, panel width 351px, within the 390px viewport. Transient measurements during the shell resize were discarded. Evidence: `criteria-desktop.jpg`, `criteria-mobile.jpg`, `criteria-documents.jpg` in the same artifact folder.
+- Browser error log empty. Production build and all 31 tests passed. No outstanding P0/P1/P2 visual findings for the requested local prototype scope; hosting/backend integration is out of scope.
+
+final result: passed
+
+## 2026-10-07 — Documents explanatory entrance
+
+- Each Documents entry starts blank for 400ms, fades the explanation in over 800ms, holds it fully readable for 6.5 seconds, then moves/shrinks the same paragraph beneath the page title over 1000ms. Existing controls mount afterward with a quiet fade. Timers and paragraph animation are canceled on unmount; reduced-motion preference skips directly to the annotated settings view.
+- Uses the exact user-approved template explanation. No new settings fields, external writes or storage resets were introduced. The shared subsection dot markers and smaller 12px labels remain unchanged.
+- Browser verified blank state with no controls, readable intro, final ready state with static 13px annotation and existing document controls, re-entry reset, and leaving during the intro. Error log empty. Evidence: `artifacts/settings-structure/documents-explanation-intro.jpg` and `documents-explanation-annotation.jpg`.
+- At 390px, document width is 375px. Intro title and paragraph have a verified 26px gap without overlap; mobile copy positioning accommodates the wrapped title. Temporary viewport reset after verification.
+- Production build and eight Settings/template tests passed. No outstanding visual or interaction findings within this scope.
+
+final result: passed
+
+## 2026-10-07 — Final document header, illustration removed
+
+- Final annotation uses the user's revised script/instruction explanation inside a minimal light warm-orange header surface. Removed the right-side illustration and caption, and released its reserved width.
+- The requested new flying-text animation was canceled by the user and reverted before publishing. Retained the earlier 1000ms move/shrink transition and the 6.5-second reading hold; no floating text layer remains.
+- Browser verified ready state, no illustration, and no new flight layer. Evidence: `artifacts/settings-structure/documents-header-without-art.jpg`. Temporary viewport reset.
+- Final production build, all 31 tests and whitespace validation passed. Existing settings changes are included in the GitHub handoff; generated screenshots/build outputs remain ignored.
+
+final result: passed

@@ -1,0 +1,83 @@
+.settings-structure-layout .settings-structure-content.criteria-content { container: criteria-shell / inline-size; border: 0; padding: 0; background: transparent; }
+.settings-structure-content.criteria-content .settings-content-head { margin-bottom: 20px; border-bottom: 0; }
+.settings-structure-content.criteria-content .settings-content-head h2 { width: fit-content; border-bottom: 2px solid #ff8a17; padding-bottom: 5px; font-size: 26px; font-weight: 500; }
+.criteria-templates { display: grid; grid-template-columns: minmax(155px, .95fr) minmax(0, 2.65fr) minmax(165px, 1fr); gap: 20px; min-width: 0; color: #536166; }
+.criteria-panel { min-width: 0; height: 720px; display: flex; flex-direction: column; border-radius: 14px; background: #fafafa; padding: 16px; }
+.criteria-panel > h3 { flex: 0 0 auto; min-height: 39px; margin: 0; border-bottom: 1px solid #dedfe0; padding-bottom: 14px; font-size: 14px; font-weight: 600; line-height: 1.4; }
+.criteria-template-scroll, .criteria-binding-scroll { min-height: 0; flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #d6d8da transparent; }
+.criteria-template-scroll { padding-top: 9px; }
+.criteria-template-item { display: flex; align-items: center; gap: 5px; width: 100%; min-height: 52px; border: 0; border-radius: 10px; background: transparent; padding: 9px 9px; color: #536166; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.criteria-template-item:hover { background: #f5f5f5; }
+.criteria-template-item.selected { background: #f5f5f5; color: #ff8a17; }
+.criteria-template-item > span { min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.criteria-template-item small { display: flex; flex: 0 0 auto; align-items: center; gap: 3px; border: 1px solid #e9e9e9; border-radius: 999px; background: #f6f6f6; padding: 3px 5px; color: inherit; font-size: 11px; }
+.criteria-template-item.selected small { border-color: #ffe6cf; background: #fff3e7; }
+.criteria-create, .criteria-bind { min-height: 42px; display: flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 9px; width: 100%; margin-top: 12px; border: 0; border-radius: 9px; background: #ececec; color: #1b292f; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.criteria-bind { background: #292929; color: #fff; }
+.criteria-create:hover { background: #e4e4e4; }
+.criteria-bind:hover { background: #414141; }
+.criteria-category-panel { padding: 24px 18px 18px; }
+.criteria-category-panel > h3 { min-height: 54px; padding: 3px 10px 20px; font-size: 18px; }
+.criteria-category-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; flex: 1; min-height: 0; padding-top: 20px; }
+.criteria-category-group { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.criteria-category-group > header { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 7px; min-height: 38px; margin-bottom: 12px; }
+.criteria-category-group > header > label { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 14px; line-height: 1.35; cursor: pointer; }
+.criteria-category-group strong { font-weight: 600; }
+.criteria-templates input[type=checkbox], .criteria-employee-options input[type=checkbox] { width: 19px; height: 19px; flex: 0 0 auto; margin: 0; accent-color: #ff8a17; cursor: pointer; }
+.criteria-add-category { display: grid; flex: 0 0 auto; place-items: center; width: 32px; height: 34px; border: 0; border-radius: 8px; background: #fff0e2; color: #ff8a17; cursor: pointer; }
+.criteria-category-scroll { display: grid; align-content: start; gap: 10px; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.criteria-category-row { display: flex; align-items: center; gap: 7px; min-width: 0; min-height: 54px; border-radius: 12px; background: #fff; padding: 10px 12px; }
+.criteria-category-row > label { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 0 1 auto; cursor: pointer; }
+.criteria-category-row > label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.criteria-category-edit { display: grid; flex: 0 0 auto; place-items: center; width: 28px; height: 31px; border: 1px solid #f4f4f4; border-radius: 8px; background: #fff; color: #647078; cursor: pointer; }
+.criteria-category-edit:hover { border-color: #ffd4ae; color: #ff8a17; }
+.criteria-category-format { display: flex; flex: 0 0 auto; align-items: center; justify-content: center; min-width: 25px; min-height: 25px; margin-left: auto; border-radius: 6px; background: #e8f2ff; padding: 3px 4px; color: #3989ff; font-size: 11px; white-space: nowrap; }
+.criteria-binding-scroll { padding-top: 8px; }
+.criteria-binding-scroll > div { min-height: 48px; display: flex; align-items: center; padding: 10px 8px; color: #889297; font-size: 12px; line-height: 1.4; }
+.criteria-empty { padding: 12px 6px; color: #8c959b; font-size: 12px; line-height: 1.6; }
+.criteria-templates button:focus-visible, .criteria-templates input:focus-visible { outline: 2px solid #dd8043; outline-offset: 2px; }
+.criteria-dialog { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); overflow-y: auto; border: 1px solid #e5e7e9; border-radius: 16px; background: #fff; padding: 24px; color: #3a4146; box-shadow: 0 14px 60px #0002; }
+.criteria-dialog::backdrop { background: #0005; }
+.criteria-dialog > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+.criteria-dialog h2 { margin: 0; font-size: 21px; font-weight: 600; }
+.criteria-dialog > header button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 7px; background: #f7f7f7; color: #687078; cursor: pointer; }
+.criteria-dialog form { display: grid; gap: 18px; }
+.criteria-dialog form > label { display: grid; gap: 7px; font-size: 13px; }
+.criteria-dialog input:not([type=checkbox]), .criteria-dialog textarea, .criteria-dialog select { width: 100%; min-width: 0; min-height: 40px; border: 1px solid #e1e4e6; border-radius: 8px; background: #fff; padding: 10px 12px; color: #343b40; font: inherit; font-size: 14px; }
+.criteria-dialog textarea { resize: vertical; }
+.criteria-dialog footer { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.criteria-employee-options { display: grid; max-height: 340px; overflow-y: auto; gap: 3px; }
+.criteria-employee-options > label { display: flex; align-items: center; gap: 12px; min-height: 42px; padding: 8px; font-size: 13px; cursor: pointer; }
+.criteria-selected-count { margin-right: auto; color: #8a9297; font-size: 12px; }
+@container criteria-shell (min-width: 1150px) {
+  .settings-structure-content.criteria-content .settings-content-head h2 { font-size: 32px; }
+  .criteria-panel > h3, .criteria-category-group > header > label { font-size: 17px; }
+  .criteria-category-panel > h3 { font-size: 21px; }
+  .criteria-template-item, .criteria-category-row > label > span { font-size: 17px; }
+  .criteria-template-item small { font-size: 13px; }
+  .criteria-binding-scroll > div { font-size: 14px; }
+  .criteria-category-row { min-height: 56px; }
+}
+@container criteria-shell (max-width: 1000px) {
+  .criteria-templates { gap: 12px; }
+  .criteria-panel { padding: 12px; }
+  .criteria-category-panel { padding: 20px 14px 14px; }
+  .criteria-category-columns { grid-template-columns: 1fr; overflow-y: auto; }
+  .criteria-category-scroll { overflow-y: visible; }
+  .criteria-category-group { min-height: auto; }
+  .criteria-template-item { flex-wrap: wrap; gap: 4px; }
+  .criteria-template-item > span { flex-basis: 100%; }
+  .criteria-category-row > label > span { font-size: 13px; }
+}
+@container criteria-shell (max-width: 720px) {
+  .criteria-templates { grid-template-columns: minmax(150px, .75fr) minmax(0, 1.5fr); }
+  .criteria-bindings { grid-column: 1 / -1; height: 320px; }
+}
+@container criteria-shell (max-width: 460px) {
+  .criteria-templates { grid-template-columns: minmax(0, 1fr); }
+  .criteria-panel { height: auto; min-height: 0; }
+  .criteria-template-scroll { max-height: 250px; }
+  .criteria-category-columns { overflow: visible; }
+  .criteria-binding-scroll { max-height: 280px; }
+  .criteria-bindings { grid-column: auto; }
+}

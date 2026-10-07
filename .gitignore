@@ -8,4 +8,5 @@ dist/
 Thumbs.db
 .vite/
 /artifacts/bonus-hook/
+/artifacts/settings-structure/
 

@@ -16,6 +16,7 @@ import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
+import { getReportPeriods, resolveSettingsSection } from "./settings/schema.js";
 import { CallsReportPage } from "./CallsReportPage.jsx";
 import { FeedbackPage } from "./FeedbackPage.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
@@ -295,7 +296,7 @@ export function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [navOrder, setNavOrder] = useState(loadNavOrder);
   const [toast, setToast] = useState("");
-  const [settingSection, setSettingSection] = useState(() => window.location.hash === "#employees" ? "employees" : "personal");
+  const [settingSection, setSettingSection] = useState(() => window.location.hash === "#documents" ? "documents" : "employees");
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
   const [knowledgeOpen, setKnowledgeOpen] = useState(false);
@@ -358,7 +359,7 @@ export function App() {
         {page === "templates" && <TemplatesPage notify={notify} />}
         {page === "trainer" && <TrainerPage />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
-        {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} />}
+        {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />}
         {page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
       </main>
     </div>
@@ -1007,6 +1008,9 @@ function SettingsPage({ active, setActive, settings, update, notify }) {
 
 function SettingsSection({ id, settings, update, notify }) {
   const save = () => notify("Настройки сохранены");
+  if (id === "notifications") return <GeneralNotificationSettings settings={settings} update={update} />;
+  const section = resolveSettingsSection(id);
+  if (section.item.reportType) return <ReportSettings kind={section.group.id} reportType={section.item.reportType} reportLabel={section.item.label} value={settings.reports[section.group.id]} scoringValue={section.item.id === 'analyst-reports-calls' ? settings.scoring : undefined} update={update} save={save} notify={notify} />;
   if (id === "documents") return <DocumentsPage notify={notify} embedded />;
   if (id === "employees") return <div className="employees-settings-embedded"><EmployeesPage notify={notify} /></div>;
   if (id === "profile") return <ProfileSettings value={settings.profile} onChange={(key, value) => update((next) => { next.profile[key] = value; })} save={save} />;
@@ -1032,19 +1036,24 @@ function AccessSettings({ value, update, save }) {
   return <SettingsForm onSave={save}><div className="form-section"><h3>Права сотрудников</h3><p>Настройте доступ к разделам IQ Mentor для каждой роли.</p><div className="rights-table"><div className="rights-row rights-head"><span>Роль</span>{rights.map((right) => <span key={right}>{labels[right]}</span>)}</div>{Object.entries(roles).map(([role, label]) => <div className="rights-row" key={role}><strong>{label}</strong>{rights.map((right) => <label className="check-control" key={right}><input type="checkbox" checked={value[role][right]} disabled={role === "admin"} onChange={(e) => update((next) => { next.access[role][right] = e.target.checked; })} /><span><IconCheck size={14} /></span></label>)}</div>)}</div></div></SettingsForm>;
 }
 
+function GeneralNotificationSettings({ settings, update }) {
+  const [kind, setKind] = useState("analyst");
+  return <section className="settings-general-notifications"><div className="settings-product-tabs" role="tablist" aria-label="Продукт уведомлений">{[["analyst", "Аналитик"], ["trainer", "Тренер"]].map(([key, label]) => <button type="button" role="tab" aria-selected={kind === key} aria-controls="settings-notification-panel" id={`settings-notification-tab-${key}`} key={key} className={kind === key ? `active tone-${key}` : ""} onClick={() => setKind(key)}>{label}</button>)}</div><div role="tabpanel" id="settings-notification-panel" aria-labelledby={`settings-notification-tab-${kind}`}><NotificationSettings kind={kind} value={settings.notifications[kind]} update={update} /></div></section>;
+}
+
 function NotificationSettings({ kind, value, update }) {
-  const events = [
+  const events = kind === "trainer" ? [
+    ["trainingStarted", "Тренировка началась", true],
+    ["recommendations", "Получены рекомендации", true],
+    ["progress", "Обновлён прогресс сотрудника", true],
+    ["reportComplete", "Генерация отчёта завершена", true],
+  ] : [
     ["submitted", "Звонок отправлен на оценку", false],
     ["analysisComplete", "Анализ звонка завершен", true],
     ["reportPreparing", "Подготовка отчета", true],
     ["reportComplete", "Генерация отчета завершена", true],
   ];
-  const defaults = {
-    submitted: { display: false, sound: true },
-    analysisComplete: { display: true, sound: true },
-    reportPreparing: { display: true, sound: true },
-    reportComplete: { display: true, sound: true },
-  };
+  const defaults = Object.fromEntries(events.map(([key, , hasDisplay]) => [key, { display: hasDisplay, sound: true }]));
   const checked = (event, channel) => value.events?.[event]?.[channel] ?? defaults[event][channel];
   const change = (event, channel, enabled) => update((next) => {
     next.notifications[kind].events ??= {};
@@ -1100,24 +1109,27 @@ function TokenIntegration({ service, connected, token, regenerate, copy, toggle 
   return <div className="integration-detail-body"><div className="token-integration-copy"><span>{isBitrix ? "Интеграция с Битрикс24" : "Интеграция с amoCRM"}</span><h4>{isBitrix ? "Интеграция позволяет связать сервис Б24 с IQ Mentor" : "Свяжите amoCRM с IQ Mentor"}</h4><p>{isBitrix ? "После настройки новые звонки автоматически подтягиваются в CRM: фиксируются входящие и исходящие вызовы, номера, длительность и запись разговора." : "После подключения звонки, сделки и контакты синхронизируются с IQ Mentor. Записи разговоров автоматически передаются в Аналитик."}</p><p>{isBitrix ? "Звонки можно привязывать к сделкам, лидам и контактам. Структура сотрудников из Битрикс24 помогает корректно распределять записи по менеджерам." : "Система связывает звонки со сделками и ответственными менеджерами, сохраняя актуальную структуру команды."}</p><p>Подключение выполняется один раз через ключ-токен, после чего интеграция работает автоматически.</p></div><div className="integration-token-row"><div className="integration-token"><IconKey size={20} /><input value={token.replace(/./g, "•")} readOnly aria-label={`Ключ-токен ${isBitrix ? "Bitrix24" : "amoCRM"}`} /></div><button className="token-copy-button" aria-label="Скопировать ключ-токен" onClick={() => copy(token)}><IconCopy size={19} /></button><button className="orange-button" onClick={regenerate}><IconSwitchHorizontal size={18} />{connected ? "Перегенерировать" : "Создать токен"}</button></div>{connected && <button className="integration-disconnect" onClick={toggle}>Отключить интеграцию</button>}</div>;
 }
 
-function ReportSettings({ kind, value, update, save, notify }) {
-  const initialPeriods = () => ({
-    day: value.periods?.day ?? false,
-    week: value.periods?.week ?? false,
-    month: value.periods?.month ?? false,
-  });
+function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" : "training", reportLabel = "Категории", value, scoringValue, update, save, notify }) {
+  const initialPeriods = () => getReportPeriods(value, kind, reportType);
+  const withScoring = kind === "analyst" && reportType === "calls" && scoringValue !== undefined;
+  const initialScoring = () => ({ minDuration: scoringValue?.minDuration || "00:00:30", autoAnalyze: scoringValue?.autoAnalyze ?? false });
   const [periods, setPeriods] = useState(initialPeriods);
-  useEffect(() => setPeriods(initialPeriods()), [kind]);
-  const reset = () => setPeriods(initialPeriods());
+  const [scoringDraft, setScoringDraft] = useState(initialScoring);
+  useEffect(() => { setPeriods(initialPeriods()); setScoringDraft(initialScoring()); }, [kind, reportType]);
+  const reset = () => { setPeriods(initialPeriods()); setScoringDraft(initialScoring()); };
   const submit = () => {
     update((next) => {
-      next.reports[kind].periods = periods;
-      next.reports[kind].enabled = Object.values(periods).some(Boolean);
+      next.reports[kind].types ??= {};
+      next.reports[kind].types[reportType] = { periods, enabled: Object.values(periods).some(Boolean) };
+      if (withScoring) {
+        next.scoring.minDuration = scoringDraft.minDuration;
+        next.scoring.autoAnalyze = scoringDraft.autoAnalyze;
+      }
     });
     save();
   };
   const rows = [["day", "За прошедший день"], ["week", "За прошедшую неделю"], ["month", "За прошедший месяц"]];
-  return <div className={`report-generator-card tone-${kind}`}><div className="report-generator-title"><h3>Автоматическая генерация</h3><button type="button" className="report-close" aria-label="Закрыть" onClick={() => { reset(); notify("Изменения отменены"); }}><IconX size={18} /></button></div><p>Настройте, как часто система будет автоматически создавать отчет по категориям:</p><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => setPeriods({ ...periods, [key]: e.target.checked })} /><i></i><span>{label}</span></label>)}</div><div className="report-generator-actions"><button type="button" className="dark-button" onClick={submit}>Сохранить</button></div></div>;
+  return <div className={`report-generator-card tone-${kind}`}><div className="report-generator-title"><h3>Периодичность отчёта</h3><button type="button" className="report-close" aria-label="Закрыть" onClick={() => { reset(); notify("Изменения отменены"); }}><IconX size={18} /></button></div><p>Выберите периоды для автоматического отчёта «{reportLabel}».</p><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => setPeriods({ ...periods, [key]: e.target.checked })} /><i></i><span>{label}</span></label>)}</div>{withScoring && <section className="report-call-analysis" aria-labelledby="report-call-analysis-title"><h3 id="report-call-analysis-title">Параметры анализа звонков</h3><ScoringFields draft={scoringDraft} setDraft={setScoringDraft} /></section>}<div className="report-generator-actions"><button type="button" className="dark-button" onClick={submit}>Сохранить</button></div></div>;
 }
 
 function StereoSettings({ value, update, save, notify }) {
@@ -1131,6 +1143,10 @@ function StereoSettings({ value, update, save, notify }) {
   return <form className="stereo-format-form" onSubmit={(e) => { e.preventDefault(); save(); }}><div className="stereo-format-section"><label className="stereo-format-field"><span>Стереоформат звонков</span><p>Выберите, в каком канале стереозаписи находятся оператор и клиент. Настройка применяется ко всем входящим звонкам, передаваемым на анализ.</p><div className="stereo-format-note"><IconInfoCircle size={18} /><span><strong>Что это такое?</strong>Звонок записывается в два отдельных канала: L — левый, R — правый. Укажите, где слышно оператора, а где клиента — так система правильно различит участников разговора.</span></div><select value={current} onChange={(e) => change(e.target.value)}><option value="operator-left">L (Оператор), R (Клиент) (по умолчанию)</option><option value="client-left">L (Клиент), R (Оператор)</option></select></label></div><div className="stereo-format-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
 }
 
+function ScoringFields({ draft, setDraft }) {
+  return <div className="scoring-settings-content"><label className="scoring-duration-field"><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input value={draft.minDuration} onChange={(e) => setDraft({ ...draft, minDuration: e.target.value })} aria-label="Минимальная длительность звонка" /></div></label><label className="scoring-auto-check"><input type="checkbox" checked={draft.autoAnalyze} onChange={(e) => setDraft({ ...draft, autoAnalyze: e.target.checked })} /><i><IconCheck size={14} /></i><span><strong>Автоматически отправлять звонок на анализ</strong><small>Не придется запускать анализ вручную</small></span></label></div>;
+}
+
 function ScoringSettings({ value, update, save, notify }) {
   const initialDraft = () => ({ minDuration: value.minDuration || "00:00:30", autoAnalyze: value.autoAnalyze ?? false });
   const [draft, setDraft] = useState(initialDraft);
@@ -1139,7 +1155,7 @@ function ScoringSettings({ value, update, save, notify }) {
     update((next) => { next.scoring.minDuration = draft.minDuration; next.scoring.autoAnalyze = draft.autoAnalyze; });
     save();
   };
-  return <form className="scoring-settings-form" onSubmit={(e) => { e.preventDefault(); submit(); }}><button type="button" className="report-close scoring-close" aria-label="Закрыть" onClick={reset}><IconX size={18} /></button><div className="scoring-settings-content"><label className="scoring-duration-field"><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input value={draft.minDuration} onChange={(e) => setDraft({ ...draft, minDuration: e.target.value })} aria-label="Минимальная длительность звонка" /></div></label><label className="scoring-auto-check"><input type="checkbox" checked={draft.autoAnalyze} onChange={(e) => setDraft({ ...draft, autoAnalyze: e.target.checked })} /><i><IconCheck size={14} /></i><span><strong>Автоматически отправлять звонок на анализ</strong><small>Не придется запускать анализ вручную</small></span></label></div><div className="scoring-settings-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
+  return <form className="scoring-settings-form" onSubmit={(e) => { e.preventDefault(); submit(); }}><button type="button" className="report-close scoring-close" aria-label="Закрыть" onClick={reset}><IconX size={18} /></button><ScoringFields draft={draft} setDraft={setDraft} /><div className="scoring-settings-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
 }
 
 function SettingToggle({ title, description, checked, onChange }) { return <label className="setting-toggle"><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>; }
