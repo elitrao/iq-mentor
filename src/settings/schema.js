@@ -11,9 +11,6 @@ export const SETTINGS_GROUPS = [
       { id: 'analyst-reports-categories', label: 'Категории', reportType: 'categories' },
     ] },
     { id: 'stereo', label: 'Стереоформат звонков', icon: 'headphones' },
-    { id: 'criteria', label: 'Шаблоны', icon: 'folder', children: [
-      { id: 'documents', label: 'Документы' },
-    ] },
   ] },
   { id: 'trainer', title: 'Тренер', items: [
     { id: 'trainer-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
@@ -30,7 +27,7 @@ export function resolveSettingsSection(id) {
       if (item.children) {
         const child = item.children.find((entry) => entry.id === id);
         if (child) return { group, item: child, parent: item };
-        if (item.id === id) return item.id === 'criteria' ? { group, item } : { group, item: item.children[0], parent: item };
+        if (item.id === id) return { group, item };
       } else if (item.id === id) return { group, item };
     }
   }

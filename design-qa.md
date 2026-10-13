@@ -1,5 +1,14 @@
 # Design QA
 
+## 2026-10-13 — Compact balance bonus notice
+
+- Added a text-led 294×136px notification below the balance in both product headers. It reuses the welcome's animated orange/gold raster backdrop, with readable light text and a compact ivory CTA. The refresh tile and CTA arrow were removed following feedback; only the close cross remains.
+- Soft entrance (380ms) and exit (240ms) are paired; dismiss/CTA finishes the exit before unmounting or navigating. Reduced-motion bypasses the delay and all movement. Timers and positioning observers clean up on unmount.
+- Test mode is intentionally unthrottled: notice stays visible until dismissed/CTA, returns on full reload, and waits until welcome/Settings/help dialogs close. No real bonus accrual or billing changes.
+- Fixed the Home orange 2,500 ₽ badge by applying the same inline-flex centering and line-height as the gold badge and the other header.
+- Browser checks passed: dismiss, reappearance after reload, CTA reaching `#analytics` after exit, both header variants, desktop and 390px viewport positioning. Final screenshots: `artifacts/daily-bonus/notice-desktop.png` and `artifacts/daily-bonus/notice-mobile.png`. Build and whitespace validation passed; browser error log empty. Preview stays on localhost:4170; no Git push.
+
+
 **Comparison target**
 
 - Primary source visual: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-c5e1d400-8f16-4aed-9ddd-23634a6490e1.png` (IQ Mentor home).
@@ -967,5 +976,63 @@ final result: passed
 - The requested new flying-text animation was canceled by the user and reverted before publishing. Retained the earlier 1000ms move/shrink transition and the 6.5-second reading hold; no floating text layer remains.
 - Browser verified ready state, no illustration, and no new flight layer. Evidence: `artifacts/settings-structure/documents-header-without-art.jpg`. Temporary viewport reset.
 - Final production build, all 31 tests and whitespace validation passed. Existing settings changes are included in the GitHub handoff; generated screenshots/build outputs remain ignored.
+
+final result: passed
+
+## 2026-10-12 — Notion-style Settings modal and primary-sidebar pages
+
+- Settings moved from a page into a native dialog, with a warm almost-white navigation rail, white content, thin divider, quiet rounded frame and dimmed/softly blurred background. Existing product tints, smaller child labels and dot markers remain. Default 1280×720 browser: modal 1200×656, no horizontal overflow.
+- Opening Settings preserves the current page and its mounted state. Verified close via X, Escape and a backdrop click; body overflow and trigger focus restore. Browser Back dismisses and Forward reopens the modal. Hash navigation has four new pure model tests.
+- Found and fixed nested native cancel bubbling: Escape from template creation now closes only that inner dialog. Added explicit first/last Tab cycling after observing browser-host focus leave the dialog; verified Shift+Tab moves from X to Save and Tab wraps back to X. Existing custom child overlays do not dismiss all Settings. Saved existing call-report values unchanged and verified the in-modal confirmation toast.
+- Sections reset their independent content scroll to zero. Report groups start collapsed on reopening. Employees retain their joined department/table surface and desktop header actions; no new customer fields, deletion or backend changes.
+- Latest user refinement: Templates and Documents are separate primary-sidebar destinations with folder/file icons, excluded from the Settings modal. The existing interactive template manager replaces the old placeholder page. Documents retain their timed explanation, annotation and upload controls. Verified #templates has nine templates and no Settings modal; #documents starts blank then reaches ready, and opening/closing Settings over Documents preserves ready state.
+- Settings is fixed immediately above Suggest an Idea in the lower desktop menu. Verified lower-menu order: Settings, Suggest an Idea, Help, account action. Saved visible primary order retained, with new Documents next to Templates; hidden billing entries do not distort drag target indexes. Mobile keeps a labeled Settings shortcut despite hiding the desktop lower menu.
+- At 390×844, the modal is full-screen with no dialog/content horizontal overflow; section strip scrolls internally. Stereo controls remain readable and usable. All error logs empty. Final production build, 35 tests and whitespace check passed. No push performed for this request.
+- Evidence in `artifacts/settings-structure/`: `notion-settings-modal-final.jpg`, `notion-settings-modal-mobile-final.jpg`, `standalone-templates-sidebar.jpg`, `standalone-documents-sidebar.jpg`. Temporary viewport reset before handoff.
+
+final result: passed
+
+## 2026-10-12 — Report-type overview cards
+
+- Analyst «Автогенерация отчётов» now opens an overview instead of immediately routing to Calls. The overview presents three equal minimal cards for Calls, Summary and Categories; each retains the existing report settings behind it.
+- Each card has a distinct restrained pattern: an audio waveform for Calls, expanding signal curves for Summary, and a dotted classification grid for Categories. Warm Analyst tint is limited to small details, icons and hover feedback; the Notion-style white modal surface remains dominant.
+- Verified in the local browser that the parent opens the three-card overview, Summary opens its existing «Периодичность отчёта» controls, and the parent returns to the overview. Sidebar child links remain available and expanded. Browser error log is empty.
+- Responsive cards collapse to one column below the modal's compact breakpoint. Reduced-motion users do not receive card lift or arrow transitions.
+- Production build, 12 Settings/navigation/template tests and whitespace validation passed. Evidence: `artifacts/settings-structure/report-overview-cards.jpg`.
+
+final result: passed
+
+## 2026-10-12 — Integration overview cards
+
+- Settings → Integrations now opens with three equal overview cards for Bitrix24, Yandex Disk and amoCRM instead of preselecting Bitrix24. Each card shows its current live connection status and existing recognizable logo.
+- Service identity stays restrained: Bitrix24 uses a small blue node network, Yandex Disk uses a red stepped signal, and amoCRM uses violet concentric rings. Brand color is limited to details, patterns and hover borders; the white Notion-style surface remains dominant.
+- Selecting a card opens the preserved existing connection/token controls. A compact «Все интеграции» action returns to the card overview without changing connection state.
+- Verified the overview, connected Bitrix24 detail and return path in the local browser. Browser error log is empty. Production build, 12 Settings/navigation/template tests and whitespace validation passed. Evidence: `artifacts/settings-structure/integration-overview-cards.jpg`.
+
+final result: passed
+
+## 2026-10-12 — Product-robot campaign cards
+
+- Source comparison: the supplied black campaign reference uses compact graphite banners, thin orange/violet outlines, white product copy, a large robot entering from the right and a small bright CTA. The implementation applies that anatomy to every report and integration selection card while retaining the existing three-card information architecture.
+- Replaced the visible abstract CSS patterns with the two supplied transparent robot assets. Analyst reports and integrations use the orange robot; Trainer reports use the violet graduate robot. The robots are intentionally cropped beyond the lower-right edge, remain non-interactive, and lift slightly with the card hover.
+- Cards use a solid graphite surface, product-colored outline and CTA, white headings, restrained secondary copy and no large color fill. Integration cards retain service logos and live connection status. Existing report/service navigation and settings remain unchanged.
+- Desktop visual comparison with the source found no remaining P0/P1/P2 mismatches for the requested component-style transfer. At 390×844, cards stack at 336×220 within the full-screen dialog; supplied images are clipped by the card and do not cover the left text/CTA column. Reduced-motion disables both card and robot movement.
+- Verified Yandex Disk open/return after the redesign; browser error log is empty. Production build, 12 Settings/navigation/template tests and whitespace validation passed. Evidence: `artifacts/settings-structure/robot-cards-analyst.jpg`, `robot-cards-trainer.jpg`, and `robot-cards-integrations.jpg`.
+
+final result: passed
+
+## 2026-10-13 — Daily bonus welcome
+
+- Source visual: `C:/Users/samoilenko.d/AppData/Local/Temp/codex-clipboard-40da5846-c70d-406d-b0e9-078123510c3a.png` (532×455). The source is a visual reference, not a verbatim clone: the user requested a brighter IQ orange/black daily-bonus promotion, then iterated the header, CTA, motion and amount typography.
+- Final implementation: `artifacts/daily-bonus/welcome-desktop.png` (1280×720 CSS/pixels, 1×) and `artifacts/daily-bonus/welcome-mobile.png` (390×844, 1×). Source and desktop panel both approximately 520px wide; surrounding dashboard is deliberately dimmed/blurred. Reference and final desktop screenshot opened together for direct comparison. Full-view text and island were legible at 1×, so a separate focused crop was unnecessary.
+- Fonts/typography: existing Inter 400/500/600/700, editable UI copy. The amount and ruble sign both use 106px/700 on desktop and 92px/700 on mobile. Secondary copy remains readable and centered without truncation.
+- Layout/spacing: compact 520px rounded modal, balanced inner spacing, top white island, one ivory pill CTA. Mobile modal fits the viewport with no horizontal or vertical overflow. The product chips and bottom welcome caption requested for removal are absent.
+- Color/tokens: intentional orange/gold adaptation of the source's diffuse top glow and near-black lower surface. The whole island is solid white, with one naturally grouped gift icon and «Подарок от IQ Mentor»; the original split capsule was superseded by explicit user feedback. CTA is ivory with dark text.
+- Image quality: generated raster light backdrop, no hand-drawn decorative approximation, crisp native text and Tabler gift/close icons. Light pans/zooms and changes warmth/brightness over a five-second alternating cycle; text stays stationary. Reduced-motion disables animation and transforms.
+- Copy: 250 bonus rubles every day, no invented expiry or accumulation terms. UI only; no billing balance mutation or actual accrual service was implemented. The offer copy references call analysis and team training.
+- Comparison history: initial P2 scrollbar caused by transformed artwork overflowing the dialog was fixed by clipping it inside a dedicated background layer. Later captures have matching client/scroll heights. Subsequent changes were requested refinements: remove chips/footer, replace CTA, make motion visible, unify island, equalize ₽ size. Final visual comparison found no remaining P0/P1/P2 issues.
+- Interaction checks: CTA and Escape close the modal; forward/backward Tab wraps correctly. Closing then fully reloading shows it again, as explicitly requested for testing. Settings entry initially shows only this modal; dismissing it reveals Settings without stacking dialogs. Test mode is controlled by `SHOW_ON_EVERY_RELOAD`. Browser error log empty. No publication or Git push.
+- Generated asset: `src/assets/welcome/daily-bonus-glow.png`, built-in imagegen mode. Prompt: “Use case: ads-marketing. Abstract raster backdrop for a bright IQ Mentor welcome daily-bonus modal, portrait 4:5. BACKGROUND ONLY: elegant soft diffuse aurora/light bloom, saturated tangerine and IQ orange (#ff751f), golden yellow across upper edge and top third, orange-red upper corners, pale golden central top glow. Light smoothly recedes through middle into near-black #101010; lower half clean near-black for editable UI. Subtle fine film grain, premium, modern, minimal. No frame, text, UI, symbols, coins, robots, logos, buttons, objects, stars, galaxies, circuits or hard bands. Opaque background.”
+- Implementation checklist: final desktop/mobile composition, interactive dismissal and repeat-on-reload reviewed; viewport override reset and preview retained. No remaining P3 follow-up required.
 
 final result: passed

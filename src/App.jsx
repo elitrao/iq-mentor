@@ -6,6 +6,8 @@ import "@fontsource/inter/700.css";
 import bitrix24Logo from "./assets/integrations/bitrix24.png";
 import amoCrmLogo from "./assets/integrations/amocrm.png";
 import yandexDiskLogo from "./assets/integrations/yandex-disk.png";
+import analystRobot from "./assets/robots/analyst-orange.png";
+import analystCircuitPattern from "./assets/robots/analyst-circuit-pattern.png";
 import avatar1 from "./assets/avatars/employee-1.webp";
 import avatar2 from "./assets/avatars/employee-2.webp";
 import avatar3 from "./assets/avatars/employee-3.webp";
@@ -15,13 +17,18 @@ import avatar6 from "./assets/avatars/employee-6.webp";
 import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
-import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
+import { SettingsModal } from "./SettingsModal.jsx";
+import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
+import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
+import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
+import { DocumentsExperience } from "./DocumentsExperience.jsx";
+import { initialNavigation, navigatePrototype, navigationHash } from "./settings/navigation.js";
 import { getReportPeriods, resolveSettingsSection } from "./settings/schema.js";
 import { CallsReportPage } from "./CallsReportPage.jsx";
 import { FeedbackPage } from "./FeedbackPage.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
-  IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
+  IconAdjustmentsHorizontal, IconArrowDown, IconArrowLeft, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
   IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconDeviceFloppy, IconFile,
   IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
   IconBulb, IconChartDonut, IconGripVertical, IconLayoutGridAdd, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
@@ -29,17 +36,17 @@ import {
   IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", trainer: "Тренажер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
+const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренажер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
 const NAV_ITEMS = [
   { id: "home", label: "Главная", icon: IconHome },
   { id: "analytics", label: "Аналитик", icon: IconBook2, arrow: true },
   { id: "templates", label: "Шаблоны", icon: IconFolder },
+  { id: "documents", label: "Документы", icon: IconFileText },
   { id: "trainer", label: "Тренажер", icon: IconSchool, arrow: true },
   { id: "billing", label: "Тарификация", icon: IconWallet },
-  { id: "settings", label: "Настройки", icon: IconSettings, arrow: true },
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
-const HIDDEN_NAV_ITEMS = new Set(["templates", "billing"]);
+const HIDDEN_NAV_ITEMS = new Set(["billing"]);
 const DEFAULT_DASHBOARD_ORDER = ["calls", "duration", "score", "conversion", "trend", "distribution", "categories", "employees", "attention"];
 const CATALOG_WIDGET_IDS = ["catalog-kpi", "catalog-line", "catalog-column", "catalog-donut", "catalog-table", "catalog-map", "catalog-funnel", "catalog-gauge", "catalog-heatmap", "catalog-combo", "catalog-top", "catalog-calendar"];
 const ALL_DASHBOARD_WIDGET_IDS = [...DEFAULT_DASHBOARD_ORDER, ...CATALOG_WIDGET_IDS];
@@ -241,6 +248,8 @@ function loadNavOrder() {
   try {
     const saved = JSON.parse(localStorage.getItem("iq-mentor-nav-order") || "[]");
     const valid = [...new Set(saved.filter((id) => DEFAULT_NAV_ORDER.includes(id)))];
+    if (!valid.includes("templates")) valid.splice(Math.max(0, valid.indexOf("analytics") + 1), 0, "templates");
+    if (!valid.includes("documents")) valid.splice(valid.indexOf("templates") + 1, 0, "documents");
     if (!valid.includes("trainer")) {
       const settingsIndex = valid.indexOf("settings");
       valid.splice(settingsIndex < 0 ? valid.length : settingsIndex, 0, "trainer");
@@ -291,17 +300,44 @@ function loadDashboardLayout() {
 }
 
 export function App() {
-  const [page, setPage] = useState(() => { const route = window.location.hash.replace("#", ""); return ["documents", "employees"].includes(route) ? "settings" : route || "settings"; });
+  const [navigation, setNavigation] = useState(() => initialNavigation(window.location.hash));
+  const { page, settingsOpen } = navigation;
   const [collapsed, setCollapsed] = useState(false);
   const [settings, setSettings] = useState(loadSettings);
   const [navOrder, setNavOrder] = useState(loadNavOrder);
   const [toast, setToast] = useState("");
-  const [settingSection, setSettingSection] = useState(() => window.location.hash === "#documents" ? "documents" : "employees");
+  const [settingSection, setSettingSection] = useState("employees");
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
   const [knowledgeOpen, setKnowledgeOpen] = useState(false);
+  const [dailyBonusWelcomeOpen, setDailyBonusWelcomeOpen] = useState(shouldShowDailyBonusWelcome);
+  // Temporary preview: always start visible, with no daily throttle or saved dismissal.
+  const [dailyBonusNoticeOpen, setDailyBonusNoticeOpen] = useState(true);
 
-  useEffect(() => { window.location.hash = page; }, [page]);
+  const closeDailyBonusWelcome = () => {
+    acknowledgeDailyBonusWelcome();
+    setDailyBonusWelcomeOpen(false);
+  };
+
+  const setPage = (destination) => {
+    if (['settings', 'employees'].includes(destination)) {
+      setKnowledgeOpen(false);
+      if (destination !== 'settings') setSettingSection(destination);
+    }
+    setNavigation((current) => navigatePrototype(current, destination));
+  };
+  useEffect(() => { if (window.location.hash !== navigationHash(navigation)) window.location.hash = navigationHash(navigation); }, [navigation]);
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      const route = hash.replace(/^#/, '');
+      if (['settings', 'employees'].includes(route)) setKnowledgeOpen(false);
+      if (route === 'employees') setSettingSection(route);
+      setNavigation((current) => navigationHash(current) === hash ? current : navigatePrototype(current, hash));
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
   useEffect(() => { localStorage.setItem("iq-mentor-settings", JSON.stringify(settings)); }, [settings]);
   useEffect(() => { localStorage.setItem("iq-mentor-nav-order", JSON.stringify(navOrder)); }, [navOrder]);
   useEffect(() => { localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(billing)); }, [billing]);
@@ -324,16 +360,23 @@ export function App() {
   const openBillingSurvey = () => setPage("account-survey");
   const reorderNavItem = (id, targetIndex) => {
     setNavOrder((current) => {
-      const from = current.indexOf(id);
-      if (from < 0 || targetIndex < 0 || targetIndex >= current.length || from === targetIndex) return current;
-      const next = [...current];
+      const next = current.filter((item) => !HIDDEN_NAV_ITEMS.has(item));
+      const from = next.indexOf(id);
+      if (from < 0 || targetIndex < 0 || targetIndex >= next.length || from === targetIndex) return current;
       const [moved] = next.splice(from, 1);
       next.splice(targetIndex, 0, moved);
-      return next;
+      return [...next, ...current.filter((item) => HIDDEN_NAV_ITEMS.has(item))];
     });
     notify("Порядок разделов сохранен");
   };
 
+  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && <DailyBonusWelcome onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage('home'); }} />;
+  const bonusNotice = {
+    open: dailyBonusNoticeOpen && !dailyBonusWelcomeOpen && !knowledgeOpen && !settingsOpen,
+    onClose: () => setDailyBonusNoticeOpen(false),
+    onStart: () => { setDailyBonusNoticeOpen(false); setPage('home'); },
+  };
+  const settingsModal = settingsOpen && !dailyBonusWelcomeOpen && <SettingsModal close={() => setPage(page)} toast={toast} active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />;
   if (page === "account" || page === "account-tariff" || page === "account-survey") return <>
     <AccountPortal
       page={page}
@@ -347,24 +390,28 @@ export function App() {
     />
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
     {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
+    {settingsModal}
+    {welcomeModal}
   </>;
 
   return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+    <Sidebar page={settingsOpen ? 'settings' : page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
-      <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} />
+      <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
-        {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} />}
+        {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />}
         {page === "analytics" && <CallsReportPage />}
-        {page === "templates" && <TemplatesPage notify={notify} />}
+        {page === "templates" && <TemplatesPage settings={settings} update={update} notify={notify} />}
+        {page === "documents" && <DocumentsWorkspace notify={notify} />}
         {page === "trainer" && <TrainerPage />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
-        {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />}
         {page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
       </main>
     </div>
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
     {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
+    {settingsModal}
+    {welcomeModal}
   </div>;
 }
 
@@ -443,7 +490,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
         const isAnalytics = item.id === "analytics";
         const isExpanded = isAnalytics && analyticsOpen;
         return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
-          <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} onClick={() => openPage(item.id)} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} aria-describedby={`nav-drag-hint-${item.id}`} aria-expanded={isAnalytics ? isExpanded : undefined}>
+          <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} onClick={() => openPage(item.id)} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} aria-describedby={`nav-drag-hint-${item.id}`} aria-expanded={isAnalytics ? isExpanded : undefined}>
             <Icon size={18} stroke={1.7} />
             <span>{item.label}</span>
             {item.arrow && <IconChevronRight className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={18} stroke={1.5} />}
@@ -458,8 +505,10 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       })}
       {drag?.active && <span className="nav-drop-slot" style={{ top: `${drag.firstTop - drag.navTop + drag.targetIndex * drag.slotHeight}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
+      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-haspopup="dialog" onClick={() => setPage('settings')}><IconSettings size={18} stroke={1.7} /></button>
     </nav>
     <div className="sidebar-bottom">
+      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("settings")} aria-haspopup="dialog"><IconSettings size={18} stroke={1.7} /><span>Настройки</span></button>
       <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>
       <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
@@ -479,12 +528,20 @@ function NavDragOverlay({ item, active, top, width }) {
   </div>;
 }
 
-function Topbar({ page, setPage, balanceCents, bonusBalanceCents }) {
+function HeaderBalance({ home = false, setPage, balanceCents, bonusBalanceCents, bonusNotice }) {
+  const anchorRef = useRef(null);
+  return <div className={home ? 'header-balance header-balance-home' : 'header-balance'}>
+    <button ref={anchorRef} className={home ? 'home-balance' : 'balance'} onClick={() => setPage('billing')}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(bonusBalanceCents)}</span></button>
+    {bonusNotice.open && <DailyBonusNotice anchorRef={anchorRef} onClose={bonusNotice.onClose} onStart={bonusNotice.onStart} />}
+  </div>;
+}
+
+function Topbar({ page, setPage, balanceCents, bonusBalanceCents, bonusNotice }) {
   if (page === "home") return null;
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
     <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
-    <div className="topbar-actions"><button className="balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(bonusBalanceCents)}</span></button><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={18} /></button></div>
+    <div className="topbar-actions"><HeaderBalance setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={18} /></button></div>
   </header>;
 }
 
@@ -516,7 +573,7 @@ function WidgetCatalogPreview({ item }) {
   return <div className="widget-preview widget-preview-attention" aria-hidden="true">{[[avatar1, "Вежливость", "62%"], [avatar3, "Возражения", "58%"], [avatar2, "Презентация", "52%"]].map(([avatar, issue, score], index) => <div key={issue}><img src={avatar} alt=""/><span className={`tone-${index}`}>{issue}</span><strong>{score}</strong></div>)}</div>;
 }
 
-function HomePage({ setPage, notify, balanceCents, bonusBalanceCents }) {
+function HomePage({ setPage, notify, balanceCents, bonusBalanceCents, bonusNotice }) {
   // Dashboard data mirrors the approved IQ Mentor home-page reference.
   const stats = [
     { id: "calls", label: "Обработано звонков", value: "2 001", delta: "1 250 за период", badge: "166%", icon: IconPhoneCall, tone: "green", sparkColor: "#85b91d", spark: [18, 22, 20, 27, 35, 28, 40, 53, 51, 66] },
@@ -650,7 +707,7 @@ function HomePage({ setPage, notify, balanceCents, bonusBalanceCents }) {
   });
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : item.type === "catalog" ? <DashboardPanel title={item.label} className="home-catalog-widget" onHide={() => hideWidget(item)}><div className="home-catalog-widget-body"><WidgetCatalogPreview item={item} /></div></DashboardPanel> : renderSummary(item);
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<button className="home-balance" onClick={() => setPage("billing")}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(bonusBalanceCents)}</span></button><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<HeaderBalance home setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
     <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
     {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className="widget-catalog" role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
       <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>
@@ -976,8 +1033,13 @@ function TrainerPage() {
   return <section><PageTitle>Тренер</PageTitle></section>;
 }
 
-function TemplatesPage({ notify }) {
-  return <section><div className="title-row"><PageTitle>Шаблоны</PageTitle><button className="dark-button" onClick={() => notify("Новый шаблон создан")}>Создать <IconPlus size={21} /></button></div><div className="split-layout templates-layout"><aside className="inner-sidebar"><div className="inner-title">Список шаблонов</div><button className="inner-item active"><span>Стандартный шаблон оценки качества</span><strong>1</strong></button></aside><div className="content-panel"><div className="content-panel-head"><div><h2>Стандартный шаблон оценки качества</h2><p>Системные и пользовательские категории анализа</p></div><button className="light-button" onClick={() => notify("Изменения сохранены")}><IconDeviceFloppy size={18} />Сохранить</button></div><div className="template-section"><h3>Системные категории</h3><div className="template-grid">{["Вероятность успеха звонка", "Вежливость", "Потребность", "Качество презентации"].map((name, index) => <button className="template-card" key={name}><span className="template-icon">%</span><div><strong>{name}</strong><p>{["Оценка шансов достичь результата", "Корректность и уважительность общения", "Выявление реальных потребностей", "Структура и персонализация презентации"][index]}</p></div><IconChevronRight size={19} /></button>)}</div></div></div></div></section>;
+function TemplatesPage({ settings, update, notify }) {
+  return <section className="settings-product-page"><PageTitle>Шаблоны</PageTitle><div className="criteria-content"><CriteriaTemplates settings={settings} update={update} notify={notify} /></div></section>;
+}
+
+function DocumentsWorkspace({ notify }) {
+  const header = <header className="settings-content-head"><div className="settings-title-icon"><IconFileText size={23} stroke={1.7} /></div><div><span className="settings-kicker">Аналитик</span><h2>Документы</h2></div></header>;
+  return <section className="settings-product-page settings-structure-content tone-analyst"><DocumentsExperience header={header}><DocumentsPage notify={notify} embedded /></DocumentsExperience></section>;
 }
 
 function EmployeesPage({ notify }) {
@@ -1073,11 +1135,11 @@ function IntegrationLogo({ service, large = false }) {
 }
 
 function IntegrationsSettings({ value, update, notify }) {
-  const [active, setActive] = useState("bitrix");
+  const [active, setActive] = useState(null);
   const services = [
-    { key: "bitrix", name: "Bitrix24" },
-    { key: "yandex", name: "Яндекс Диск" },
-    { key: "amo", name: "amoCRM" },
+    { key: "bitrix", name: "Bitrix24", eyebrow: "CRM", description: "Звонки, сделки и структура команды" },
+    { key: "yandex", name: "Яндекс Диск", eyebrow: "Хранилище", description: "Автоматическая загрузка новых записей" },
+    { key: "amo", name: "amoCRM", eyebrow: "CRM", description: "Контакты, сделки и разговоры менеджеров" },
   ];
   const tokenDefaults = { bitrix: "b24_7f3c9a1d5e8b2f6a4c0d", amo: "amo_4e8b2f6a7f3c9a1d5e0b" };
   const selected = services.find((service) => service.key === active);
@@ -1097,7 +1159,21 @@ function IntegrationsSettings({ value, update, notify }) {
     try { await navigator.clipboard.writeText(token); notify("Ключ-токен скопирован"); }
     catch { notify("Не удалось скопировать ключ-токен"); }
   };
-  return <div className="integration-workspace"><aside className="integration-service-list"><div className="integration-list-heading"><h3>Сервисы</h3></div>{services.map((service) => { const connected = value[service.key].connected; return <button key={service.key} className={active === service.key ? "active" : ""} onClick={() => setActive(service.key)}><span className="integration-service-icon"><IntegrationLogo service={service.key} /></span><strong>{service.name}</strong><i className={connected ? "connected-dot" : ""}></i></button>; })}</aside><section className="integration-detail"><div className="integration-detail-head"><div className="integration-detail-icon"><IntegrationLogo service={selected.key} large /></div><div><h3>{selected.name}</h3></div><em className={integration.connected ? "integration-status connected" : "integration-status"}>{integration.connected ? "Подключено" : "Не подключено"}</em></div>{active === "yandex" ? <YandexIntegration connected={integration.connected} toggle={() => toggleConnection("yandex", "Яндекс Диск")} /> : <TokenIntegration service={active} connected={integration.connected} token={integration.token || tokenDefaults[active]} regenerate={() => regenerateToken(active)} copy={copyToken} toggle={() => toggleConnection(active, selected.name)} />}</section></div>;
+  if (!active) return <section className="integration-overview" aria-labelledby="integration-overview-title">
+    <div className="integration-overview-intro"><span>Рабочие сервисы</span><h3 id="integration-overview-title">Что подключим?</h3><p>Выберите сервис — внутри можно настроить подключение и синхронизацию.</p></div>
+    <div className="integration-overview-grid">{services.map((service, index) => {
+      const connected = value[service.key].connected;
+      return <button className={`integration-overview-card integration-${service.key}`} type="button" key={service.key} onClick={() => setActive(service.key)} aria-label={`Открыть интеграцию «${service.name}»`}>
+        <img className="selection-card-pattern" src={analystCircuitPattern} alt="" />
+        <img className="selection-card-robot integration-card-robot" src={analystRobot} alt="" />
+        <span className="integration-card-topline"><span>{String(index + 1).padStart(2, '0')}</span><em className={connected ? 'connected' : ''}>{connected ? 'Подключено' : 'Не подключено'}</em></span>
+        <span className="integration-card-logo"><IntegrationLogo service={service.key} large /></span>
+        <span className="integration-card-copy"><small>{service.eyebrow}</small><strong>{service.name}</strong><span>{service.description}</span></span>
+        <span className="selection-card-action">Настроить</span>
+      </button>;
+    })}</div>
+  </section>;
+  return <section className="integration-detail integration-detail-standalone"><button className="integration-detail-back" type="button" onClick={() => setActive(null)}><IconArrowLeft size={17} />Все интеграции</button><div className="integration-detail-head"><div className="integration-detail-icon"><IntegrationLogo service={selected.key} large /></div><div><h3>{selected.name}</h3></div><em className={integration.connected ? "integration-status connected" : "integration-status"}>{integration.connected ? "Подключено" : "Не подключено"}</em></div>{active === "yandex" ? <YandexIntegration connected={integration.connected} toggle={() => toggleConnection("yandex", "Яндекс Диск")} /> : <TokenIntegration service={active} connected={integration.connected} token={integration.token || tokenDefaults[active]} regenerate={() => regenerateToken(active)} copy={copyToken} toggle={() => toggleConnection(active, selected.name)} />}</section>;
 }
 
 function YandexIntegration({ connected, toggle }) {

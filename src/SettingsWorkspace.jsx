@@ -2,21 +2,53 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import {
   IconUsers, IconPlugConnected, IconBell, IconReportAnalytics,
   IconHeadphones,
-  IconFolder, IconChevronDown, IconChevronRight, IconPointFilled,
+  IconChevronDown, IconChevronRight, IconPointFilled,
 } from '@tabler/icons-react';
 import { SETTINGS_GROUPS, resolveSettingsSection } from './settings/schema.js';
-import { CriteriaTemplates } from './CriteriaTemplates.jsx';
-import { DocumentsExperience } from './DocumentsExperience.jsx';
+import analystRobot from './assets/robots/analyst-orange.png';
+import trainerRobot from './assets/robots/trainer-purple.png';
+import analystCircuitPattern from './assets/robots/analyst-circuit-pattern.png';
+import trainerCircuitPattern from './assets/robots/trainer-circuit-pattern.png';
 import './settings-workspace.css';
 
 const ICONS = {
   users: IconUsers, plug: IconPlugConnected, bell: IconBell, report: IconReportAnalytics,
   headphones: IconHeadphones,
-  folder: IconFolder,
 };
 
+const REPORT_CARD_DETAILS = {
+  calls: { eyebrow: 'Диалоги', description: 'Отчёт по звонкам и качеству разговоров' },
+  summary: { eyebrow: 'Динамика', description: 'Главные показатели в одном отчёте' },
+  categories: { eyebrow: 'Структура', description: 'Результаты по категориям оценки' },
+  training: { eyebrow: 'Практика', description: 'Результаты тренировок сотрудников' },
+};
+
+function ReportOverview({ group, item, onSelect }) {
+  const robot = group.id === 'trainer' ? trainerRobot : analystRobot;
+  const pattern = group.id === 'trainer' ? trainerCircuitPattern : analystCircuitPattern;
+  return <section className={`report-overview report-overview-${group.id}`} aria-labelledby="report-overview-title">
+    <div className="report-overview-intro">
+      <span>Автоматические отчёты</span>
+      <h3 id="report-overview-title">Что будем собирать?</h3>
+      <p>Выберите тип отчёта — внутри можно настроить его периодичность.</p>
+    </div>
+    <div className={`report-overview-grid report-overview-grid-${item.children.length}`}>
+      {item.children.map((child, index) => {
+        const details = REPORT_CARD_DETAILS[child.reportType];
+        return <button className="report-overview-card" type="button" key={child.id} onClick={() => onSelect(child.id)} aria-label={`Открыть отчёт «${child.label}»`}>
+          <img className="selection-card-pattern" src={pattern} alt="" />
+          <img className="selection-card-robot report-card-robot" src={robot} alt="" />
+          <span className="report-card-topline"><span>{String(index + 1).padStart(2, '0')}</span><small>{details.eyebrow}</small></span>
+          <span className="report-card-copy"><strong>{child.label}</strong><span>{details.description}</span></span>
+          <span className="selection-card-action">Настроить</span>
+        </button>;
+      })}
+    </div>
+  </section>;
+}
+
 function SettingsNav({ active, setActive }) {
-  const [expanded, setExpanded] = useState({ 'analyst-reports': false, 'trainer-reports': false, criteria: false });
+  const [expanded, setExpanded] = useState({ 'analyst-reports': false, 'trainer-reports': false });
   const navRef = useRef(null);
   const [highlight, setHighlight] = useState(null);
   useLayoutEffect(() => {
@@ -45,13 +77,8 @@ function SettingsNav({ active, setActive }) {
         return <div key={item.id}>
           <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id ? 'page' : undefined} aria-expanded={item.children ? expanded[item.id] : undefined} aria-controls={item.children ? `children-${item.id}` : undefined} onClick={() => {
             if (item.children) {
-              if (item.id === 'criteria') {
-                setExpanded((current) => ({ ...current, [item.id]: active === item.id || containsActive ? !current[item.id] : true }));
-                setActive(item.id);
-                return;
-              }
-              setExpanded((current) => ({ ...current, [item.id]: containsActive ? !current[item.id] : true }));
-              if (!containsActive) setActive(item.children[0].id);
+              setExpanded((current) => ({ ...current, [item.id]: active === item.id ? !current[item.id] : true }));
+              setActive(item.id);
             } else setActive(item.id);
           }}>
             <Icon size={20} stroke={1.8} /><span>{item.label}</span>
@@ -66,19 +93,23 @@ function SettingsNav({ active, setActive }) {
   </nav>;
 }
 
-export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection }) {
+export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false }) {
   const { group, item, parent } = resolveSettingsSection(active);
+  const contentScrollRef = useRef(null);
+  useLayoutEffect(() => {
+    if (modal && contentScrollRef.current) contentScrollRef.current.scrollTop = 0;
+  }, [item.id, modal]);
   const ActiveIcon = ICONS[item.icon || parent?.icon];
-  const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.id === 'criteria' ? 'Шаблоны' : item.label}</h2></div></header>;
+  const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
   return <section className="settings-structure-workspace">
-    <h1>Настройки</h1>
+    {!modal && <h1>Настройки</h1>}
     <div className="settings-structure-layout">
-      <SettingsNav active={item.id} setActive={setActive} />
-      <main className={`settings-content settings-structure-content tone-${group.id}${item.id === 'criteria' ? ' criteria-content' : ''}`}>
-        {item.id === 'documents' ? <DocumentsExperience key="documents" header={header}>{renderSection(item.id)}</DocumentsExperience> : <>{header}<div key={item.id} className="settings-section-body">
-          {item.id === 'criteria' ? <CriteriaTemplates settings={settings} update={update} notify={notify} /> : renderSection(item.id)}
-        </div></>}
+      {modal ? <aside className="settings-modal-sidebar"><h1 id="settings-modal-title">Настройки</h1><SettingsNav active={item.id} setActive={setActive} /></aside> : <SettingsNav active={item.id} setActive={setActive} />}
+      <div ref={contentScrollRef} className={modal ? 'settings-modal-content-scroll' : undefined}>
+      <main className={`settings-content settings-structure-content tone-${group.id}`}>
+        {header}<div key={item.id} className="settings-section-body">{item.children ? <ReportOverview group={group} item={item} onSelect={setActive} /> : renderSection(item.id)}</div>
       </main>
+      </div>
     </div>
   </section>;
 }
