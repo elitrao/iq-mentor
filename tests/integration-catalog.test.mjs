@@ -1,0 +1,137 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { filterIntegrations, INTEGRATION_SERVICES, normalizeIntegrationSettings } from '../src/settings/integration-catalog.js';
+import { API_PAGE_SIZE, addApiEntry, addApiKey, filterApiEntries, getApiEntries, getApiKeys, paginateApiRows, updateApiEntry, withApiEntries } from '../src/settings/api-integrations.js';
+
+const keys = (items) => items.map((item) => item.key);
+
+test('API pagination shows six rows and enables another page only after six', () => {
+  assert.equal(API_PAGE_SIZE, 6);
+  for (const count of [0, 1, 6, 7, 12, 13, 15]) {
+    const rows = Array.from({ length: count }, (_, id) => ({ id, name: `Запись ${id}` }));
+    const first = paginateApiRows(rows);
+    assert.equal(first.items.length, Math.min(count, 6));
+    assert.equal(first.pageCount, Math.max(1, Math.ceil(count / 6)));
+    assert.deepEqual(Array.from({ length: first.pageCount }, (_, i) => paginateApiRows(rows, i + 1).items).flat(), rows);
+  }
+});
+
+test('API pagination clamps after deletion and paginates filtered results', () => {
+  const rows = Array.from({ length: 7 }, (_, id) => ({ id, name: `Запись ${id}` }));
+  const last = paginateApiRows(rows, 2);
+  assert.deepEqual([last.start, last.end, last.total], [7, 7, 7]);
+  assert.equal(paginateApiRows(rows.slice(0, 6), 2).page, 1);
+  assert.equal(paginateApiRows([], 2).start, 0);
+  assert.equal(paginateApiRows(rows, -1).page, 1);
+  const filtered = paginateApiRows(filterApiEntries(rows, 'Запись 6'), 2);
+  assert.equal(filtered.page, 1);
+  assert.equal(filtered.pageCount, 1);
+  assert.deepEqual(filtered.items, [rows[6]]);
+});
+
+test('catalog only lists existing configurable services', () => {
+  assert.deepEqual(keys(filterIntegrations()), ['bitrix', 'yandex', 'amo', 'api']);
+  assert.equal(new Set(keys(INTEGRATION_SERVICES)).size, INTEGRATION_SERVICES.length);
+});
+
+test('category filters are distinct and preserve catalog order', () => {
+  assert.deepEqual(keys(filterIntegrations('', 'crm')), ['bitrix', 'amo']);
+  assert.deepEqual(keys(filterIntegrations('', 'storage')), ['yandex']);
+});
+
+test('search supports Russian aliases, case, whitespace and descriptions', () => {
+  assert.deepEqual(keys(filterIntegrations('  БИТРИКС  ')), ['bitrix']);
+  assert.deepEqual(keys(filterIntegrations('yandex')), ['yandex']);
+  assert.deepEqual(keys(filterIntegrations('аМО')), ['amo']);
+  assert.deepEqual(keys(filterIntegrations('записей звонков')), ['yandex']);
+  assert.deepEqual(keys(filterIntegrations('команды')), ['bitrix']);
+  assert.deepEqual(keys(filterIntegrations(' \n ')), ['bitrix', 'yandex', 'amo', 'api']);
+  assert.deepEqual(keys(filterIntegrations('API')), ['api']);
+  assert.deepEqual(keys(filterIntegrations('апи')), ['api']);
+});
+
+test('search combines with category and returns empty results without fallback', () => {
+  assert.deepEqual(filterIntegrations('yandex', 'crm'), []);
+  assert.deepEqual(filterIntegrations('несуществующий сервис'), []);
+  assert.deepEqual(keys(filterIntegrations('crm', 'crm')), ['bitrix', 'amo']);
+});
+
+test('connected services only appear in the connected section, never in catalog results', () => {
+  const connections = { bitrix: { connected: true }, yandex: { connected: false }, amo: { connected: false } };
+  assert.deepEqual(keys(filterIntegrations('', 'all', connections)), ['yandex', 'amo', 'api']);
+  assert.deepEqual(keys(filterIntegrations('', 'crm', connections)), ['amo']);
+  assert.deepEqual(filterIntegrations('Битрикс', 'all', connections), []);
+  assert.equal(connections.bitrix.connected, true);
+});
+
+test('disconnected services return immediately, and all-connected catalog is empty', () => {
+  const connections = Object.fromEntries(INTEGRATION_SERVICES.map(({ key }) => [key, { connected: true }]));
+  assert.deepEqual(filterIntegrations('', 'all', connections), []);
+  assert.deepEqual(filterIntegrations('Яндекс', 'storage', connections), []);
+  connections.yandex.connected = false;
+  assert.deepEqual(keys(filterIntegrations('', 'all', connections)), ['yandex']);
+});
+
+test('older saved settings gain API without losing existing connection values', () => {
+  const saved = { bitrix: { connected: false, account: 'saved', token: 'demo-test' }, amo: { connected: true } };
+  const migrated = normalizeIntegrationSettings(saved);
+  assert.deepEqual(migrated.bitrix, saved.bitrix);
+  assert.equal(migrated.amo.connected, true);
+  assert.deepEqual(migrated.api, { connected: false, account: '', token: '' });
+  assert.equal(saved.api, undefined);
+  assert.equal(normalizeIntegrationSettings(null).bitrix.connected, true);
+});
+
+test('API follows active/available filtering and preserves a saved demo key', () => {
+  const saved = normalizeIntegrationSettings({ api: { connected: true, token: 'demo_iq_test' } });
+  assert.equal(saved.api.token, 'demo_iq_test');
+  assert.deepEqual(filterIntegrations('api', 'all', saved), []);
+  saved.api.connected = false;
+  assert.deepEqual(keys(filterIntegrations('api', 'all', saved)), ['api']);
+});
+
+test('API table migrates a legacy demo key and keeps saved records', () => {
+  assert.deepEqual(getApiEntries({}), []);
+  assert.equal(getApiEntries({ connected: true, token: 'demo_iq_legacy' })[0].token, 'demo_iq_legacy');
+  const rows = [{ id: '1', name: 'CRM', token: 'demo_iq_1', createdAt: '2026-10-19T12:00:00Z' }];
+  assert.deepEqual(getApiEntries({ entries: rows }), rows);
+  assert.equal(withApiEntries({}, rows).connected, true);
+  assert.equal(withApiEntries({ token: 'demo_iq_legacy' }, []).connected, false);
+  assert.equal(withApiEntries({ token: 'demo_iq_legacy' }, []).token, '');
+});
+
+test('API creation validates names and limits without mutating saved records', () => {
+  const rows = addApiEntry([], '  Моя CRM  ', { id: '1', token: 'demo_iq_1', createdAt: '2026-10-19T12:00:00Z' });
+  assert.equal(rows[0].name, 'Моя CRM');
+  assert.throws(() => addApiEntry(rows, 'моя crm', {}), /уже существует/);
+  assert.throws(() => addApiEntry([], '   ', {}), /название/);
+  assert.throws(() => addApiEntry([], 'а'.repeat(81), {}), /80 символов/);
+  assert.throws(() => addApiEntry(Array.from({ length: 15 }, (_, i) => ({ name: String(i) })), 'Новая', {}), /15 интеграций/);
+  assert.equal(rows.length, 1);
+  assert.deepEqual(filterApiEntries(rows, '  CRM '), rows);
+  assert.deepEqual(filterApiEntries(rows, 'нет'), []);
+});
+
+test('editing integration preserves its date and keys and updates its badge', () => {
+  const keys = [{ id: 'key-1', name: 'Сервер', token: 'demo_key' }];
+  const rows = [{ id: 'one', name: 'CRM', createdAt: '2026-10-19', keys }, { id: 'two', name: 'Другая' }];
+  const badge = { background: '#FFF1E6', color: '#5C3420' };
+  const updated = updateApiEntry(rows, 'one', '  Новая CRM ', badge);
+  assert.equal(updated[0].name, 'Новая CRM');
+  assert.deepEqual(updated[0].badge, badge);
+  assert.deepEqual(updated[0].keys, keys);
+  assert.equal(updated[0].createdAt, '2026-10-19');
+  assert.equal(rows[0].name, 'CRM');
+  assert.throws(() => updateApiEntry(rows, 'one', 'другая', badge), /уже существует/);
+});
+
+test('API keys belong to their integration; new integrations start empty', () => {
+  const fresh = addApiEntry([], 'CRM', { id: 'one', keys: [] })[0];
+  assert.deepEqual(getApiKeys(fresh), []);
+  const created = addApiKey(getApiKeys(fresh), '  Сервер  ', { id: 'key-1', token: 'demo_key' });
+  assert.equal(created[0].name, 'Сервер');
+  assert.deepEqual(getApiKeys(fresh), []);
+  assert.equal(getApiKeys({ id: 'legacy', token: 'demo_old' })[0].token, 'demo_old');
+  assert.throws(() => addApiKey(created, 'сервер', {}), /уже существует/);
+  assert.throws(() => addApiKey([], ' ', {}), /название/);
+});

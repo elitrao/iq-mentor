@@ -1,23 +1,25 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useReducer, useRef, useState } from "react";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
-import bitrix24Logo from "./assets/integrations/bitrix24.png";
-import amoCrmLogo from "./assets/integrations/amocrm.png";
-import yandexDiskLogo from "./assets/integrations/yandex-disk.png";
-import analystRobot from "./assets/robots/analyst-orange.png";
-import analystCircuitPattern from "./assets/robots/analyst-circuit-pattern.png";
+import { IntegrationCatalog, IntegrationLogo } from "./IntegrationCatalog.jsx";
+import { INTEGRATION_SERVICES, normalizeIntegrationSettings } from "./settings/integration-catalog.js";
+import { ApiIntegration } from "./ApiIntegration.jsx";
+import { BitrixIntegrationScreen, YandexIntegrationScreen } from "./IntegrationDetailScreens.jsx";
+import { IntegrationBreadcrumbs } from "./IntegrationBreadcrumbs.jsx";
 import avatar1 from "./assets/avatars/employee-1.webp";
 import avatar2 from "./assets/avatars/employee-2.webp";
 import avatar3 from "./assets/avatars/employee-3.webp";
 import avatar4 from "./assets/avatars/employee-4.webp";
 import avatar5 from "./assets/avatars/employee-5.webp";
 import avatar6 from "./assets/avatars/employee-6.webp";
+import notificationAnalystIcon from "./assets/notification-analyst.png";
+import notificationTrainerIcon from "./assets/notification-trainer.png";
 import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
-import { SettingsModal } from "./SettingsModal.jsx";
+import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
 import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
 import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
 import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
@@ -226,11 +228,7 @@ const DEFAULT_SETTINGS = {
     analyst: { completed: true, errors: true, weekly: true, browser: false, channel: "Email" },
     trainer: { recommendations: true, progress: true, weekly: false, browser: true, channel: "Email" },
   },
-  integrations: {
-    bitrix: { connected: true, account: "iqgroup.bitrix24.ru" },
-    amo: { connected: false, account: "" },
-    yandex: { connected: false, account: "" },
-  },
+  integrations: normalizeIntegrationSettings(),
   reports: {
     analyst: { enabled: true, frequency: "Еженедельно", day: "Понедельник", time: "09:00", format: "PDF", recipient: "weaver@yandex.ru" },
     trainer: { enabled: false, frequency: "Ежемесячно", day: "1 число", time: "10:00", format: "PDF", recipient: "weaver@yandex.ru" },
@@ -240,7 +238,10 @@ const DEFAULT_SETTINGS = {
 };
 
 function loadSettings() {
-  try { return { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem("iq-mentor-settings") || "{}") }; }
+  try {
+    const saved = JSON.parse(localStorage.getItem("iq-mentor-settings") || "{}");
+    return { ...DEFAULT_SETTINGS, ...saved, integrations: normalizeIntegrationSettings(saved?.integrations) };
+  }
   catch { return DEFAULT_SETTINGS; }
 }
 
@@ -301,7 +302,7 @@ function loadDashboardLayout() {
 
 export function App() {
   const [navigation, setNavigation] = useState(() => initialNavigation(window.location.hash));
-  const { page, settingsOpen } = navigation;
+  const { page } = navigation;
   const [collapsed, setCollapsed] = useState(false);
   const [settings, setSettings] = useState(loadSettings);
   const [navOrder, setNavOrder] = useState(loadNavOrder);
@@ -372,11 +373,10 @@ export function App() {
 
   const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && <DailyBonusWelcome onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage('home'); }} />;
   const bonusNotice = {
-    open: dailyBonusNoticeOpen && !dailyBonusWelcomeOpen && !knowledgeOpen && !settingsOpen,
+    open: dailyBonusNoticeOpen && !dailyBonusWelcomeOpen && !knowledgeOpen && page !== 'settings',
     onClose: () => setDailyBonusNoticeOpen(false),
     onStart: () => { setDailyBonusNoticeOpen(false); setPage('home'); },
   };
-  const settingsModal = settingsOpen && !dailyBonusWelcomeOpen && <SettingsModal close={() => setPage(page)} toast={toast} active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />;
   if (page === "account" || page === "account-tariff" || page === "account-survey") return <>
     <AccountPortal
       page={page}
@@ -390,12 +390,11 @@ export function App() {
     />
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
     {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
-    {settingsModal}
     {welcomeModal}
   </>;
 
   return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={settingsOpen ? 'settings' : page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
@@ -404,13 +403,13 @@ export function App() {
         {page === "templates" && <TemplatesPage settings={settings} update={update} notify={notify} />}
         {page === "documents" && <DocumentsWorkspace notify={notify} />}
         {page === "trainer" && <TrainerPage />}
+        {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
         {page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
       </main>
     </div>
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
     {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
-    {settingsModal}
     {welcomeModal}
   </div>;
 }
@@ -505,10 +504,10 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       })}
       {drag?.active && <span className="nav-drop-slot" style={{ top: `${drag.firstTop - drag.navTop + drag.targetIndex * drag.slotHeight}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
-      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-haspopup="dialog" onClick={() => setPage('settings')}><IconSettings size={18} stroke={1.7} /></button>
+      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettings size={18} stroke={1.7} /></button>
     </nav>
     <div className="sidebar-bottom">
-      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("settings")} aria-haspopup="dialog"><IconSettings size={18} stroke={1.7} /><span>Настройки</span></button>
+      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettings size={18} stroke={1.7} /><span>Настройки</span></button>
       <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>
       <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
@@ -1098,9 +1097,66 @@ function AccessSettings({ value, update, save }) {
   return <SettingsForm onSave={save}><div className="form-section"><h3>Права сотрудников</h3><p>Настройте доступ к разделам IQ Mentor для каждой роли.</p><div className="rights-table"><div className="rights-row rights-head"><span>Роль</span>{rights.map((right) => <span key={right}>{labels[right]}</span>)}</div>{Object.entries(roles).map(([role, label]) => <div className="rights-row" key={role}><strong>{label}</strong>{rights.map((right) => <label className="check-control" key={right}><input type="checkbox" checked={value[role][right]} disabled={role === "admin"} onChange={(e) => update((next) => { next.access[role][right] = e.target.checked; })} /><span><IconCheck size={14} /></span></label>)}</div>)}</div></div></SettingsForm>;
 }
 
+function NotificationProductIcon({ product, src }) {
+  const id = useId();
+  const trainer = product === "trainer";
+  const size = trainer ? 80 : 32;
+  return <svg className="notification-product-icon" viewBox={trainer ? "26 26 28 28" : "0 0 32 32"} aria-hidden="true" focusable="false">
+    <defs>
+      {/* The supplied cap is only 30% opaque; normalize it before applying the tab color. */}
+      <filter id={`${id}-alpha`}><feComponentTransfer><feFuncA type="linear" slope={trainer ? 255 / 76 : 1} /></feComponentTransfer></filter>
+      <mask id={`${id}-mask`} maskUnits="userSpaceOnUse" x="0" y="0" width={size} height={size} style={{ maskType: "alpha" }}>
+        <image href={src} width={size} height={size} filter={`url(#${id}-alpha)`} />
+      </mask>
+    </defs>
+    <rect width={size} height={size} fill="currentColor" mask={`url(#${id}-mask)`} />
+  </svg>;
+}
+
 function GeneralNotificationSettings({ settings, update }) {
   const [kind, setKind] = useState("analyst");
-  return <section className="settings-general-notifications"><div className="settings-product-tabs" role="tablist" aria-label="Продукт уведомлений">{[["analyst", "Аналитик"], ["trainer", "Тренер"]].map(([key, label]) => <button type="button" role="tab" aria-selected={kind === key} aria-controls="settings-notification-panel" id={`settings-notification-tab-${key}`} key={key} className={kind === key ? `active tone-${key}` : ""} onClick={() => setKind(key)}>{label}</button>)}</div><div role="tabpanel" id="settings-notification-panel" aria-labelledby={`settings-notification-tab-${kind}`}><NotificationSettings kind={kind} value={settings.notifications[kind]} update={update} /></div></section>;
+  const [highlight, setHighlight] = useState(null);
+  const products = [["analyst", "Аналитик", notificationAnalystIcon], ["trainer", "Тренер", notificationTrainerIcon]];
+  const tabRefs = useRef({});
+  const tabsRef = useRef(null);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const tab = tabRefs.current[kind];
+      if (!tab) return;
+      const next = { left: tab.offsetLeft, width: tab.offsetWidth };
+      setHighlight((current) => current?.left === next.left && current?.width === next.width ? current : next);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(tabsRef.current);
+    Object.values(tabRefs.current).forEach((tab) => tab && observer.observe(tab));
+    return () => observer.disconnect();
+  }, [kind]);
+  const onTabKeyDown = (event, key) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === "Home" ? "analyst" : event.key === "End" ? "trainer" : key === "analyst" ? "trainer" : "analyst";
+    setKind(next);
+    tabRefs.current[next]?.focus();
+  };
+  return <section className="settings-general-notifications" aria-labelledby="notification-settings-title">
+    <h2 id="notification-settings-title">Уведомления</h2>
+    <div ref={tabsRef} className="settings-product-tabs" role="tablist" aria-label="Продукт уведомлений">
+      {highlight && <span className={`notification-tab-highlight tone-${kind}`} aria-hidden="true" style={{ width: highlight.width, transform: `translateX(${highlight.left}px)` }} />}
+      {products.map(([key, label, icon]) => <button type="button" role="tab" aria-selected={kind === key}
+        aria-controls={`settings-notification-panel-${key}`} id={`settings-notification-tab-${key}`} key={key}
+        ref={(node) => { tabRefs.current[key] = node; }} tabIndex={kind === key ? 0 : -1}
+        className={kind === key ? `active tone-${key}` : ""} onClick={() => setKind(key)}
+        onKeyDown={(event) => onTabKeyDown(event, key)}><NotificationProductIcon product={key} src={icon} />{label}</button>)}
+    </div>
+    <div className="notification-product-panels">
+      {products.map(([key]) => <div key={key} className={`notification-product-panel${kind === key ? ' is-active' : ''}`}
+        role="tabpanel" id={`settings-notification-panel-${key}`} aria-labelledby={`settings-notification-tab-${key}`}
+        aria-hidden={kind !== key} inert={kind !== key}>
+        <NotificationSettings kind={key} value={settings.notifications[key]} update={update} />
+      </div>)}
+    </div>
+  </section>;
 }
 
 function NotificationSettings({ kind, value, update }) {
@@ -1128,22 +1184,25 @@ function NotificationSwitch({ label, checked, onChange }) {
   return <label className="notification-switch" aria-label={label}><input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>;
 }
 
-function IntegrationLogo({ service, large = false }) {
-  const logos = { bitrix: bitrix24Logo, yandex: yandexDiskLogo, amo: amoCrmLogo };
-  const names = { bitrix: "Bitrix24", yandex: "Яндекс Диск", amo: "amoCRM" };
-  return <img className={`service-brand-logo service-brand-logo-${service}${large ? " large" : ""}`} src={logos[service]} alt={`Логотип ${names[service]}`} />;
-}
-
 function IntegrationsSettings({ value, update, notify }) {
   const [active, setActive] = useState(null);
-  const services = [
-    { key: "bitrix", name: "Bitrix24", eyebrow: "CRM", description: "Звонки, сделки и структура команды" },
-    { key: "yandex", name: "Яндекс Диск", eyebrow: "Хранилище", description: "Автоматическая загрузка новых записей" },
-    { key: "amo", name: "amoCRM", eyebrow: "CRM", description: "Контакты, сделки и разговоры менеджеров" },
-  ];
+  const returnFocusId = useRef(null);
+  const detailRef = useRef(null);
+  useEffect(() => {
+    if (active) detailRef.current?.focus();
+    else if (returnFocusId.current) {
+      const trigger = document.getElementById(returnFocusId.current)
+        || document.getElementById(returnFocusId.current.startsWith('integration-connected-')
+          ? returnFocusId.current.replace('integration-connected-', 'integration-catalog-')
+          : returnFocusId.current.replace('integration-catalog-', 'integration-connected-'))
+        || document.getElementById('integration-catalog-title');
+      trigger?.focus();
+    }
+  }, [active]);
+  const openService = (key, sourceId) => { returnFocusId.current = sourceId; setActive(key); };
   const tokenDefaults = { bitrix: "b24_7f3c9a1d5e8b2f6a4c0d", amo: "amo_4e8b2f6a7f3c9a1d5e0b" };
-  const selected = services.find((service) => service.key === active);
-  const integration = value[active];
+  const selected = INTEGRATION_SERVICES.find((service) => service.key === active);
+  const integration = value[active] || { connected: false, token: '' };
   const toggleConnection = (key, name) => {
     const wasConnected = value[key].connected;
     update((next) => { next.integrations[key].connected = !wasConnected; });
@@ -1159,21 +1218,11 @@ function IntegrationsSettings({ value, update, notify }) {
     try { await navigator.clipboard.writeText(token); notify("Ключ-токен скопирован"); }
     catch { notify("Не удалось скопировать ключ-токен"); }
   };
-  if (!active) return <section className="integration-overview" aria-labelledby="integration-overview-title">
-    <div className="integration-overview-intro"><span>Рабочие сервисы</span><h3 id="integration-overview-title">Что подключим?</h3><p>Выберите сервис — внутри можно настроить подключение и синхронизацию.</p></div>
-    <div className="integration-overview-grid">{services.map((service, index) => {
-      const connected = value[service.key].connected;
-      return <button className={`integration-overview-card integration-${service.key}`} type="button" key={service.key} onClick={() => setActive(service.key)} aria-label={`Открыть интеграцию «${service.name}»`}>
-        <img className="selection-card-pattern" src={analystCircuitPattern} alt="" />
-        <img className="selection-card-robot integration-card-robot" src={analystRobot} alt="" />
-        <span className="integration-card-topline"><span>{String(index + 1).padStart(2, '0')}</span><em className={connected ? 'connected' : ''}>{connected ? 'Подключено' : 'Не подключено'}</em></span>
-        <span className="integration-card-logo"><IntegrationLogo service={service.key} large /></span>
-        <span className="integration-card-copy"><small>{service.eyebrow}</small><strong>{service.name}</strong><span>{service.description}</span></span>
-        <span className="selection-card-action">Настроить</span>
-      </button>;
-    })}</div>
-  </section>;
-  return <section className="integration-detail integration-detail-standalone"><button className="integration-detail-back" type="button" onClick={() => setActive(null)}><IconArrowLeft size={17} />Все интеграции</button><div className="integration-detail-head"><div className="integration-detail-icon"><IntegrationLogo service={selected.key} large /></div><div><h3>{selected.name}</h3></div><em className={integration.connected ? "integration-status connected" : "integration-status"}>{integration.connected ? "Подключено" : "Не подключено"}</em></div>{active === "yandex" ? <YandexIntegration connected={integration.connected} toggle={() => toggleConnection("yandex", "Яндекс Диск")} /> : <TokenIntegration service={active} connected={integration.connected} token={integration.token || tokenDefaults[active]} regenerate={() => regenerateToken(active)} copy={copyToken} toggle={() => toggleConnection(active, selected.name)} />}</section>;
+  if (!active) return <IntegrationCatalog value={value} onSelect={openService} />;
+  if (active === 'bitrix') return <BitrixIntegrationScreen back={() => setActive(null)} backRef={detailRef} connected={integration.connected} token={integration.token || tokenDefaults.bitrix} regenerate={() => regenerateToken('bitrix')} copy={copyToken} disconnect={() => toggleConnection('bitrix', selected.name)} />;
+  if (active === 'yandex') return <YandexIntegrationScreen back={() => setActive(null)} backRef={detailRef} connected={integration.connected} toggle={() => toggleConnection('yandex', 'Яндекс Диск')} />;
+  if (active === 'api') return <ApiIntegration back={() => setActive(null)} backRef={detailRef} value={integration} onChange={(api) => update((next) => { next.integrations.api = api; })} notify={notify} />;
+  return <section className="integration-detail integration-detail-standalone"><IntegrationBreadcrumbs parentRef={detailRef} items={[{ label: 'Интеграции', onClick: () => setActive(null) }, { label: selected.name }]} /><div className="integration-detail-head"><div className="integration-detail-icon"><IntegrationLogo service={selected.key} large /></div><div><h3>{selected.name}</h3></div><em className={integration.connected ? "integration-status connected" : "integration-status"}>{integration.connected ? "Подключено" : "Не подключено"}</em></div><TokenIntegration service={active} connected={integration.connected} token={integration.token || tokenDefaults[active]} regenerate={() => regenerateToken(active)} copy={copyToken} toggle={() => toggleConnection(active, selected.name)} /></section>;
 }
 
 function YandexIntegration({ connected, toggle }) {

@@ -1,5 +1,68 @@
 # Design QA
 
+## 2026-10-19 — Notification motion, soft switches and review status
+
+Result: passed. Product-tab highlighting now glides for 400ms; panels crossfade without changing their shared height (291.5px in the checked view). Rapid Analyst/Trainer switching leaves only the selected panel accessible; inactive panels carry `inert` and `aria-hidden`. Reduced-motion disables these transitions.
+
+Latest controls match the tab pills: pale tracks with fine tinted outlines and saturated #FF9025 / #6467F2 thumbs. Inactive tabs and off switches stay gray. Integrations and Notifications have small green readiness checks with «Готово к просмотру» descriptions. Capture: `artifacts/settings-structure/notifications-pill-switches-final.jpg`. Build and all 26 Settings tests pass before Git handoff.
+
+## 2026-10-19 — Minimal Notifications and product-tab icons
+
+Result: passed. Notifications now matches the integration catalog's underlined heading, left-aligned 696px band and unfilled content. Removed the redundant category/icon header and gray table surround; retained event/display/sound columns and independent product settings.
+
+- User-supplied book and graduation-cap silhouettes precede the tab labels. Both icon and label are gray when inactive, muted orange for selected Analyst and muted violet for selected Trainer. The cap's original 30% opacity is normalized in an SVG alpha mask; source assets are preserved.
+- Browser checks at 1440×800 and 390×844: compact rows, matching heading and no horizontal content overflow (313px table / 313px scroll width on mobile).
+- Changed Analyst's first sound checkbox, switched to Trainer (all values unchanged), returned with ArrowLeft (Analyst value retained), then restored the original checkbox value. Tab keyboard focus and selected state match.
+- Final captures: `artifacts/settings-structure/notifications-analyst-final.jpg` and `notifications-trainer-final.jpg`. Mobile layout capture: `notifications-icons-mobile.jpg` (before the subsequent Analyst icon correction and selected-color refinement).
+- `npm run test:settings`: all 26 tests pass. Production build passes.
+
+## 2026-10-19 — Integration pages, breadcrumbs and six-row pagination
+
+final result: passed
+
+### Visual truth and evidence
+
+The latest user refinements override earlier screenshots: use breadcrumbs rather than Back; the keys crumb is «Ключи интеграции»; show six rows per page with centered pagination; remove the gray API-table surround and Settings-menu background while preserving selected-item highlighting. Yandex's warning is left-aligned and its connection area is raised.
+
+- Breadcrumb references: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-766d6447-52a6-4cd6-b446-31d2656316b3.png` (1015×88) and `codex-clipboard-3bee2ef0-6c0d-4440-a4cb-479dbf3eda39.png` (365×52), in the same Temp directory.
+- Table / background references: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-a165ad95-eb3a-4d40-954d-8e4d9b678e13.png` (1648×805) and `codex-clipboard-c918e5ac-384f-4393-87c7-f8aac351f403.png` (283×601), same directory.
+- Modal reference: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-e5ebd90c-c7fd-4ae2-94f4-e92dad347266.png` (609×421).
+- Service references: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-caab7b96-35f8-4a04-961e-a079bbc24cb5.png` (1855×851, Bitrix) and `codex-clipboard-25664939-ab97-4700-85b9-0e1029b609f8.png` (1847×846, Yandex), same directory.
+- Evidence root: `C:/Users/samoilenko.d/Documents/IQ Group/iq-mentor/artifacts/settings-structure/`.
+- `api-pagination-final.jpg`: 1440×903 full-page capture, 1440×800 CSS viewport; seven disposable test records, six visible on page one. Both backgrounds removed; pagination centered.
+- `api-keys-final.jpg`: 1425×873 full-page capture at 1440×800 CSS viewport (browser scrollbar gutter excluded); page two with the seventh demonstration key and the final keys breadcrumb.
+- `api-create-final.jpg`: 1207×790 browser capture at 1222×800 CSS viewport; empty creation modal with actual color controls and live preview. Surrounding page is incidental to this modal comparison.
+- `api-breadcrumbs-mobile.jpg`: 375×812 capture at 390×844 CSS viewport, before the final fixed-label refinement; verifies wrapping and no horizontal overflow for an even longer breadcrumb.
+- `bitrix-reference-final.jpg`: 1207×790 at 1222×800 CSS viewport. `yandex-reference-final.jpg`: 1425×834 full-page capture at 1440×800 CSS viewport.
+
+Source and implementation images were opened together in comparison tool inputs, including the latest backgrounds/filled table, keys breadcrumb, creation dialog and both service pages. Captures use 1× CSS/image density without upscaling. The services are intentionally embedded in the existing Settings shell, unlike content-only source images. Responsive wrapping and the user's explicitly requested tighter vertical spacing are intentional, not fidelity failures. Full-page capture includes overflow below the viewport. Native clipped screenshots captured the wrong region, so those preliminary `*-comparison.jpg` files were rejected; the readable full-view captures above are the evidence. They show typography, borders and spacing clearly enough without a separate raster crop.
+
+### Findings and fidelity surfaces
+
+- No actionable P0/P1/P2 issues remain in the requested changes.
+- Typography: retained Inter and the existing product hierarchy; breadcrumb type is 14px regular with quiet gray ancestors and an orange current label. The name remains in its badge beside the keys-page title. Modal title, fields and equal-width buttons match the supplied composition.
+- Layout: no nested detail card/header; consistent breadcrumb row above each service title. Six visible records, centered page controls (measured center offset 0px), range label separate. API table and menu wrappers are transparent; row/table boundaries remain subtle. Yandex warning and title both start at x=559px; CTA remains within the viewport. Bitrix token row bottom was 733.75px at an 800px viewport.
+- Colors: white content surfaces, neutral hairline borders, restrained gray selected Settings item, orange navigation/current-page accents. Intentional removal of source gray surrounds follows the latest request.
+- Assets: existing supplied service marks and official Yandex artwork retained. Breadcrumb/row/control icons use Tabler, not hand-drawn image substitutes. No new raster assets were needed for these form/navigation changes.
+- Copy: user-approved service text retained; final crumb «Ключи интеграции», pagination count 6, correct total/range/empty labels. Demo values are only test fixtures, not production data.
+
+### Comparison history and behavioral checks
+
+- Earlier captured back-button navigation and named last crumb were superseded by the user's breadcrumb references; the final browser evidence shows working catalog and API-list ancestors and a non-interactive current crumb with aria-current.
+- Right-aligned pagination and gray table/menu surrounds were superseded by explicit feedback. CSS was updated, then the new full-page capture was reopened together with the supplied source. No further substantive visual fixes were identified.
+- Browser: all four service breadcrumb paths; direct keys → catalog and keys → API-list paths; keyboard activation and focus restoration; creation, badge/name editing, preserved keys/date, users empty state, demo-key creation/rotation/deletion, integration deletion confirmation.
+- Browser pagination: seven integrations and seven keys; page one shows six, page two shows one; search resets to one and hides pagination for one result; returning from keys preserves integrations page two; deleting the seventh key clamps to page one and hides pagination. Test records/keys created by the agent were removed afterward; final API state is 0/15, matching its pre-test state. No user data was removed.
+- Responsive: 390px long breadcrumb has no horizontal page overflow; current 493px app preview also has none. Desktop actions and table rows remain reachable.
+- `npm run test:settings`: 26/26 passed, including empty/6/7/12/13/15 row boundaries, filtered results, immutable edits and page clamping after deletion.
+- Final `npm run build`: passed. `git diff --check`: passed (only normal Windows LF/CRLF notices).
+- Console: only the historical 11:06:25 UTC hot-reload error from the initial API migration remains in the log. The normalization/optional-connection fix is in place; no new browser errors during the verified workflows.
+
+### Scope / follow-up
+
+This is a frontend prototype: stored entries and keys are local demonstration data, not genuine credentials or a live API/OAuth integration. The docs button uses the user's supplied URL; Bitrix uses its official Marketplace listing. No installation, external authorization, publishing or Git push was performed. The preview remains open at `http://localhost:4170/#settings`; temporary viewport overrides were reset.
+
+Implementation checklist: breadcrumbs, six-row pagination, current-page copy, both background removals, service layout checks, build/tests and browser verification complete. No blocking follow-up polish.
+
 ## 2026-10-13 — Compact balance bonus notice
 
 - Added a text-led 294×136px notification below the balance in both product headers. It reuses the welcome's animated orange/gold raster backdrop, with readable light text and a compact ivory CTA. The refresh tile and CTA arrow were removed following feedback; only the close cross remains.

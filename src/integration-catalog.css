@@ -1,0 +1,48 @@
+/* Gemini-inspired directory in IQ Mentor's existing light palette. */
+.settings-structure-content:has(.integration-catalog) > .settings-content-head { display: none; }
+.integration-catalog {
+  container: integration-catalog / inline-size;
+  --catalog-text: #37352f;
+  --catalog-muted: #73716b;
+  --catalog-line: #eeede9;
+  --catalog-hover: #f7f7f5;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 24px;
+  color: var(--catalog-text);
+}
+.integration-catalog-header { max-width: 696px; }
+.integration-catalog-header h2 { width: fit-content; max-width: 100%; margin: 0; border-bottom: 2px solid #ff8d20; padding-bottom: 7px; color: #242424; font-size: clamp(24px, 2.1vw, 34px); line-height: 1.25; font-weight: 400; letter-spacing: -.8px; }
+.integration-catalog h3 { margin: 0; color: var(--catalog-muted); font-size: 14px; font-weight: 500; line-height: 1.5; }
+.integration-catalog-connected { margin-top: 22px; }
+.integration-catalog-connected h3 { margin-bottom: 10px; }
+.integration-connected-empty { margin: 18px 0 0; color: var(--catalog-muted); font-size: 13px; line-height: 1.6; }
+.integration-catalog .service-brand-logo { width: 36px; height: 36px; flex-shrink: 0; border: 0; border-radius: 50%; background: transparent; object-fit: contain; }
+.integration-detail .service-brand-logo.large { width: 44px; height: 44px; border-radius: 50%; object-fit: contain; }
+.integration-catalog .service-brand-logo-api, .integration-detail .service-brand-logo-api { display: grid; place-items: center; background: #eeece7; color: #655e51; }
+.integration-catalog-results { margin-top: 24px; }
+.integration-catalog-results-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.integration-catalog-results-head > span { color: var(--catalog-muted); font-size: 14px; font-weight: 500; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.integration-catalog-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 340px)); gap: 6px 16px; margin: 0; }
+.integration-catalog-service { display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 64px; border: 1px solid transparent; border-radius: 999px; background: transparent; padding: 8px 10px; color: var(--catalog-text); text-align: left; cursor: pointer; transition: background .18s ease; }
+.integration-catalog-service:hover { background: #f7f7f5; }
+.integration-catalog-service-copy { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.integration-catalog-service-copy strong { font-size: 15px; font-weight: 500; line-height: 1.4; letter-spacing: -.15px; }
+.integration-catalog-service-copy > span { color: var(--catalog-muted); font-size: 12px; font-weight: 400; line-height: 1.45; }
+.integration-catalog-service-action { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: transparent; color: #89877f; transition: color .18s ease, background .18s ease; }
+.integration-catalog-service:hover .integration-catalog-service-action { background: #efeee9; color: #37352f; }
+.integration-catalog button:focus-visible { outline: 2px solid #df6f39; outline-offset: 3px; }
+.integration-catalog-empty { padding: 28px 12px; border-radius: 12px; background: #fafaf8; text-align: center; }
+.integration-catalog-empty strong { font-size: 14px; font-weight: 500; }
+.integration-catalog-empty p { margin: 8px 0 16px; color: var(--catalog-muted); font-size: 12px; line-height: 1.6; }
+.api-integration { max-width: 696px; }
+.api-integration-preview-note { margin-top: 20px; border-radius: 10px; background: #f7f7f4; padding: 12px 14px; color: #73716b; font-size: 12px; line-height: 1.6; }
+.api-integration .token-copy-button:disabled { opacity: .45; cursor: not-allowed; }
+.api-integration .integration-token-row { grid-template-columns: minmax(0, 1fr) 42px auto; }
+@media (max-width: 900px) { .api-integration .integration-token-row { grid-template-columns: minmax(0, 1fr) 42px; } .api-integration .integration-token-row .orange-button { grid-column: 1 / -1; } }
+@container integration-catalog (max-width: 620px) {
+  .integration-catalog-grid { grid-template-columns: minmax(0, 340px); gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .integration-catalog *, .integration-catalog *::before, .integration-catalog *::after { transition: none; }
+}
