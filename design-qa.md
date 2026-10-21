@@ -1203,3 +1203,17 @@ final result: passed
 - Implementation checklist: final desktop/mobile composition, interactive dismissal and repeat-on-reload reviewed; viewport override reset and preview retained. No remaining P3 follow-up required.
 
 final result: passed
+
+## 2026-10-21 — Search styling and employee layout refinements
+
+- Scope: supplied search component styling, not a full-page clone. Source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-9de2e82a-1f13-4935-83b4-ee95f95da4c8.png` (600×80). Implementation: `artifacts/employee-search-reference-style.png` (324×642 captured pixels), compact 36px CSS input. Source and implementation were opened together in one comparison input; compare the component at approximately 0.45 source scale, retaining the user's compact layout rather than stretching to 600px. Full-view context and the focused search control were visible in that combined input.
+- Typography: existing Inter 12px, unchanged to preserve compact product sizing; the source is an enlarged control sample, not a request for 32px interface text. Placeholder is quiet gray; entered text remains dark and accessible input labels remain present.
+- Spacing/layout: replaced capsule geometry with 9px soft rectangular corners, retained 36px height and 12px horizontal padding. No horizontal clipping in the narrow screenshot.
+- Colors: near-white #FAFAFA field, subtle #F0F0F0 border, #AAAAAA icon/placeholder follow the reference. Existing visible focus outline is preserved intentionally.
+- Assets: existing library search icon, no new raster artwork or substitute drawings. Copy remains «Поиск».
+- Findings: no actionable P0/P1/P2 discrepancies in this scoped style transfer. Browser screenshot transport is visibly soft across the entire app, so exact antialiasing comparison is not claimed.
+- Additional requested changes verified at 1800×1000 CSS viewport: navigation item icons restored with indented labels, counter aligned with view pills, labels shortened to «Сотрудник» / «Шаблон». Screenshot: `artifacts/employee-layout-final.png` (1800×1000).
+- Table verification found percentage calc widths were being evenly redistributed by the browser. Replaced them with native percentage columns and auto remaining template width. Post-fix DOM measurements: selection 44px, employee 227.03px, department 160.81px, source 110px, template 243.34px, role 160.81px. The template now starts 110px after the source; no percentage-based empty source gap remains.
+- Checklist: search style compared; wide table layout measured and captured; temporary viewport override reset; existing navigation/search behavior retained. No deployment or Git push.
+
+final result: passed

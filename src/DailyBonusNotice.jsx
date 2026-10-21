@@ -4,7 +4,7 @@ import { IconX } from '@tabler/icons-react';
 import dailyBonusGlow from './assets/welcome/daily-bonus-glow.png';
 import './daily-bonus-notice.css';
 
-// UI-only review mode: the parent resets visibility on every full reload.
+// Visibility must come from an explicit bonus event, never from a page reload.
 // This notice does not accrue money or alter the billing balance.
 // Daily limits refresh at midnight; this component only displays the schedule.
 // Defaults are demo values; real remaining updates must come from billing.

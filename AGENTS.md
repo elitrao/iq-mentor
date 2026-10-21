@@ -10,6 +10,40 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- Place «Всего сотрудников» on the same row as Table/Cards view pills, aligned right; search/filter remains on its own row above. Use concise labels «Сотрудник» instead of «ФИО сотрудника» and «Шаблон» instead of «Привязанный шаблон» throughout employee table, responsive labels, cards and filter dialog.
+
+- Restore the existing 16px neutral item icons in Settings navigation. Keep group headings unchanged; indent item icons to 32px and labels a further 25px so subcategories sit clearly to the right of group titles. Preserve readiness checks and selection highlight.
+- The Source table column is fixed at 110px, not a percentage; allocate its released width to Linked template. Keep the source-to-template gap compact even on wide screens. Supersedes the 11%/31% adjustment.
+- Use native table-compatible widths for the remaining columns: 24% Employee, 17% Department, 17% Role, and auto Template after fixed 44px selection / 110px Source. Avoid percentage calc expressions on col elements: this browser distributes those columns equally instead of honoring the intended proportions.
+
+- Both employee and department search inputs follow the latest search reference: near-white #FAFAFA fill, subtle #F0F0F0 border, soft rectangular 9px corners (not capsule), #AAAAAA search icon/placeholder. Preserve the compact 36px height, current widths, «Поиск» copy, accessible names and visible focus state.
+
+- Put a compact outlined funnel button immediately left of employee search. It opens the reference-style «Фильтр» dialog with Source, Linked template and Role selectors plus equal Reset/Apply actions. Derive source/template options from the whole employee list; roles use the shared presets. Apply all filters together with name search and department in table/cards, preserve selection across filtering, show an active-filter count, discard draft on close, and Reset clears only these three filters. The empty-state Show all action clears all filtering/search.
+
+- Role badges now open a compact anchored dropdown with the two preset badges and a check on the current role. Selecting a role saves immediately; no dialog or Save/Cancel. Preserve keyboard navigation, Escape/outside dismissal, focus return, errors and viewport-safe placement above table clipping.
+- Bring the table template column closer to Source: use 11% Source / 31% Template of the space after selection, retaining the other column widths and consistent padding.
+
+- Employee roles are fixed shared presets: «Пользователь» (blue, person icon) and «Администратор» (purple, shield-check icon). Show compact matching badges in table/cards and the role picker. Clicking a badge opens a role dialog with explicit Save/Cancel; persist valid per-employee local overrides without changing department membership. New/unknown roles default to User; keep the seeded administrator. This prototype does not implement real authorization.
+- Populate the user's current department snapshot with 3–5 fictional employees per department, counting existing members. Persist the demo roster once; stable IDs must survive reloads, role edits, moves and department deletion without refilling or resurrecting departments. Future department creation must not silently generate people.
+
+- Place employee view pills in their own left-aligned row immediately below employee search and above results, with a compact 12px bottom gap. Keep the employee count in the search toolbar, not beside the view pills.
+
+- Employee view switching uses compact Notion-like icon-and-label pills («Таблица», «Карточки»), not square icon buttons. Adapt the reference to the existing light theme: neutral gray selected pill, quiet unfilled inactive state, 14px glyphs and 12px labels; preserve mode persistence and selection/filter behavior. Do not add a nonfunctional plus button.
+- Employee card department/source metadata stays content-sized and close together (20px horizontal gap), with 4px label-to-badge spacing and 12px top/row spacing. The template remains full-width below; allow metadata to wrap safely on narrow cards.
+
+- Individual employee cards have no checkbox in their header. Preserve the separate select-all control above the cards and selection controls in table mode; do not replace the removed checkbox with an implicit whole-card click action.
+
+- Employees supports persistent Table / Cards modes via two compact icon buttons beside the count: filled table/grid glyphs, neutral gray resting and pale-orange/orange active, matching the supplied reference. Table remains the default. Cards show initials, full name, role, department badge, source and template in a responsive grid; search, department filters, select-all, selected IDs and bulk moves are shared across both modes. Mode switching never clears selection or filters.
+
+- Employee table columns share one explicit colgroup: fixed 44px selection, then 24% name / 17% department / 15% source / 27% template / 17% role of the remaining width. Use consistent 14px horizontal cell padding (8px before name), aligned header/body starts, and preserve the mobile card layout. Avoid the previous cramped 10% department column and oversized leftover role column.
+
+- Employee selection checkboxes use compact 16px squares, 4px corners, a soft 1.5px gray outline, #FF9025 selected fill and an 11px white check/minus. Keep native accessible inputs and 44px-high targets. The table-header checkbox selects visible employees, reflects partial selection with an indeterminate minus, and does not clear selections outside the current filter.
+
+- Analyst report generation now contains only Summary and Categories. A separate «Оценка звонков» section contains Stereo and «Автоматический отчёт по звонкам», preserving their IDs and saved settings. Remove period controls only from the call-report tab, leaving other reports and Trainer unchanged. In call analysis, use an Analyst-orange switch immediately beside the label, no helper sentence; enable minimum duration only while auto-analysis is on and preserve its saved value while off. Embedded Stereo has no duplicate heading or extra top padding.
+- Every visible integration detail uses a compact green «Интеграция подключена» status when connected and neutral disconnected status otherwise. Hide amoCRM from all catalog lists without deleting saved connection data. Active catalog entries show connection dates in small neutral pills; preserve dates on key regeneration/edits and record dates for new/reconnected integrations. Use the user-requested demo date 19.10.2026 for the seeded Bitrix connection only when no saved date exists. Unknown dates remain explicitly unknown.
+- Disable bonus review replay on reload. Welcome honors its existing persisted acknowledgement; explicit preview links and the gift button still open it. Do not automatically show the mock daily bonus notice on reload or pretend a reload is a billing event.
+- Selecting employee checkboxes reveals a compact bulk-action bar: selected count, clear selection and move to department. A destination dialog uses department badges and allows «Без отдела». Persist local employee-to-department assignments, update counts/filter/badges, clear selection after success, and preserve employees and unrelated assignments.
+
 - Header account button matches the production reference at 84×44px with a compact 16×18px door icon; set intrinsic image dimensions too so the raster never renders at its oversized natural size. Do not fabricate the reference's 99+ notification count.
 
 - Mark «Сотрудники» ready for review in Settings navigation with the same quiet green check and «Готово к просмотру» description as the other completed sections.

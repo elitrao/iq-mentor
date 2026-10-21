@@ -320,8 +320,8 @@ export function App() {
   // Explicit design preview only; real exhaustion must come from billing.
   const [dailyBonusVariant] = useState(() => new URLSearchParams(window.location.search).get('welcome') === 'exhausted' ? 'exhausted' : 'welcome');
   const [dailyBonusWelcomeOpen, setDailyBonusWelcomeOpen] = useState(() => DAILY_BONUS_PROMOTION_ENABLED && shouldShowDailyBonusWelcome());
-  // The compact notice follows the same temporary promotion switch as the welcome.
-  const [dailyBonusNoticeOpen, setDailyBonusNoticeOpen] = useState(DAILY_BONUS_PROMOTION_ENABLED);
+  // A reload is not a bonus-accrual event. Real notices require a billing event.
+  const [dailyBonusNoticeOpen, setDailyBonusNoticeOpen] = useState(false);
 
   const closeDailyBonusWelcome = () => {
     acknowledgeDailyBonusWelcome();
@@ -1135,7 +1135,7 @@ function SettingsSection({ id, settings, update, notify }) {
   if (id === "analyst-notifications" || id === "trainer-notifications") { const kind = id.startsWith("analyst") ? "analyst" : "trainer"; return <NotificationSettings kind={kind} value={settings.notifications[kind]} update={update} save={save} />; }
   if (id === "integrations") return <IntegrationsSettings value={settings.integrations} update={update} notify={notify} />;
   if (id === "analyst-reports" || id === "trainer-reports") { const kind = id.startsWith("analyst") ? "analyst" : "trainer"; return <ReportSettings kind={kind} value={settings.reports[kind]} update={update} save={save} notify={notify} />; }
-  if (id === "stereo") return <StereoSettings value={settings.stereo} update={update} />;
+  if (id === "stereo") return <StereoSettings value={settings.stereo} update={update} embedded />;
   return <ScoringSettings value={settings.scoring} update={update} save={save} notify={notify} />;
 }
 
@@ -1226,8 +1226,8 @@ function NotificationSettings({ kind, value, update }) {
   return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head"><span>Уведомлять меня об</span><span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
 }
 
-function NotificationSwitch({ label, checked, onChange }) {
-  return <label className="notification-switch" aria-label={label}><input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>;
+function NotificationSwitch({ label, checked, onChange, role }) {
+  return <label className="notification-switch" aria-label={label}><input type="checkbox" role={role} checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>;
 }
 
 function IntegrationsSettings({ value, update, notify }) {
@@ -1251,20 +1251,20 @@ function IntegrationsSettings({ value, update, notify }) {
   const integration = value[active] || { connected: false, token: '' };
   const toggleConnection = (key, name) => {
     const wasConnected = value[key].connected;
-    update((next) => { next.integrations[key].connected = !wasConnected; });
+    update((next) => { next.integrations[key].connected = !wasConnected; next.integrations[key].connectedAt = wasConnected ? null : new Date().toISOString(); });
     notify(wasConnected ? `${name} отключен` : `${name} подключен`);
   };
   const regenerateToken = (key) => {
     const prefix = key === "bitrix" ? "b24" : "amo";
     const token = `${prefix}_${crypto.randomUUID().replaceAll("-", "").slice(0, 24)}`;
-    update((next) => { next.integrations[key].token = token; next.integrations[key].connected = true; });
+    update((next) => { if (!next.integrations[key].connected) next.integrations[key].connectedAt = new Date().toISOString(); next.integrations[key].token = token; next.integrations[key].connected = true; });
     notify("Ключ-токен обновлен");
   };
   const copyToken = async (token) => {
     try { await navigator.clipboard.writeText(token); notify("Ключ-токен скопирован"); }
     catch { notify("Не удалось скопировать ключ-токен"); }
   };
-  if (!active) return <IntegrationCatalog value={value} onSelect={openService} />;
+  if (!active || !selected) return <IntegrationCatalog value={value} onSelect={openService} />;
   if (active === 'bitrix') return <BitrixIntegrationScreen back={() => setActive(null)} backRef={detailRef} connected={integration.connected} token={integration.token || tokenDefaults.bitrix} regenerate={() => regenerateToken('bitrix')} copy={copyToken} disconnect={() => toggleConnection('bitrix', selected.name)} />;
   if (active === 'yandex') return <YandexIntegrationScreen back={() => setActive(null)} backRef={detailRef} connected={integration.connected} toggle={() => toggleConnection('yandex', 'Яндекс Диск')} />;
   if (active === 'api') return <ApiIntegration back={() => setActive(null)} backRef={detailRef} value={integration} onChange={(api) => update((next) => { next.integrations.api = api; })} notify={notify} />;
@@ -1289,17 +1289,20 @@ function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" :
   });
   const changeScoring = (fields) => update((next) => { Object.assign(next.scoring, fields); });
   const rows = [["day", "За прошедший день"], ["week", "За прошедшую неделю"], ["month", "За прошедший месяц"]];
-  return <div className={`report-generator-card tone-${kind}`}><div className="report-generator-title"><h3>Периодичность отчёта</h3></div><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => changePeriod(key, e.target.checked)} /><i></i><span>{label}</span></label>)}</div>{withScoring && <section className="report-call-analysis" aria-labelledby="report-call-analysis-title"><h3 id="report-call-analysis-title">Параметры анализа звонков</h3><ScoringFields draft={scoring} setDraft={changeScoring} /></section>}</div>;
+  return <div className={`report-generator-card tone-${kind}${withScoring ? ' is-call-analysis' : ''}`}>
+    {!withScoring && <><div className="report-generator-title"><h3>Периодичность отчёта</h3></div><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => changePeriod(key, e.target.checked)} /><i></i><span>{label}</span></label>)}</div></>}
+    {withScoring && <section className="report-call-analysis" aria-labelledby="report-call-analysis-title"><h3 id="report-call-analysis-title">Параметры анализа звонков</h3><ScoringFields draft={scoring} setDraft={changeScoring} /></section>}
+  </div>;
 }
 
-function StereoSettings({ value, update }) {
+function StereoSettings({ value, update, embedded = false }) {
   const [channelHelpOpen, setChannelHelpOpen] = useState(false);
   const current = getStereoFormat(value);
   const change = (format) => update((next) => {
     next.stereo = setStereoFormat(next.stereo, format);
   });
-  return <section className="stereo-format-form" aria-labelledby="stereo-settings-title">
-    <h2 id="stereo-settings-title">Стереоформат звонков</h2>
+  return <section className={`stereo-format-form${embedded ? ' is-embedded' : ''}`} aria-labelledby={embedded ? 'stereo-channel-label' : 'stereo-settings-title'}>
+    {!embedded && <h2 id="stereo-settings-title">Стереоформат звонков</h2>}
     <div className="stereo-format-section">
       <div className="stereo-format-label-row">
         <span className="stereo-format-field" id="stereo-channel-label">Распределение каналов</span>
@@ -1318,7 +1321,10 @@ function StereoSettings({ value, update }) {
 }
 
 function ScoringFields({ draft, setDraft }) {
-  return <div className="scoring-settings-content"><label className="scoring-duration-field"><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input value={draft.minDuration} onChange={(e) => setDraft({ ...draft, minDuration: e.target.value })} aria-label="Минимальная длительность звонка" /></div></label><label className="scoring-auto-check"><input type="checkbox" checked={draft.autoAnalyze} onChange={(e) => setDraft({ ...draft, autoAnalyze: e.target.checked })} /><i><IconCheck size={14} /></i><span><strong>Автоматически отправлять звонок на анализ</strong><small>Не придется запускать анализ вручную</small></span></label></div>;
+  return <div className="scoring-settings-content">
+    <div className="scoring-auto-toggle tone-analyst"><span>Автоматически отправлять звонок на анализ</span><NotificationSwitch role="switch" label="Автоматически отправлять звонок на анализ" checked={draft.autoAnalyze} onChange={(checked) => setDraft({ ...draft, autoAnalyze: checked })} /></div>
+    <label className={`scoring-duration-field${draft.autoAnalyze ? '' : ' is-disabled'}`}><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input disabled={!draft.autoAnalyze} value={draft.minDuration} onChange={(e) => { if (draft.autoAnalyze) setDraft({ ...draft, minDuration: e.target.value }); }} aria-label="Минимальная длительность звонка" /></div></label>
+  </div>;
 }
 
 function ScoringSettings({ value, update }) {

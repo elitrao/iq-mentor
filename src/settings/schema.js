@@ -6,11 +6,13 @@ export const SETTINGS_GROUPS = [
   ] },
   { id: 'analyst', title: 'Аналитик', items: [
     { id: 'analyst-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
-      { id: 'analyst-reports-calls', label: 'Отчёт по звонкам', reportType: 'calls' },
       { id: 'analyst-reports-summary', label: 'Сводный отчёт', reportType: 'summary' },
       { id: 'analyst-reports-categories', label: 'Отчёт по категориям', reportType: 'categories' },
     ] },
-    { id: 'stereo', label: 'Стереоформат звонков', icon: 'headphones' },
+    { id: 'call-assessment', label: 'Оценка звонков', icon: 'headphones', children: [
+      { id: 'stereo', label: 'Стереоформат звонков' },
+      { id: 'analyst-reports-calls', label: 'Автоматический отчёт по звонкам', reportType: 'calls' },
+    ] },
   ] },
   { id: 'trainer', title: 'Тренер', items: [
     { id: 'trainer-reports', label: 'Автогенерация отчётов', icon: 'report', children: [

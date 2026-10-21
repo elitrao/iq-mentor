@@ -8,8 +8,11 @@ test('settings groups and report hierarchy match the supplied structure', () => 
   assert.equal(SETTINGS_GROUPS[0].items[2].label, 'Уведомления');
   assert.equal(SETTINGS_GROUPS[1].items[0].label, 'Автогенерация отчётов');
   assert.equal(SETTINGS_GROUPS[2].items[0].label, 'Автогенерация отчётов');
-  assert.deepEqual(SETTINGS_GROUPS[1].items.map((item) => item.id), ['analyst-reports', 'stereo']);
-  assert.deepEqual(SETTINGS_GROUPS[1].items[0].children.map((item) => item.label), ['Отчёт по звонкам', 'Сводный отчёт', 'Отчёт по категориям']);
+  assert.deepEqual(SETTINGS_GROUPS[1].items.map((item) => item.id), ['analyst-reports', 'call-assessment']);
+  assert.deepEqual(SETTINGS_GROUPS[1].items[0].children.map((item) => item.label), ['Сводный отчёт', 'Отчёт по категориям']);
+  assert.deepEqual(SETTINGS_GROUPS[1].items[1].children.map((item) => item.id), ['stereo', 'analyst-reports-calls']);
+  assert.equal(resolveSettingsSection('stereo').parent.id, 'call-assessment');
+  assert.equal(resolveSettingsSection('analyst-reports-calls').parent.id, 'call-assessment');
   assert.deepEqual(SETTINGS_GROUPS[2].items[0].children.map((item) => item.label), ['Отчёт по тренировкам', 'Сводный отчёт']);
 });
 

@@ -1,9 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterIntegrations, INTEGRATION_SERVICES, normalizeIntegrationSettings } from '../src/settings/integration-catalog.js';
+import { filterIntegrations, INTEGRATION_SERVICES, normalizeIntegrationSettings, integrationConnectionDate, formatIntegrationConnectionDate } from '../src/settings/integration-catalog.js';
 import { API_PAGE_SIZE, addApiEntry, addApiKey, filterApiEntries, getApiEntries, getApiKeys, paginateApiRows, updateApiEntry, withApiEntries } from '../src/settings/api-integrations.js';
 
 const keys = (items) => items.map((item) => item.key);
+
+test('connection dates retain real saved timestamps and use the requested Bitrix demo date only when absent', () => {
+  assert.equal(formatIntegrationConnectionDate(integrationConnectionDate(normalizeIntegrationSettings().bitrix)), '19.10.2026');
+  const connectedAt = '2026-10-20T21:30:00Z';
+  assert.equal(normalizeIntegrationSettings({ bitrix: { connectedAt } }).bitrix.connectedAt, connectedAt);
+  assert.equal(formatIntegrationConnectionDate(connectedAt), '21.10.2026');
+  assert.equal(integrationConnectionDate({ entries: [{ createdAt: 'invalid' }, { createdAt: connectedAt }] }), connectedAt);
+  assert.equal(integrationConnectionDate({}), null);
+  const first = withApiEntries({}, [{ id: 'one' }], connectedAt);
+  assert.equal(first.connectedAt, connectedAt);
+  assert.equal(withApiEntries(first, [{ id: 'one' }, { id: 'two' }], 'later').connectedAt, connectedAt);
+  assert.equal(withApiEntries(first, []).connectedAt, null);
+  const saved = normalizeIntegrationSettings({ amo: { connected: true, token: 'demo-preserve' } });
+  assert.equal(saved.amo.token, 'demo-preserve');
+  assert.ok(!INTEGRATION_SERVICES.some((service) => service.key === 'amo'));
+});
 
 test('API pagination shows six rows and enables another page only after six', () => {
   assert.equal(API_PAGE_SIZE, 6);
@@ -30,22 +46,22 @@ test('API pagination clamps after deletion and paginates filtered results', () =
 });
 
 test('catalog only lists existing configurable services', () => {
-  assert.deepEqual(keys(filterIntegrations()), ['bitrix', 'yandex', 'amo', 'api']);
+  assert.deepEqual(keys(filterIntegrations()), ['bitrix', 'yandex', 'api']);
   assert.equal(new Set(keys(INTEGRATION_SERVICES)).size, INTEGRATION_SERVICES.length);
 });
 
 test('category filters are distinct and preserve catalog order', () => {
-  assert.deepEqual(keys(filterIntegrations('', 'crm')), ['bitrix', 'amo']);
+  assert.deepEqual(keys(filterIntegrations('', 'crm')), ['bitrix']);
   assert.deepEqual(keys(filterIntegrations('', 'storage')), ['yandex']);
 });
 
 test('search supports Russian aliases, case, whitespace and descriptions', () => {
   assert.deepEqual(keys(filterIntegrations('  БИТРИКС  ')), ['bitrix']);
   assert.deepEqual(keys(filterIntegrations('yandex')), ['yandex']);
-  assert.deepEqual(keys(filterIntegrations('аМО')), ['amo']);
+  assert.deepEqual(keys(filterIntegrations('аМО')), []);
   assert.deepEqual(keys(filterIntegrations('записей звонков')), ['yandex']);
   assert.deepEqual(keys(filterIntegrations('команды')), ['bitrix']);
-  assert.deepEqual(keys(filterIntegrations(' \n ')), ['bitrix', 'yandex', 'amo', 'api']);
+  assert.deepEqual(keys(filterIntegrations(' \n ')), ['bitrix', 'yandex', 'api']);
   assert.deepEqual(keys(filterIntegrations('API')), ['api']);
   assert.deepEqual(keys(filterIntegrations('апи')), ['api']);
 });
@@ -53,13 +69,13 @@ test('search supports Russian aliases, case, whitespace and descriptions', () =>
 test('search combines with category and returns empty results without fallback', () => {
   assert.deepEqual(filterIntegrations('yandex', 'crm'), []);
   assert.deepEqual(filterIntegrations('несуществующий сервис'), []);
-  assert.deepEqual(keys(filterIntegrations('crm', 'crm')), ['bitrix', 'amo']);
+  assert.deepEqual(keys(filterIntegrations('crm', 'crm')), ['bitrix']);
 });
 
 test('connected services only appear in the connected section, never in catalog results', () => {
   const connections = { bitrix: { connected: true }, yandex: { connected: false }, amo: { connected: false } };
-  assert.deepEqual(keys(filterIntegrations('', 'all', connections)), ['yandex', 'amo', 'api']);
-  assert.deepEqual(keys(filterIntegrations('', 'crm', connections)), ['amo']);
+  assert.deepEqual(keys(filterIntegrations('', 'all', connections)), ['yandex', 'api']);
+  assert.deepEqual(keys(filterIntegrations('', 'crm', connections)), []);
   assert.deepEqual(filterIntegrations('Битрикс', 'all', connections), []);
   assert.equal(connections.bitrix.connected, true);
 });

@@ -4,12 +4,9 @@ import dailyBonusGlow from './assets/welcome/daily-bonus-glow.png';
 import './daily-bonus-welcome.css';
 
 const SEEN_KEY = 'iq-mentor-daily-bonus-welcome-v1';
-// Temporary review mode requested by the product owner: replay on every reload.
-const SHOW_ON_EVERY_RELOAD = true;
 
 // Frontend welcome state only. Bonus accrual belongs to the billing service.
 export function shouldShowDailyBonusWelcome() {
-  if (SHOW_ON_EVERY_RELOAD) return true;
   if (['bonus', 'exhausted'].includes(new URLSearchParams(window.location.search).get('welcome'))) return true;
   try { return localStorage.getItem(SEEN_KEY) !== 'seen'; }
   catch { return true; }

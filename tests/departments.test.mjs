@@ -54,3 +54,65 @@ test('department loading keeps defaults and safely handles legacy or invalid val
   assert.equal(restored[3].colorId, 'gray');
   assert.equal(departmentColor('missing').id, 'gray');
 });
+import { readEmployeeAssignments, assignEmployees } from '../src/settings/employee-assignments.js';
+import { employeeRole, readEmployeeRoles, changeEmployeeRole } from '../src/settings/employee-roles.js';
+import { readOrSeedDemoEmployees } from '../src/settings/demo-employees.js';
+import { filterEmployees, EMPTY_EMPLOYEE_FILTERS } from '../src/settings/employee-filters.js';
+
+test('employee filters intersect source, template, role, department and name without mutating data', () => {
+  const employees = [
+    { id: 'a', name: 'Анна Смирнова', department: 'sales', source: 'Bitrix 24', template: 'Основной', role: 'Администратор' },
+    { id: 'b', name: 'Анна Орлова', department: 'sales', source: 'IQ Mentor', template: 'Другой', role: 'user' },
+    { id: 'c', name: 'Иван Попов', department: 'support', source: 'Bitrix 24', template: 'Основной', role: 'admin' },
+  ];
+  assert.deepEqual(filterEmployees(employees, EMPTY_EMPLOYEE_FILTERS), employees);
+  assert.deepEqual(filterEmployees(employees, { query: ' АННА ', department: 'sales', source: 'Bitrix 24', template: 'Основной', role: 'admin' }).map((employee) => employee.id), ['a']);
+  assert.deepEqual(filterEmployees(employees, { role: 'user' }).map((employee) => employee.id), ['b']);
+  assert.equal(filterEmployees(employees, { source: 'IQ Mentor', template: 'Основной' }).length, 0);
+  assert.equal(filterEmployees(employees, { role: 'admin' }).length, 2);
+  assert.equal(employees.length, 3);
+});
+
+test('role presets, persistence and validation preserve unrelated employees', () => {
+  assert.equal(employeeRole('Администратор').id, 'admin');
+  assert.equal(employeeRole(undefined).id, 'user');
+  const original = { two: 'admin' };
+  const changed = changeEmployeeRole(original, 'one', 'user', [{ id: 'one' }]);
+  assert.deepEqual(changed, { two: 'admin', one: 'user' });
+  assert.deepEqual(original, { two: 'admin' });
+  assert.deepEqual(readEmployeeRoles(JSON.stringify(changed)), changed);
+  assert.deepEqual(readEmployeeRoles('{"one":"owner","two":"admin"}'), { two: 'admin' });
+  for (const value of ['bad', 'null', '[]']) assert.deepEqual(readEmployeeRoles(value), {});
+  assert.throws(() => changeEmployeeRole(original, 'missing', 'user', []));
+  assert.throws(() => changeEmployeeRole(original, 'one', 'owner', [{ id: 'one' }]));
+});
+
+test('demo population fills current departments to 3–5 without resetting existing members or later moves', () => {
+  const departments = ['a', 'b', 'c'].map((id) => ({ id }));
+  const existing = [{ id: 'original', department: 'a', role: 'Администратор' }];
+  const demo = readOrSeedDemoEmployees(null, departments, existing);
+  assert.deepEqual(departments.map(({ id }) => [...existing, ...demo].filter((employee) => employee.department === id).length), [3, 4, 5]);
+  assert.equal(new Set(demo.map((employee) => employee.id)).size, demo.length);
+  assert.ok(demo.some((employee) => employee.role === 'admin'));
+  assert.ok(demo.some((employee) => employee.role === 'user'));
+  assert.deepEqual(readOrSeedDemoEmployees(JSON.stringify(demo), [], []), demo);
+  assert.deepEqual(readOrSeedDemoEmployees('[]', departments, existing), []);
+  const moved = assignEmployees({}, [demo[0].id], 'b', demo, departments);
+  assert.equal(moved[demo[0].id], 'b');
+  assert.deepEqual(readOrSeedDemoEmployees(JSON.stringify(demo), departments, existing), demo);
+});
+
+test('employee moves persist independently, preserve other assignments, and validate destinations', () => {
+  const employees = [{ id: 'one' }, { id: 'two' }, { id: 'three' }];
+  const departments = [{ id: 'sales' }, { id: 'support' }];
+  const original = { one: 'sales', three: 'sales' };
+  const moved = assignEmployees(original, ['one', 'two'], 'support', employees, departments);
+  assert.deepEqual(readEmployeeAssignments(JSON.stringify(moved)), { one: 'support', two: 'support', three: 'sales' });
+  assert.deepEqual(original, { one: 'sales', three: 'sales' });
+  assert.equal(assignEmployees(moved, ['one'], '', employees, departments).one, '');
+  assert.throws(() => assignEmployees(original, ['one'], 'missing', employees, departments));
+  assert.throws(() => assignEmployees(original, [], 'sales', employees, departments));
+  assert.throws(() => assignEmployees(original, ['unknown'], 'sales', employees, departments));
+  assert.deepEqual(readEmployeeAssignments('invalid'), {});
+  assert.deepEqual(readEmployeeAssignments('["sales"]'), {});
+});

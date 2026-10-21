@@ -8,7 +8,6 @@
 .service-reference-page button:focus-visible, .service-reference-page a:focus-visible { outline: 2px solid #df6f39; outline-offset: 3px; }
 .bitrix-reference-content { max-width: 952px; margin: 64px auto 24px; }
 .bitrix-reference-intro { text-align: center; }
-.bitrix-reference-intro > span { display: inline-block; border-radius: 999px; background: #fff3e8; color: #ef7b16; padding: 4px 9px; font-size: 14px; line-height: 1.3; }
 .bitrix-reference-intro h3 { margin: 12px 0 18px; font-size: 22px; line-height: 1.4; font-weight: 600; }
 .bitrix-reference-copy p { margin: 0 0 14px; color: #5c5c5c; font-size: 16px; line-height: 1.55; }
 .service-reference-token-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px auto; gap: 9px; margin-top: 28px; }
@@ -21,8 +20,6 @@
 .yandex-reference-warning h3 { margin: 0 0 6px; font-size: 21px; font-weight: 400; }
 .yandex-reference-warning p { margin: 0; color: #7a7a7a; font-size: 14px; line-height: 1.55; }
 .yandex-reference-connect { max-width: 560px; margin: 48px auto 24px; text-align: center; }
-.yandex-reference-connect > span { display: inline-block; border: 1px solid #f1f1f1; border-radius: 999px; padding: 3px 8px; color: #888; font-size: 14px; }
-.yandex-reference-connect > span.connected { border-color: #e4eee8; color: #46805d; }
 .yandex-reference-connect h3 { margin: 12px 0 20px; font-size: 22px; font-weight: 400; line-height: 1.4; }
 .yandex-reference-connect p { margin: 0 0 28px; color: #5c5c5c; font-size: 17px; line-height: 1.6; }
 @container service-page (max-width: 900px) {

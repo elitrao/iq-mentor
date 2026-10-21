@@ -47,7 +47,7 @@ function ReportOverview({ group, item, active, onSelect, renderSection }) {
   const selected = item.children.some((child) => child.id === active) ? active : item.children[0].id;
   return <section className={`report-directory tone-${group.id}`} aria-labelledby={`${id}-title`}>
     <h2 id={`${id}-title`}>{item.label}</h2>
-    <ReportTypeTabs items={item.children} active={selected} tone={group.id} id={id} onChange={onSelect} />
+    <ReportTypeTabs items={item.children} active={selected} tone={group.id} id={id} onChange={onSelect} label={item.id === 'call-assessment' ? 'Настройки оценки звонков' : 'Тип отчёта'} />
     <div className="notification-product-panels report-type-panels">
       {item.children.map((child) => <div key={child.id} className={`notification-product-panel${selected === child.id ? ' is-active' : ''}`}
         role="tabpanel" id={`${id}-panel-${child.id}`} aria-labelledby={`${id}-tab-${child.id}`}
@@ -81,10 +81,12 @@ function SettingsNav({ active, setActive }) {
     {SETTINGS_GROUPS.map((group) => <section className={`settings-structure-group tone-${group.id}`} key={group.id} aria-labelledby={`settings-group-${group.id}`}>
       <h2 id={`settings-group-${group.id}`}><SettingsGroupIcon groupId={group.id} />{group.title}</h2>
       {group.items.map((item) => {
+        const ItemIcon = ICONS[item.icon];
         const containsActive = item.children?.some((child) => child.id === active);
-        const readyForReview = ['employees', 'integrations', 'notifications', 'stereo', 'analyst-reports', 'trainer-reports'].includes(item.id);
+        const readyForReview = ['employees', 'integrations', 'notifications', 'call-assessment', 'analyst-reports', 'trainer-reports'].includes(item.id);
         return <div key={item.id}>
           <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id ? 'page' : undefined} onClick={() => setActive(item.id)} aria-description={readyForReview ? 'Готово к просмотру' : undefined}>
+            {ItemIcon && <ItemIcon size={16} stroke={1.6} aria-hidden="true" />}
             <span>{item.label}</span>
             {readyForReview && <span className="settings-review-ready" title="Готово к просмотру" aria-hidden="true"><IconCheck size={12} stroke={2} /></span>}
           </button>

@@ -53,7 +53,7 @@ export function ApiIntegration({ value, onChange, notify, back, backRef }) {
 
   if (activeEntry) return <ApiKeysScreen entry={activeEntry} onChange={(updated) => saveEntries(entries.map((item) => item.id === updated.id ? updated : item))} back={() => setActiveId(null)} backToCatalog={back} notify={notify} />;
 
-  return <IntegrationScreen title="API-интеграции" back={back} backRef={backRef} className="api-reference-page" actions={<>
+  return <IntegrationScreen title="API-интеграции" connected={Boolean(value.connected)} back={back} backRef={backRef} className="api-reference-page" actions={<>
     <a className="light-button" href="https://test.mentor.iqgroup.ai/api/integration/docs" target="_blank" rel="noopener noreferrer">Документация API<IconArrowUpRight size={18} aria-hidden="true" /></a>
     <button type="button" className="dark-button" disabled={entries.length >= API_INTEGRATION_LIMIT} onClick={() => { setName(''); setBadgeBackground('#f5f5f5'); setBadgeColor('#5c5c5c'); setError(''); setModal('create'); }}><IconPlus size={21} aria-hidden="true" />Создать новую интеграцию</button>
   </>}>

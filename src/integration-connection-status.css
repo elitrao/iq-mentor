@@ -1,0 +1,9 @@
+.integration-connection-status {
+  display: inline-flex; align-items: center; gap: 5px; width: fit-content;
+  border: 1px solid #eeede9; border-radius: 999px; padding: 4px 9px;
+  color: #85827b; background: #fafaf9; font: inherit; font-size: 13px;
+  font-style: normal; font-weight: 400; line-height: 18px;
+}
+.integration-connection-status.is-connected { border-color: transparent; background: #eaf7ee; color: #2e7b49; }
+.integration-connection-status > svg { flex-shrink: 0; }
+.service-page-connection { margin-top: 16px; }

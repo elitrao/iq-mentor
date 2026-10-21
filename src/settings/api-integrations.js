@@ -28,8 +28,9 @@ export function filterApiEntries(entries, query) {
   return entries.filter((item) => item.name.toLocaleLowerCase('ru').includes(term));
 }
 
-export function withApiEntries(value, entries) {
-  return { ...value, token: '', entries, connected: entries.length > 0 };
+export function withApiEntries(value, entries, now = new Date().toISOString()) {
+  return { ...value, token: '', entries, connected: entries.length > 0,
+    connectedAt: entries.length ? (value.connected ? value.connectedAt : now) : null };
 }
 
 export function updateApiEntry(entries, id, name, badge) {
