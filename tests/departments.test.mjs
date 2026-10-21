@@ -58,6 +58,17 @@ import { readEmployeeAssignments, assignEmployees } from '../src/settings/employ
 import { employeeRole, readEmployeeRoles, changeEmployeeRole } from '../src/settings/employee-roles.js';
 import { readOrSeedDemoEmployees } from '../src/settings/demo-employees.js';
 import { filterEmployees, EMPTY_EMPLOYEE_FILTERS } from '../src/settings/employee-filters.js';
+import { readEmployeeDisplay, DEFAULT_EMPLOYEE_DISPLAY } from '../src/settings/employee-display.js';
+
+test('employee display preferences default on, preserve false and validate stored data', () => {
+  for (const value of [null, 'bad', '[]', 'null']) assert.deepEqual(readEmployeeDisplay(value), DEFAULT_EMPLOYEE_DISPLAY);
+  assert.deepEqual(readEmployeeDisplay('{"role":false,"source":false,"template":"false","other":true}'), { department: true, source: false, template: true, role: false });
+  const hidden = { department: false, source: false, template: false, role: false };
+  assert.deepEqual(readEmployeeDisplay(JSON.stringify(hidden)), hidden);
+  const restored = readEmployeeDisplay(null);
+  restored.role = false;
+  assert.equal(DEFAULT_EMPLOYEE_DISPLAY.role, true);
+});
 
 test('employee filters intersect source, template, role, department and name without mutating data', () => {
   const employees = [

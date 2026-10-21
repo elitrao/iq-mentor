@@ -1,5 +1,4 @@
 import { DepartmentBadge } from './DepartmentDialog.jsx';
-import { EmployeeCheckbox } from './EmployeeCheckbox.jsx';
 import { EmployeeRoleBadge } from './EmployeeRole.jsx';
 
 export function EmployeeViewToggle({ value, onChange }) {
@@ -15,13 +14,8 @@ export function EmployeeViewToggle({ value, onChange }) {
   </div>;
 }
 
-export function EmployeeCards({ employees, departments, selected, onSelectAll, onChangeRole }) {
-  const selectedCount = employees.filter((employee) => selected.includes(employee.id)).length;
+export function EmployeeCards({ employees, departments, selected, onChangeRole, display }) {
   return <>
-    {employees.length > 0 && <div className="employee-cards-select-all">
-      <EmployeeCheckbox label="Выбрать всех сотрудников в списке" checked={selectedCount === employees.length} mixed={selectedCount > 0 && selectedCount < employees.length} onChange={onSelectAll} />
-      <span>Выбрать всех</span>
-    </div>}
     <ul className="employee-cards-grid" aria-label="Карточки сотрудников">
       {employees.map((employee) => {
         const department = departments.find((item) => item.id === employee.department);
@@ -29,13 +23,13 @@ export function EmployeeCards({ employees, departments, selected, onSelectAll, o
         return <li key={employee.id} className={`employee-card${selected.includes(employee.id) ? ' is-selected' : ''}`}>
           <div className="employee-card-header">
             <span className="employee-card-avatar" aria-hidden="true">{initials}</span>
-            <div className="employee-card-identity"><h4>{employee.name}</h4><div className="employee-card-role"><EmployeeRoleBadge value={employee.role} employeeName={employee.name} onChange={(roleId) => onChangeRole(employee.id, roleId)} /></div></div>
+            <div className="employee-card-identity"><h4>{employee.name}</h4>{display.role && <div className="employee-card-role"><EmployeeRoleBadge value={employee.role} employeeName={employee.name} onChange={(roleId) => onChangeRole(employee.id, roleId)} /></div>}</div>
           </div>
-          <dl className="employee-card-fields">
-            <div><dt>Отдел</dt><dd>{department ? <DepartmentBadge department={department} /> : <span className="employee-without-department">Без отдела</span>}</dd></div>
-            <div><dt>Источник</dt><dd><span className="employee-source-badge">{employee.source}</span></dd></div>
-            <div className="employee-card-template"><dt>Шаблон</dt><dd>{employee.template}</dd></div>
-          </dl>
+          {(display.department || display.source || display.template) && <dl className="employee-card-fields">
+            {display.department && <div><dt>Отдел</dt><dd>{department ? <DepartmentBadge department={department} /> : <span className="employee-without-department">Без отдела</span>}</dd></div>}
+            {display.source && <div><dt>Источник</dt><dd><span className="employee-source-badge" data-source={employee.source}>{employee.source}</span></dd></div>}
+            {display.template && <div className={`employee-card-template${!display.department && !display.source ? ' is-only-field' : ''}`}><dt>Шаблон</dt><dd>{employee.template}</dd></div>}
+          </dl>}
         </li>;
       })}
     </ul>

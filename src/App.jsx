@@ -1324,6 +1324,7 @@ function ScoringFields({ draft, setDraft }) {
   return <div className="scoring-settings-content">
     <div className="scoring-auto-toggle tone-analyst"><span>Автоматически отправлять звонок на анализ</span><NotificationSwitch role="switch" label="Автоматически отправлять звонок на анализ" checked={draft.autoAnalyze} onChange={(checked) => setDraft({ ...draft, autoAnalyze: checked })} /></div>
     <label className={`scoring-duration-field${draft.autoAnalyze ? '' : ' is-disabled'}`}><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input disabled={!draft.autoAnalyze} value={draft.minDuration} onChange={(e) => { if (draft.autoAnalyze) setDraft({ ...draft, minDuration: e.target.value }); }} aria-label="Минимальная длительность звонка" /></div></label>
+    <div className="scoring-scope-note" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>Только для интеграций. Ручные загрузки анализируются независимо от длительности.</p></div>
   </div>;
 }
 

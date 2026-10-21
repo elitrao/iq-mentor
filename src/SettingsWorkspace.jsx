@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import {
   IconUsers, IconPlugConnected, IconBell, IconReportAnalytics,
-  IconHeadphones, IconCheck,
+  IconHeadphones, IconChevronDown,
 } from '@tabler/icons-react';
 import { SETTINGS_GROUPS, resolveSettingsSection } from './settings/schema.js';
 import { ReportTypeTabs } from './ReportTypeTabs.jsx';
@@ -60,12 +60,13 @@ function ReportOverview({ group, item, active, onSelect, renderSection }) {
 
 function SettingsNav({ active, setActive }) {
   const navRef = useRef(null);
+  const [collapsed, setCollapsed] = useState({});
   const [highlight, setHighlight] = useState(null);
   useLayoutEffect(() => {
     const nav = navRef.current;
     const measure = () => {
       const selected = nav.querySelector('.settings-structure-item.active') || nav.querySelector('.settings-structure-item.contains-active');
-      if (!selected) return;
+      if (!selected || selected.closest('[inert]')) { setHighlight(null); return; }
       const row = selected.getBoundingClientRect();
       const bounds = nav.getBoundingClientRect();
       const next = { x: row.left - bounds.left + nav.scrollLeft, y: row.top - bounds.top + nav.scrollTop, width: row.width, height: row.height };
@@ -75,23 +76,23 @@ function SettingsNav({ active, setActive }) {
     const observer = new ResizeObserver(measure);
     observer.observe(nav);
     return () => observer.disconnect();
-  }, [active]);
+  }, [active, collapsed]);
   return <nav ref={navRef} className="settings-structure-nav" aria-label="Разделы настроек">
     {highlight && <div className="settings-nav-highlight" aria-hidden="true" style={{ transform: `translate(${highlight.x}px, ${highlight.y}px)`, width: highlight.width, height: highlight.height }} />}
     {SETTINGS_GROUPS.map((group) => <section className={`settings-structure-group tone-${group.id}`} key={group.id} aria-labelledby={`settings-group-${group.id}`}>
-      <h2 id={`settings-group-${group.id}`}><SettingsGroupIcon groupId={group.id} />{group.title}</h2>
+      <h2 id={`settings-group-${group.id}`}><button type="button" className="settings-group-toggle" aria-expanded={!collapsed[group.id]} aria-controls={`settings-group-items-${group.id}`} onClick={() => setCollapsed((current) => ({ ...current, [group.id]: !current[group.id] }))}><SettingsGroupIcon groupId={group.id} /><span>{group.title}</span><IconChevronDown className="settings-group-chevron" size={14} stroke={1.6} aria-hidden="true" /></button></h2>
+      <div id={`settings-group-items-${group.id}`} className={`settings-group-collapse${collapsed[group.id] ? ' is-collapsed' : ''}`} aria-hidden={!!collapsed[group.id]} inert={!!collapsed[group.id]}><div className="settings-group-items">
       {group.items.map((item) => {
         const ItemIcon = ICONS[item.icon];
         const containsActive = item.children?.some((child) => child.id === active);
-        const readyForReview = ['employees', 'integrations', 'notifications', 'call-assessment', 'analyst-reports', 'trainer-reports'].includes(item.id);
         return <div key={item.id}>
-          <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id ? 'page' : undefined} onClick={() => setActive(item.id)} aria-description={readyForReview ? 'Готово к просмотру' : undefined}>
+          <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id ? 'page' : undefined} onClick={() => setActive(item.id)}>
             {ItemIcon && <ItemIcon size={16} stroke={1.6} aria-hidden="true" />}
-            <span>{item.label}</span>
-            {readyForReview && <span className="settings-review-ready" title="Готово к просмотру" aria-hidden="true"><IconCheck size={12} stroke={2} /></span>}
+            <span className="settings-item-label" title={item.label}>{item.label}</span>
           </button>
         </div>;
       })}
+      </div></div>
     </section>)}
   </nav>;
 }

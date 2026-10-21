@@ -10,6 +10,24 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- Remove the green readiness checkmarks and «Готово к просмотру» metadata from every Settings navigation item. Preserve navigation icons, group chevrons, and functional checkboxes elsewhere.
+
+- Integration catalog rows omit service descriptions; keep logos, names, connection status/date and actions.
+- General, Analyst and Trainer settings groups independently collapse/expand by clicking their heading, with a rotating chevron and reversible 360ms height transition. Start expanded; preserve the selected page while collapsing, hide its highlight with its group, make collapsed links inert, and honor reduced motion.
+
+- Below call-analysis minimum duration, keep the short hint «Только для интеграций. Ручные загрузки анализируются независимо от длительности.» in the same pale-gray strip as the Stereo note: #F7F7F5, 8px radius, 11px/14px padding, centered 16px info icon, 10px gap and 12px text. Place 8px below the field and keep visible when automatic analysis is off. It explains the scope of automatic scoring and the duration threshold, without changing upload behavior.
+
+- Employee search toolbar order is Filter button → Display settings eye button → Search input. Both icon actions sit to the left of search.
+
+- Settings navigation labels stay on one line, including «Автогенерация отчётов». Use a 280px page rail and narrow-layout group width, keeping the indented icons/readiness checks. Truncate only when truly constrained, with the full label as tooltip; do not shrink the typography.
+- Add a compact eye button after employee search. It opens «Настройки отображения» with shared checkbox visibility controls for Department, Source, Template and Role, matching the reference's two-column soft-gray option tiles. Name/selection remain available. Changes save immediately locally and apply to table/cards; group select-all, partial state and Show all restore are functional. Hiding fields never changes data, filters, membership or selection; collapse empty card metadata and unused table columns.
+
+- Role badges use quiet neutral tones, superseding blue/purple: User background #F5F5F3 / text #73716B; Administrator background #EEEDEA / text #57554F. Keep the person/shield icons, existing compact dimensions and identical presets in table, cards and role dropdown. Source badges retain their separate brand colors.
+
+- Source badges share the supplied brand treatments in employee table and cards: Bitrix 24 uses pale blue #E6F2FF with #2787FF text and a fine #D9EAFF inset edge; IQ Mentor uses peach #FFF2E5 with #FF7900 text and #FFEAD7 inset edge. Keep compact pill dimensions; other sources retain the neutral fallback.
+
+- In Cards mode, put the compact «Выбрать всех» checkbox and clickable caption in the view-switching row, after Table/Cards pills, with the total count still right-aligned. Remove its separate row above cards. Preserve the 16px checkbox, 44px effective hit area, mixed state and filtered selection behavior; Table mode keeps its existing header checkbox without a duplicate toolbar control. Wrap on narrow screens.
+
 - Place «Всего сотрудников» on the same row as Table/Cards view pills, aligned right; search/filter remains on its own row above. Use concise labels «Сотрудник» instead of «ФИО сотрудника» and «Шаблон» instead of «Привязанный шаблон» throughout employee table, responsive labels, cards and filter dialog.
 
 - Restore the existing 16px neutral item icons in Settings navigation. Keep group headings unchanged; indent item icons to 32px and labels a further 25px so subcategories sit clearly to the right of group titles. Preserve readiness checks and selection highlight.

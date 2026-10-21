@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { IconId, IconPlus, IconSearch, IconUsers, IconFilter } from '@tabler/icons-react';
+import { IconId, IconPlus, IconSearch, IconUsers, IconFilter, IconEye } from '@tabler/icons-react';
 import { DepartmentBadge, DepartmentDialog } from './DepartmentDialog.jsx';
 import { DepartmentRow } from './DepartmentRow.jsx';
 import { DepartmentList } from './DepartmentList.jsx';
@@ -8,6 +8,8 @@ import { EmployeeCheckbox } from './EmployeeCheckbox.jsx';
 import { EmployeeCards, EmployeeViewToggle } from './EmployeeCards.jsx';
 import { EmployeeRoleBadge } from './EmployeeRole.jsx';
 import { EmployeeFilterDialog } from './EmployeeFilterDialog.jsx';
+import { EmployeeDisplayDialog } from './EmployeeDisplayDialog.jsx';
+import { EMPLOYEE_DISPLAY_KEY, readEmployeeDisplay } from './settings/employee-display.js';
 import { EMPTY_EMPLOYEE_FILTERS, filterEmployees } from './settings/employee-filters.js';
 import { EMPLOYEE_ROLES_KEY, readEmployeeRoles, changeEmployeeRole } from './settings/employee-roles.js';
 import { DEMO_EMPLOYEES_KEY, readOrSeedDemoEmployees } from './settings/demo-employees.js';
@@ -60,6 +62,15 @@ export function EmployeesSettings({ notify }) {
   const [query, setQuery] = useState('');
   const [filters, setFilters] = useState(EMPTY_EMPLOYEE_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [displayOpen, setDisplayOpen] = useState(false);
+  const [display, setDisplay] = useState(() => {
+    try { return readEmployeeDisplay(localStorage.getItem(EMPLOYEE_DISPLAY_KEY)); } catch { return readEmployeeDisplay(null); }
+  });
+  const updateDisplay = (next) => {
+    try { localStorage.setItem(EMPLOYEE_DISPLAY_KEY, JSON.stringify(next)); }
+    catch { throw new Error('Не удалось сохранить настройки отображения. Попробуйте ещё раз.'); }
+    setDisplay(next);
+  };
   const filterCount = Object.values(filters).filter(Boolean).length;
   const [departmentQuery, setDepartmentQuery] = useState('');
   const [departments, setDepartments] = useState(() => {
@@ -162,6 +173,7 @@ export function EmployeesSettings({ notify }) {
             <IconFilter size={19} stroke={1.6} aria-hidden="true" />
             {filterCount > 0 && <span className="employee-filter-count" aria-hidden="true">{filterCount}</span>}
           </button>
+          <button type="button" className={`employee-filter-button${Object.values(display).some((visible) => !visible) ? ' is-active' : ''}`} aria-label="Настройки отображения сотрудников" aria-haspopup="dialog" title="Настройки отображения" onClick={() => setDisplayOpen(true)}><IconEye size={20} stroke={1.6} aria-hidden="true" /></button>
           <label className="employee-directory-search">
             <IconSearch size={17} aria-hidden="true" />
             <input type="search" aria-label="Поиск сотрудников" placeholder="Поиск" value={query} onChange={(event) => setQuery(event.target.value)} />
@@ -170,31 +182,32 @@ export function EmployeesSettings({ notify }) {
         </div>
         <div className="employee-view-bar">
           <EmployeeViewToggle value={view} onChange={changeView} />
+          {view === 'cards' && visibleEmployees.length > 0 && <EmployeeCheckbox label="Выбрать всех сотрудников в списке" caption="Выбрать всех" checked={visibleSelectedCount === visibleEmployees.length} mixed={visibleSelectedCount > 0 && visibleSelectedCount < visibleEmployees.length} onChange={selectVisibleEmployees} />}
           <span className="employee-directory-count" role="status">Всего сотрудников: {visibleEmployees.length}</span>
         </div>
         <div className={view === 'table' ? 'employee-directory-table-wrap' : 'employee-card-view'}>
           {view === 'table' ? <table className="employee-directory-table" aria-label="Сотрудники компании">
             <colgroup>
-              <col className="employee-col-selection" /><col className="employee-col-name" />
-              <col className="employee-col-department" /><col className="employee-col-source" />
-              <col className="employee-col-template" /><col className="employee-col-role" />
+              <col className="employee-col-selection" /><col className="employee-col-name" style={!display.template ? { width: 'auto' } : undefined} />
+              {display.department && <col className="employee-col-department" />}{display.source && <col className="employee-col-source" />}
+              {display.template && <col className="employee-col-template" />}{display.role && <col className="employee-col-role" />}
             </colgroup>
             <thead><tr>
               <th scope="col" className="employee-selection-column"><EmployeeCheckbox label="Выбрать всех сотрудников в списке" checked={visibleEmployees.length > 0 && visibleSelectedCount === visibleEmployees.length} mixed={visibleSelectedCount > 0 && visibleSelectedCount < visibleEmployees.length} disabled={!visibleEmployees.length} onChange={selectVisibleEmployees} /></th>
-              <th scope="col">Сотрудник</th><th scope="col">Отдел</th>
-              <th scope="col">Источник</th><th scope="col">Шаблон</th><th scope="col">Роль</th>
+              <th scope="col">Сотрудник</th>{display.department && <th scope="col">Отдел</th>}
+              {display.source && <th scope="col">Источник</th>}{display.template && <th scope="col">Шаблон</th>}{display.role && <th scope="col">Роль</th>}
             </tr></thead>
             <tbody>{visibleEmployees.map((employee) => <tr key={employee.id} className={selected.includes(employee.id) ? 'is-selected' : ''}>
               <td className="employee-selection-column"><EmployeeCheckbox label={`Выбрать сотрудника: ${employee.name}`} checked={selected.includes(employee.id)} onChange={(checked) => selectEmployee(employee.id, checked)} /></td>
               <th scope="row" className="employee-name">{employee.name}</th>
-              <td data-label="Отдел">{departments.some((department) => department.id === employee.department)
+              {display.department && <td data-label="Отдел">{departments.some((department) => department.id === employee.department)
                 ? <DepartmentBadge department={departments.find((department) => department.id === employee.department)} />
-                : <span className="employee-without-department">Без отдела</span>}</td>
-              <td data-label="Источник"><span className="employee-source-badge">{employee.source}</span></td>
-              <td data-label="Шаблон" className="employee-template">{employee.template}</td>
-              <td data-label="Роль"><EmployeeRoleBadge value={employee.role} employeeName={employee.name} onChange={(roleId) => saveRole(employee.id, roleId)} /></td>
+                : <span className="employee-without-department">Без отдела</span>}</td>}
+              {display.source && <td data-label="Источник"><span className="employee-source-badge" data-source={employee.source}>{employee.source}</span></td>}
+              {display.template && <td data-label="Шаблон" className="employee-template">{employee.template}</td>}
+              {display.role && <td data-label="Роль"><EmployeeRoleBadge value={employee.role} employeeName={employee.name} onChange={(roleId) => saveRole(employee.id, roleId)} /></td>}
             </tr>)}</tbody>
-          </table> : <EmployeeCards employees={visibleEmployees} departments={departments} selected={selected} onSelectAll={selectVisibleEmployees} onChangeRole={saveRole} />}
+          </table> : <EmployeeCards employees={visibleEmployees} departments={departments} selected={selected} onChangeRole={saveRole} display={display} />}
           {!visibleEmployees.length && <div className="employee-directory-empty" role="status">
             <IconUsers size={24} stroke={1.5} aria-hidden="true" />
             <p>{query.trim() || filterCount ? 'Сотрудники не найдены' : 'В этом отделе пока нет сотрудников'}</p>
@@ -209,6 +222,7 @@ export function EmployeesSettings({ notify }) {
     </div>
     {filterOpen && <EmployeeFilterDialog value={filters} employees={employees} close={() => setFilterOpen(false)} onApply={(next) => { setFilters(next); setFilterOpen(false); }} onReset={() => { setFilters(EMPTY_EMPLOYEE_FILTERS); setFilterOpen(false); }} />}
     {movingEmployees && <MoveEmployeesDialog count={selected.length} departments={departments} close={() => setMovingEmployees(false)} onMove={moveSelectedEmployees} />}
+    {displayOpen && <EmployeeDisplayDialog value={display} onChange={updateDisplay} close={() => setDisplayOpen(false)} />}
     {creatingDepartment && <DepartmentDialog close={() => setCreatingDepartment(false)} onCreate={addDepartment} />}
     {editingDepartment && <DepartmentDialog department={editingDepartment} close={() => setEditingDepartment(null)} onCreate={editDepartment} />}
     {deletingDepartment && <ApiDialog title="Удалить отдел?" closeLabel="Закрыть удаление отдела" close={() => setDeletingDepartment(null)} className="department-delete-dialog">

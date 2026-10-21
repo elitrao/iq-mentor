@@ -2,8 +2,8 @@ export const EMPLOYEE_ROLES_KEY = 'iq-mentor-employee-roles';
 
 // Shared presets for local prototype roles, not backend permissions.
 export const EMPLOYEE_ROLES = [
-  { id: 'user', label: 'Пользователь', icon: 'user', background: '#edf4ff', color: '#35629d' },
-  { id: 'admin', label: 'Администратор', icon: 'shield', background: '#f2edfb', color: '#7253a2' },
+  { id: 'user', label: 'Пользователь', icon: 'user', background: '#f5f5f3', color: '#73716b' },
+  { id: 'admin', label: 'Администратор', icon: 'shield', background: '#eeedea', color: '#57554f' },
 ];
 
 export function employeeRole(value) {
