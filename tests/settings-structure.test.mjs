@@ -1,15 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SETTINGS_GROUPS, resolveSettingsSection, getReportPeriods } from '../src/settings/schema.js';
+import { SETTINGS_GROUPS, resolveSettingsSection, getReportPeriods, setReportPeriod } from '../src/settings/schema.js';
 
 test('settings groups and report hierarchy match the supplied structure', () => {
   assert.deepEqual(SETTINGS_GROUPS.map((group) => group.title), ['Общие', 'Аналитик', 'Тренер']);
   assert.deepEqual(SETTINGS_GROUPS[0].items.map((item) => item.id), ['employees', 'integrations', 'notifications']);
   assert.equal(SETTINGS_GROUPS[0].items[2].label, 'Уведомления');
   assert.equal(SETTINGS_GROUPS[1].items[0].label, 'Автогенерация отчётов');
+  assert.equal(SETTINGS_GROUPS[2].items[0].label, 'Автогенерация отчётов');
   assert.deepEqual(SETTINGS_GROUPS[1].items.map((item) => item.id), ['analyst-reports', 'stereo']);
-  assert.deepEqual(SETTINGS_GROUPS[1].items[0].children.map((item) => item.label), ['Звонки', 'Сводный', 'Категории']);
-  assert.deepEqual(SETTINGS_GROUPS[2].items[0].children.map((item) => item.label), ['Тренировки', 'Сводный']);
+  assert.deepEqual(SETTINGS_GROUPS[1].items[0].children.map((item) => item.label), ['Отчёт по звонкам', 'Сводный отчёт', 'Отчёт по категориям']);
+  assert.deepEqual(SETTINGS_GROUPS[2].items[0].children.map((item) => item.label), ['Отчёт по тренировкам', 'Сводный отчёт']);
 });
 
 test('primary sections have semantic icons; nested rows share a marker and have unique ids', () => {
@@ -37,4 +38,19 @@ test('report types have independent schedules and preserve legacy schedules with
   assert.deepEqual(getReportPeriods(analyst, 'analyst', 'summary'), { day: false, week: false, month: false });
   assert.deepEqual(getReportPeriods({ periods: { month: true } }, 'trainer', 'training'), { day: false, week: false, month: true });
   assert.deepEqual(getReportPeriods({ periods: { month: true } }, 'trainer', 'summary'), { day: false, week: false, month: false });
+});
+
+test('report period autosave changes only its report and persists without a submit', () => {
+  const original = { periods: { week: true }, types: { calls: { periods: { month: true }, custom: 'keep' }, summary: { periods: { day: true } } } };
+  const changed = setReportPeriod(original, 'analyst', 'calls', 'day', true);
+  assert.deepEqual(getReportPeriods(JSON.parse(JSON.stringify(changed)), 'analyst', 'calls'), { day: true, week: false, month: true });
+  assert.equal(changed.types.calls.enabled, true);
+  assert.equal(changed.types.calls.custom, 'keep');
+  assert.equal(original.types.calls.periods.day, undefined);
+  assert.deepEqual(changed.types.summary, original.types.summary);
+  assert.deepEqual(changed.periods, original.periods);
+  const disabled = setReportPeriod(setReportPeriod(changed, 'analyst', 'calls', 'day', false), 'analyst', 'calls', 'month', false);
+  assert.equal(disabled.types.calls.enabled, false);
+  const migrated = setReportPeriod(original, 'analyst', 'categories', 'month', true);
+  assert.deepEqual(getReportPeriods(migrated, 'analyst', 'categories'), { day: false, week: true, month: true });
 });

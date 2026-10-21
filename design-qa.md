@@ -1,5 +1,109 @@
 # Design QA
 
+## 2026-10-21 — Custom stereo format dropdown
+
+final result: passed
+
+- Source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-5bc1ebe6-bfb3-493f-b7ff-5ef0c6c50f9a.png` (549×245 component crop). Implementation: `artifacts/stereo-custom-open.png` (1440×900 desktop viewport). Compared source and implementation together in one image input, open automatic-mode state. Component width is 520px, matching the reference's control; surrounding page intentionally retained.
+- Typography/copy: existing Inter 14px retained instead of enlarging to source crop text. Three options implemented; no misleading default label on a preset when legacy default is automatic. Manual entries use readable neutral gray rather than disabled-looking source contrast.
+- Spacing/tokens: 44px pale-gray trigger, blue open outline, 6px popup gap, 48px option rows, white rounded popup and gray selected row. Existing Tabler chevron reused; no raster assets needed. Scoped visual match has no actionable P0/P1/P2 differences.
+- Browser verified mouse choice, Home/Arrow/Enter selection, Escape cancellation, outside-click close, Save confirmation and original operator-left selection restored. At 400×860 the popup is 321px wide with equal scrollWidth; all options remain visible. No browser console errors.
+- Build and 33 settings tests passed, including automatic/manual migration and serialization. Automatic mode is configuration only, not a real audio-processing backend.
+- Follow-up motion request: dropdown entrance and chevron use a synchronized 360ms eased transition; reduced-motion users see the menu immediately.
+
+## 2026-10-21 — Notification label and text-only Settings items
+
+final result: passed
+
+- Scoped source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-0ff07a98-7718-4737-a5d2-08ea20faaab2.png` (1689×931). Implementation: `artifacts/notification-heading-nav.png` (1440×900 CSS viewport and screenshot, 1×). Compared together in one image input; only the requested table-heading hierarchy and icon-free subsection labels are targets. Dark theme, desktop wallpaper, delivery channels and source events are intentionally not copied.
+- Typography/copy: compact Inter Medium 16px «Уведомлять меня об» replaces «Событие» in both products; channel headings remain quiet. Narrow-container label uses 14px. Existing event copy and preferences retained.
+- Spacing: heading occupies the existing table-header row without an extra block. Navigation item labels align with group text, with unchanged 36px hit areas and group spacing.
+- Colors/assets: existing light surfaces and orange/violet controls preserved. No new assets needed. Three group icons remain; browser confirms zero leading icons on Settings navigation buttons. Readiness checks remain trailing status marks.
+- Browser verified navigation to Notifications and switching Analyst → Trainer, including their respective event lists. No console errors. Build and 30 settings tests passed. No actionable P0/P1/P2 findings; full-view text and spacing readable enough for this scoped check, no separate crop needed.
+
+## 2026-10-20 — Stereo settings visual alignment
+
+final result: passed
+
+- Reused Settings' regular orange-underlined title, Inter type, neutral supporting copy and compact left-aligned Save. Removed duplicate category heading and tinted information card.
+- Kept the two native left/right dropdown presets and existing update/save behavior. Browser tested both selections and Save confirmation; restored the original operator-left selection.
+- Inspected desktop at 1440×900 and narrow viewport at 400×860. Form width equals scroll width on narrow viewport; no form overflow. Native select remains labeled and has descriptive hints and visible keyboard focus.
+- Build passed; settings tests passed 30/30; browser error log empty.
+- Evidence: `artifacts/stereo-settings-desktop.png`.
+
+## 2026-10-20 — Persistent account button in collapsed sidebar
+
+final result: passed
+
+- Source: supplied footer screenshots `codex-clipboard-70109809-b644-424e-b853-40df998883ff.png` and `codex-clipboard-03dc8d97-5bc5-4cd4-b991-518aa852b21e.png` in `C:/Users/SAMOIL~1.D/AppData/Local/Temp/`; exact supplied transparent 40×40 door PNG copied to `src/assets/sidebar/account-door.png`.
+- Browser captures: `artifacts/sidebar-account-expanded.png` and `artifacts/sidebar-account-collapsed.png` at 1440×900; focused `*-detail.png` crops, 270×120 and 72×120, native scale. Collapsed source and both rendered footer states opened in the same comparison input.
+- Content/assets/colors: existing profile copy and teal avatar preserved, source door asset replaces switch arrows, white icon on #262626 button. No duplicate artwork or new account destination.
+- Layout/type: expanded footer retains current prototype typography and width; collapsed action is 44×44, centered below 40px avatar, separated from navigation by a quiet line. Source crop is narrower than the established 72px rail; retained rail width intentionally.
+- Motion/accessibility: action remains visible, focusable and named «Перейти в ЛК» in collapsed mode. Only width/gap/label animate, preserving the prior smooth-collapse behavior.
+- Verified: collapsed action opens #account; returned to Settings; 1000px automatic compact view also exposes the 44px button; no console errors; original expanded state and viewport restored.
+- No actionable P0/P1/P2 differences. Existing footer spacing retained to avoid introducing vertical jumps during collapse.
+
+## 2026-10-20 — Production sidebar spacing correction
+
+final result: passed
+
+- Source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-0a1e54d5-faa5-440f-81ca-a4ffb019e178.png` (271×438 production crop). Existing supplied PNG silhouettes remain source artwork.
+- Browser evidence: `artifacts/sidebar-production-match.png`, desktop 1440×900 CSS viewport, and `artifacts/sidebar-production-detail.png` (263×330 focused crop). Normalized by cropping implementation at x=7,y=8, matching production's cropped logo/divider/rail origin. No image rescaling. Original production and latest focused implementation were opened together in one comparison input.
+- Fixed earlier P2 spacing mismatch: removed 18px before Templates; applied it after Templates/before Documents. The hidden Employees row is omitted, so Documents is intentionally one normal row (48px) higher than production. Main row centers are 107,155,203,251,317 in the full implementation, or 99,147,195,243,309 in the normalized crop. Reference centers are approximately 99,147,195,243,309 (Employees),357 (Documents).
+- Fixed P2 undersized symbols: source silhouettes now 16px visible width, adjusted for transparent padding. Chevron box 20px / stroke 1.25, matching the reference's approximately 10px-wide fine visible arrow. No new generated artwork.
+- Typography: preserved user-specified Inter/sans-serif 14px, Medium 500, line-height 20px, #333333. Confirmed computed styles. Exact production font weight cannot be established from the supplied raster; the explicit user specification takes precedence.
+- Layout/colors/content: neutral white rail and gray icons, aligned text starts; no added border or group divider. Orange active-state icon preserved as an interaction state, not confused with the production's neutral screenshot. Employees/Integrations intentionally omitted; no route/content additions.
+- Verification: desktop screenshot and normalized focused comparison passed; Analyst expands/collapses; 375×812 mobile has all five icons and 48px navigation height, no horizontal overflow, no console errors. Temporary viewport restored.
+- P3 residual: approximately 1–3px differences in divider endpoint/chevron antialiasing are cosmetic. No actionable P0/P1/P2 remains.
+
+## 2026-10-20 — Sidebar, source icons and monochrome IQ
+
+final result: passed
+
+- Source: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-e2737afb-06fd-4077-9297-ed0dd5007132.png` (275×387 navigation crop), `codex-clipboard-2bf3bc8a-9301-4ab1-adf5-f209e35ef588.png` (288×75 brand crop), `codex-clipboard-89e7a1d4-4586-49ea-9eb5-419b6a496eda.png` (332×253 spacing reference), and the user's five supplied icon PNGs.
+- Implementation: `artifacts/sidebar-desktop.png` at 1440×900 desktop CSS viewport; focused 270×900 rail crop `artifacts/sidebar-final.png`, 1:1 pixels. Reference and implementation images were opened together in the same comparison input. Full desktop context and focused rail checked. Screenshot source is a cropped rail, not a full desktop.
+- Typography: latest explicit user override is Inter, sans-serif, 14px, Medium 500; computed browser styles confirm all three. This intentionally supersedes reference font metrics and the intermediate 16px implementation.
+- Layout: 270px white rail, 46px rows with 2px gaps; additional 18px before Templates and Documents per follow-up. Monochrome 40px IQ, small hamburger, divider at 58px. No Mentor wordmark in sidebar header.
+- Colors/assets: exact supplied transparent silhouettes, neutral #ccc masks with orange selected icon; black labels. Existing IQ SVG rendered monochrome, not redrawn. No raster generation, imitation symbols or replacement generic icon drawings.
+- Content: Home, Analyst, Trainer, Templates, Documents. Employees and Integrations excluded from main navigation but preserved in Settings. Only Help retained in lower rail, with supplied book silhouette; separate Knowledge Base item removed as requested.
+- Interaction checks: drag reorder restores the requested order; analytical submenu expands; collapse/expand works; Help opens existing dialog and closes; Settings navigation works. Drag positioning now uses measured row tops to accommodate larger group gaps.
+- Responsive check: at 375×812 the five source icons remain visible in the bottom navigation; no horizontal overflow (document 360px, viewport 375px). Temporary viewport restored after verification. No browser console errors.
+- Comparison history: first pass exposed outdated nav order from hot reload; fixed through existing reorder UI and verified. Subsequent user-directed iterations removed the extra Knowledge Base item, restored Inter, matched the monochrome brand header, added whitespace groups and finalized 14px/500. Latest same-input visual comparison has no actionable P0/P1/P2 findings.
+- Build passed after structural changes; final font-only adjustment verified in the browser. Existing profile/account controls intentionally retained because references do not replace those areas.
+- Follow-up polish: none required for this scope.
+
+## 2026-10-20 — Balance, trial gift and header shortcuts
+
+final result: passed
+
+- Source visuals: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-1e3eeaa2-4b5f-4d5b-b765-2dc0a4861332.png` (282×59 balance crop) and `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-ff4dc4c1-9abd-443e-938b-e9c0e913067a.png` (154×60 shortcuts crop).
+- Implementation: `artifacts/header-final.png`, local `#home`, 685px browser viewport, 1 CSS-pixel capture scale. Focused evidence: `artifacts/balance-detail.png` and `artifacts/header-shortcuts-detail.png`. Each focused capture was presented together with its reference in a single comparison input at matching pixel scale. Full header checked for context and overflow. Existing dashboard background and actual balances intentionally differ from the white reference crops and example numbers; no ledger data was changed.
+- Typography: regular 14px balance label; 12px semibold main balance and regular bonus value; 14px semibold account label. Inter retained. Standard ruble formatting retained instead of hardcoding screenshot values.
+- Spacing: 26px balance badges, 4px gaps, 6px corner radius. Action pair is 44px high, 44px bell / 86px account button, 8px gap, 12px radius. Gift sits immediately after the bonus value.
+- Colors: reference pixel sampling confirmed #FF9025 and #FFF2E5; applied directly. Header actions use quiet gray fill, fine border and neutral icon color, without Home's former white shadow treatment or unread badge.
+- Asset quality: real Tabler gift, bell and door-enter icons, no rasterized UI. Small icon silhouettes are the closest existing library equivalents; reference raster antialiasing differs slightly (P3).
+- Copy/content: balance values remain live. Gift tooltip and accessible name are «Бонусы пробного периода». Gift uses prototype trial eligibility and is absent in the exhausted preview; real eligibility still requires backend data.
+- Comparison history: initial new controls overflowed the 685px Home header to x=700 (P2). Added responsive wrapping and recaptured. Final desktop/narrow checks show no header overflow. At 375×812, Home and standard topbar preserve the account button; viewport override reset afterward.
+- Interactions verified: balance still opens calculator; gift reopens the original welcome; close restores focus to gift; account button opens `#account`; exhausted preview has zero gift buttons. No billing mutations. Browser error log empty. Notification/support behavior unchanged.
+- Remaining scope: no new notification feed or backend trial tracking implemented. No actionable P0/P1/P2 findings.
+
+Implementation checklist: matching shared balance styles, gift replay control, adjacent shortcut pair, responsive correction, interaction checks complete.
+
+## 2026-10-20 — Restore original integration catalog
+
+The user requested the first iteration with plus icons. Restored `IntegrationCatalog.jsx` and `integration-catalog.css` from commit 862cced: active services with gears, available services with plus icons, two-column compact grid and single-column responsive layout. No stored connection data or detail pages were changed. This supersedes the simplified-directory experiments below.
+
+## 2026-10-20 — Simplified integrations directory
+
+Result: passed.
+
+- Visual direction: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-a3ecbbf4-924b-423e-aebf-a773cf157b4e.png`, refined by the user's later screenshots and explicit requests. Those refinements intentionally remove the description, top connection CTA, tabs, search, and category badges; add the established orange title underline; sort connected services first; and normalize every service mark to a 40px circle.
+- Final implementation evidence: `C:/Users/samoilenko.d/.codex/visualizations/2026/08/25/01a0376b-bade-7860-9ff9-c83bde1d0a99/integration-catalog-final.png`, captured from the local page at `http://localhost:4170/#settings` in the current 476×768 in-app viewport. A second scrolled visual check covered Yandex Disk, amoCRM and API; all four logos are circular.
+- Layout and hierarchy: one underlined page title, then a left-aligned service list capped at 920px. Connected Bitrix24 is first and uses a very small light green «Подключено» pill beside its name; disconnected services retain equally small neutral status and orange row actions. Rows have an 11px gap so they remain distinct. Hover uses a soft gray fill without lift or shadow. No tabs, search field, helper copy, top CTA, or category chips remain.
+- Responsive behavior: rows are compressed to about 58px on wide content. The connection pill now sits immediately beside the service name, while the compact primary action remains at the right on every width. All four integrations fit comfortably within one viewport without clipping.
+- Interaction preservation: the single service row action still opens each existing detail screen; the redundant overflow menu is intentionally absent. Saved connection state remains the sort source. No console warnings or errors were present in the final browser check.
+- Verification: production build passed, Settings tests passed 26/26, and whitespace validation passed. No actionable P0/P1/P2 differences remain in the requested scope.
+
 ## 2026-10-19 — Notification motion, soft switches and review status
 
 Result: passed. Product-tab highlighting now glides for 400ms; panels crossfade without changing their shared height (291.5px in the checked view). Rapid Analyst/Trainer switching leaves only the selected panel accessible; inactive panels carry `inert` and `aria-hidden`. Reduced-motion disables these transitions.

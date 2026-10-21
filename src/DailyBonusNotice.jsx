@@ -6,12 +6,15 @@ import './daily-bonus-notice.css';
 
 // UI-only review mode: the parent resets visibility on every full reload.
 // This notice does not accrue money or alter the billing balance.
-export function DailyBonusNotice({ anchorRef, onClose, onStart }) {
+// Daily limits refresh at midnight; this component only displays the schedule.
+// Defaults are demo values; real remaining updates must come from billing.
+export function DailyBonusNotice({ anchorRef, onClose, onStart, nextBonusLabel = 'в 00:00', remainingUpdates = 9, totalUpdates = 10 }) {
   const noticeRef = useRef(null);
   const exitTimer = useRef(null);
   const closingRef = useRef(false);
   const [closing, setClosing] = useState(false);
   const [position, setPosition] = useState(null);
+  const nextBonusTime = nextBonusLabel?.match(/^(.*?)(\d{1,2}:\d{2})$/);
 
   useEffect(() => () => window.clearTimeout(exitTimer.current), []);
 
@@ -66,6 +69,8 @@ export function DailyBonusNotice({ anchorRef, onClose, onStart }) {
       <div className="daily-bonus-notice-copy" role="status">
         <h2>Дневной бонус обновлён</h2><p>Сегодня доступно <strong>250 ₽</strong><br />на анализ звонков и тренировки.</p>
       </div>
+      {nextBonusLabel && <p className="daily-bonus-notice-next">Следующее обновление лимитов — {nextBonusTime ? <>{nextBonusTime[1]}<strong>{nextBonusTime[2]}</strong></> : nextBonusLabel}</p>}
+      <p className="daily-bonus-notice-remaining">Осталось обновлений: <strong>{remainingUpdates} из {totalUpdates}</strong></p>
       <button className="daily-bonus-notice-action" type="button" disabled={closing} onClick={() => leave(onStart)}>Приступить</button>
     </div>
   </aside>, document.body);

@@ -6,16 +6,16 @@ export const SETTINGS_GROUPS = [
   ] },
   { id: 'analyst', title: 'Аналитик', items: [
     { id: 'analyst-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
-      { id: 'analyst-reports-calls', label: 'Звонки', reportType: 'calls' },
-      { id: 'analyst-reports-summary', label: 'Сводный', reportType: 'summary' },
-      { id: 'analyst-reports-categories', label: 'Категории', reportType: 'categories' },
+      { id: 'analyst-reports-calls', label: 'Отчёт по звонкам', reportType: 'calls' },
+      { id: 'analyst-reports-summary', label: 'Сводный отчёт', reportType: 'summary' },
+      { id: 'analyst-reports-categories', label: 'Отчёт по категориям', reportType: 'categories' },
     ] },
     { id: 'stereo', label: 'Стереоформат звонков', icon: 'headphones' },
   ] },
   { id: 'trainer', title: 'Тренер', items: [
     { id: 'trainer-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
-      { id: 'trainer-reports-training', label: 'Тренировки', reportType: 'training' },
-      { id: 'trainer-reports-summary', label: 'Сводный', reportType: 'summary' },
+      { id: 'trainer-reports-training', label: 'Отчёт по тренировкам', reportType: 'training' },
+      { id: 'trainer-reports-summary', label: 'Сводный отчёт', reportType: 'summary' },
     ] },
   ] },
 ];
@@ -39,4 +39,11 @@ export function getReportPeriods(value, kind, reportType) {
   const legacyType = kind === 'analyst' ? 'categories' : 'training';
   const saved = value.types?.[reportType]?.periods ?? (reportType === legacyType ? value.periods : undefined);
   return { day: saved?.day ?? false, week: saved?.week ?? false, month: saved?.month ?? false };
+}
+
+export function setReportPeriod(value, kind, reportType, period, enabled) {
+  const periods = { ...getReportPeriods(value, kind, reportType), [period]: enabled };
+  return { ...value, types: { ...value.types, [reportType]: {
+    ...value.types?.[reportType], periods, enabled: Object.values(periods).some(Boolean),
+  } } };
 }

@@ -16,38 +16,53 @@ import avatar5 from "./assets/avatars/employee-5.webp";
 import avatar6 from "./assets/avatars/employee-6.webp";
 import notificationAnalystIcon from "./assets/notification-analyst.png";
 import notificationTrainerIcon from "./assets/notification-trainer.png";
+import sidebarHomeIcon from "./assets/sidebar/home.png";
+import sidebarAnalystIcon from "./assets/sidebar/analyst.png";
+import sidebarTrainerIcon from "./assets/sidebar/trainer.png";
+import sidebarTemplatesIcon from "./assets/sidebar/templates.png";
+import sidebarDocumentsIcon from "./assets/sidebar/documents.png";
+import sidebarAccountIcon from "./assets/sidebar/account-door.png";
+import headerAccountIcon from "./assets/sidebar/account-door-gray.png";
 import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
+import { EmployeesSettings } from "./EmployeesSettings.jsx";
 import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
 import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
 import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
 import { DocumentsExperience } from "./DocumentsExperience.jsx";
 import { initialNavigation, navigatePrototype, navigationHash } from "./settings/navigation.js";
-import { getReportPeriods, resolveSettingsSection } from "./settings/schema.js";
+import { getReportPeriods, setReportPeriod, resolveSettingsSection } from "./settings/schema.js";
+import { NOTIFICATION_EVENTS, notificationPreference } from "./settings/notifications.js";
+import { StereoFormatSelect } from "./StereoFormatSelect.jsx";
+import { getStereoFormat, setStereoFormat } from "./settings/stereo.js";
 import { CallsReportPage } from "./CallsReportPage.jsx";
 import { FeedbackPage } from "./FeedbackPage.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowLeft, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
-  IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconDeviceFloppy, IconFile,
+  IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconFile,
   IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
-  IconBulb, IconChartDonut, IconGripVertical, IconLayoutGridAdd, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettings,
+  IconBulb, IconChartDonut, IconGift, IconGripVertical, IconLayoutGridAdd, IconLifebuoyFilled, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettingsFilled,
   IconPhoneCall, IconShieldCheck, IconSchool, IconSparkles, IconStar, IconSwitchHorizontal, IconTargetArrow, IconTemplate, IconUpload,
   IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренажер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
+const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
+// Enable both daily bonus banners for prototype review.
+const DAILY_BONUS_PROMOTION_ENABLED = true;
+const FEEDBACK_PAGE_ENABLED = false;
 const NAV_ITEMS = [
-  { id: "home", label: "Главная", icon: IconHome },
-  { id: "analytics", label: "Аналитик", icon: IconBook2, arrow: true },
-  { id: "templates", label: "Шаблоны", icon: IconFolder },
-  { id: "documents", label: "Документы", icon: IconFileText },
-  { id: "trainer", label: "Тренажер", icon: IconSchool, arrow: true },
+  { id: "home", label: "Главная", image: sidebarHomeIcon },
+  { id: "analytics", label: "Аналитик", image: sidebarAnalystIcon, compactImage: true, arrow: true },
+  { id: "trainer", label: "Тренер", image: sidebarTrainerIcon, arrow: true },
+  { id: "templates", label: "Шаблоны", image: sidebarTemplatesIcon },
+  { id: "documents", label: "Документы", image: sidebarDocumentsIcon },
   { id: "billing", label: "Тарификация", icon: IconWallet },
 ];
 const DEFAULT_NAV_ORDER = NAV_ITEMS.map((item) => item.id);
+const NAV_ORDER_STORAGE_KEY = "iq-mentor-nav-order-v2";
 const HIDDEN_NAV_ITEMS = new Set(["billing"]);
 const DEFAULT_DASHBOARD_ORDER = ["calls", "duration", "score", "conversion", "trend", "distribution", "categories", "employees", "attention"];
 const CATALOG_WIDGET_IDS = ["catalog-kpi", "catalog-line", "catalog-column", "catalog-donut", "catalog-table", "catalog-map", "catalog-funnel", "catalog-gauge", "catalog-heatmap", "catalog-combo", "catalog-top", "catalog-calendar"];
@@ -247,18 +262,8 @@ function loadSettings() {
 
 function loadNavOrder() {
   try {
-    const saved = JSON.parse(localStorage.getItem("iq-mentor-nav-order") || "[]");
-    const valid = [...new Set(saved.filter((id) => DEFAULT_NAV_ORDER.includes(id)))];
-    if (!valid.includes("templates")) valid.splice(Math.max(0, valid.indexOf("analytics") + 1), 0, "templates");
-    if (!valid.includes("documents")) valid.splice(valid.indexOf("templates") + 1, 0, "documents");
-    if (!valid.includes("trainer")) {
-      const settingsIndex = valid.indexOf("settings");
-      valid.splice(settingsIndex < 0 ? valid.length : settingsIndex, 0, "trainer");
-    }
-    if (!valid.includes("billing")) {
-      const settingsIndex = valid.indexOf("settings");
-      valid.splice(settingsIndex < 0 ? valid.length : settingsIndex, 0, "billing");
-    }
+    const saved = JSON.parse(localStorage.getItem(NAV_ORDER_STORAGE_KEY) || "[]");
+    const valid = Array.isArray(saved) ? saved.filter((id) => DEFAULT_NAV_ORDER.includes(id)) : [];
     return [...new Set([...valid, ...DEFAULT_NAV_ORDER])];
   } catch { return DEFAULT_NAV_ORDER; }
 }
@@ -304,6 +309,7 @@ export function App() {
   const [navigation, setNavigation] = useState(() => initialNavigation(window.location.hash));
   const { page } = navigation;
   const [collapsed, setCollapsed] = useState(false);
+  const [sidebarPreviewOpen, setSidebarPreviewOpen] = useState(false);
   const [settings, setSettings] = useState(loadSettings);
   const [navOrder, setNavOrder] = useState(loadNavOrder);
   const [toast, setToast] = useState("");
@@ -311,9 +317,11 @@ export function App() {
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
   const [knowledgeOpen, setKnowledgeOpen] = useState(false);
-  const [dailyBonusWelcomeOpen, setDailyBonusWelcomeOpen] = useState(shouldShowDailyBonusWelcome);
-  // Temporary preview: always start visible, with no daily throttle or saved dismissal.
-  const [dailyBonusNoticeOpen, setDailyBonusNoticeOpen] = useState(true);
+  // Explicit design preview only; real exhaustion must come from billing.
+  const [dailyBonusVariant] = useState(() => new URLSearchParams(window.location.search).get('welcome') === 'exhausted' ? 'exhausted' : 'welcome');
+  const [dailyBonusWelcomeOpen, setDailyBonusWelcomeOpen] = useState(() => DAILY_BONUS_PROMOTION_ENABLED && shouldShowDailyBonusWelcome());
+  // The compact notice follows the same temporary promotion switch as the welcome.
+  const [dailyBonusNoticeOpen, setDailyBonusNoticeOpen] = useState(DAILY_BONUS_PROMOTION_ENABLED);
 
   const closeDailyBonusWelcome = () => {
     acknowledgeDailyBonusWelcome();
@@ -327,6 +335,7 @@ export function App() {
     }
     setNavigation((current) => navigatePrototype(current, destination));
   };
+  useEffect(() => { if (!FEEDBACK_PAGE_ENABLED && page === 'feedback') setPage('home'); }, [page]);
   useEffect(() => { if (window.location.hash !== navigationHash(navigation)) window.location.hash = navigationHash(navigation); }, [navigation]);
   useEffect(() => {
     const handleHashChange = () => {
@@ -340,7 +349,7 @@ export function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   useEffect(() => { localStorage.setItem("iq-mentor-settings", JSON.stringify(settings)); }, [settings]);
-  useEffect(() => { localStorage.setItem("iq-mentor-nav-order", JSON.stringify(navOrder)); }, [navOrder]);
+  useEffect(() => { localStorage.setItem(NAV_ORDER_STORAGE_KEY, JSON.stringify(navOrder)); }, [navOrder]);
   useEffect(() => { localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(billing)); }, [billing]);
   useEffect(() => {
     if (!billingAutoplay || !billing.trainerSessions.some((session) => session.status === "active")) {
@@ -371,9 +380,11 @@ export function App() {
     notify("Порядок разделов сохранен");
   };
 
-  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && <DailyBonusWelcome onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage('home'); }} />;
+  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && <DailyBonusWelcome variant={dailyBonusVariant} onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage(dailyBonusVariant === 'exhausted' ? 'account-tariff' : 'home'); }} />;
   const bonusNotice = {
-    open: dailyBonusNoticeOpen && !dailyBonusWelcomeOpen && !knowledgeOpen && page !== 'settings',
+    trialActive: DAILY_BONUS_PROMOTION_ENABLED && dailyBonusVariant !== 'exhausted',
+    onShowWelcome: () => { setKnowledgeOpen(false); setDailyBonusWelcomeOpen(true); },
+    open: dailyBonusNoticeOpen && dailyBonusVariant !== 'exhausted' && !dailyBonusWelcomeOpen && !knowledgeOpen && page !== 'settings',
     onClose: () => setDailyBonusNoticeOpen(false),
     onStart: () => { setDailyBonusNoticeOpen(false); setPage('home'); },
   };
@@ -393,8 +404,8 @@ export function App() {
     {welcomeModal}
   </>;
 
-  return <div className={collapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={page} setPage={setPage} collapsed={collapsed} setCollapsed={setCollapsed} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+  return <div className={collapsed && !sidebarPreviewOpen ? "app-shell sidebar-collapsed" : "app-shell"}>
+    <Sidebar page={page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
@@ -405,7 +416,7 @@ export function App() {
         {page === "trainer" && <TrainerPage />}
         {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
-        {page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
+        {FEEDBACK_PAGE_ENABLED && page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
       </main>
     </div>
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
@@ -414,9 +425,18 @@ export function App() {
   </div>;
 }
 
-function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavItem, openKnowledge }) {
+function SidebarIcon({ item }) {
+  const Icon = item.icon;
+  return item.image
+    ? <i aria-hidden="true" className={`sidebar-source-icon${item.compactImage ? " compact-image" : ""}`} style={{ "--sidebar-icon": `url("${item.image}")` }} />
+    : <Icon size={16} stroke={1.7} />;
+}
+
+function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge }) {
   const navRef = useRef(null);
   const dragRef = useRef(null);
+  const previewCloseTimer = useRef(null);
+  const previewOpenTimer = useRef(null);
   const suppressClickRef = useRef(false);
   const [drag, setDrag] = useState(null);
   const [analyticsOpen, setAnalyticsOpen] = useState(page === "analytics");
@@ -426,9 +446,42 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
     setAnalyticsOpen(page === "analytics");
   }, [page]);
 
+  useEffect(() => {
+    const desktopPointer = window.matchMedia("(min-width: 1201px) and (hover: hover) and (pointer: fine)");
+    const resetPreview = () => {
+      window.clearTimeout(previewOpenTimer.current);
+      window.clearTimeout(previewCloseTimer.current);
+      onPreviewChange(false);
+    };
+    desktopPointer.addEventListener("change", resetPreview);
+    return () => {
+      desktopPointer.removeEventListener("change", resetPreview);
+      resetPreview();
+    };
+  }, [onPreviewChange]);
+
+  const openHoverPreview = (event) => {
+    window.clearTimeout(previewOpenTimer.current);
+    window.clearTimeout(previewCloseTimer.current);
+    if (compactMode && event.pointerType === "mouse" && window.matchMedia("(min-width: 1201px) and (hover: hover) and (pointer: fine)").matches) {
+      previewOpenTimer.current = window.setTimeout(() => onPreviewChange(true), 500);
+    }
+  };
+  const closeHoverPreview = () => {
+    window.clearTimeout(previewOpenTimer.current);
+    window.clearTimeout(previewCloseTimer.current);
+    // A small grace period avoids flicker when the pointer briefly crosses the edge.
+    previewCloseTimer.current = window.setTimeout(() => onPreviewChange(false), 120);
+  };
+  const togglePinnedMenu = () => {
+    window.clearTimeout(previewOpenTimer.current);
+    window.clearTimeout(previewCloseTimer.current);
+    setCollapsed((current) => !current);
+  };
+
   const updateDrag = (next) => { dragRef.current = next; setDrag(next); };
   const startDrag = (event, item, index) => {
-    if (event.button !== 0 || collapsed || window.matchMedia("(max-width: 767px)").matches) return;
+    if (event.button !== 0 || collapsed || window.matchMedia("(max-width: 1200px)").matches) return;
     const navRect = navRef.current.getBoundingClientRect();
     const rowRect = event.currentTarget.closest(".nav-row").getBoundingClientRect();
     const firstRect = navRef.current.querySelector(".nav-row").getBoundingClientRect();
@@ -443,6 +496,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
       offsetY: event.clientY - rowRect.top,
       navTop: navRect.top,
       firstTop: firstRect.top,
+      rowTops: [...navRef.current.querySelectorAll(".nav-row")].map((row) => row.getBoundingClientRect().top),
       width: rowRect.width,
       height: rowRect.height,
       slotHeight: rowRect.height + 2,
@@ -454,7 +508,7 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
     if (!current || current.pointerId !== event.pointerId) return;
     const active = current.active || Math.abs(event.clientY - current.startY) > 6;
     const dragTop = event.clientY - current.offsetY;
-    const targetIndex = Math.max(0, Math.min(orderedItems.length - 1, Math.round((dragTop - current.firstTop) / current.slotHeight)));
+    const targetIndex = current.rowTops.reduce((nearest, top, index) => Math.abs(top - dragTop) < Math.abs(current.rowTops[nearest] - dragTop) ? index : nearest, 0);
     if (active) event.preventDefault();
     updateDrag({ ...current, pointerY: event.clientY, targetIndex, active });
   };
@@ -469,30 +523,28 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
   };
   const openPage = (id) => {
     if (suppressClickRef.current) { suppressClickRef.current = false; return; }
-    if (id === "analytics" && !collapsed && !window.matchMedia("(max-width: 767px)").matches) {
+    if (id === "analytics" && !collapsed && !window.matchMedia("(max-width: 1200px)").matches) {
       setAnalyticsOpen((current) => !current);
       return;
     }
     setPage(id);
   };
   const draggedItem = drag?.active ? orderedItems.find((item) => item.id === drag.id) : null;
-  return <aside className="sidebar">
+  return <aside className="sidebar" onPointerEnter={openHoverPreview} onPointerLeave={closeHoverPreview}>
     <div className="sidebar-brand">
-      <button className="bare-icon crop-button" aria-label="Свернуть меню" onClick={() => setCollapsed(!collapsed)}><IconMenu2 size={18} stroke={1.6} /></button>
+      <button className="bare-icon crop-button" aria-label={compactMode ? collapsed ? "Развернуть меню" : "Закрепить меню" : "Свернуть меню"} aria-expanded={!collapsed} onClick={togglePinnedMenu}><IconMenu2 size={18} stroke={1.6} /></button>
       <img src="/iq-logo.svg" className="brand-logo" alt="IQ" />
-      <span className="sidebar-product">Ментор</span>
     </div>
     <nav ref={navRef} className={drag?.active ? "sidebar-nav is-reordering" : "sidebar-nav"} aria-label="Основная навигация">
       {orderedItems.map((item, index) => {
-        const Icon = item.icon;
-        const shift = !drag?.active || index === drag.sourceIndex ? 0 : drag.sourceIndex < drag.targetIndex && index > drag.sourceIndex && index <= drag.targetIndex ? -drag.slotHeight : drag.sourceIndex > drag.targetIndex && index >= drag.targetIndex && index < drag.sourceIndex ? drag.slotHeight : 0;
+        const shift = !drag?.active || index === drag.sourceIndex ? 0 : drag.sourceIndex < drag.targetIndex && index > drag.sourceIndex && index <= drag.targetIndex ? drag.rowTops[index - 1] - drag.rowTops[index] : drag.sourceIndex > drag.targetIndex && index >= drag.targetIndex && index < drag.sourceIndex ? drag.rowTops[index + 1] - drag.rowTops[index] : 0;
         const isAnalytics = item.id === "analytics";
-        const isExpanded = isAnalytics && analyticsOpen;
-        return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
+        const isExpanded = isAnalytics && analyticsOpen && !collapsed;
+        return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}${item.id === "templates" ? " nav-row-separated" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
           <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} onClick={() => openPage(item.id)} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} aria-describedby={`nav-drag-hint-${item.id}`} aria-expanded={isAnalytics ? isExpanded : undefined}>
-            <Icon size={18} stroke={1.7} />
+            <SidebarIcon item={item} />
             <span>{item.label}</span>
-            {item.arrow && <IconChevronRight className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={18} stroke={1.5} />}
+            {item.arrow && <IconChevronDown className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={20} stroke={1.25} />}
           </button>
           {isAnalytics && <div className={isExpanded ? "nav-submenu open" : "nav-submenu"} aria-hidden={!isExpanded}>
             <button className={page === "analytics" ? "nav-subitem active" : "nav-subitem"} type="button" tabIndex={isExpanded ? 0 : -1} onClick={() => setPage("analytics")}>
@@ -502,27 +554,26 @@ function Sidebar({ page, setPage, collapsed, setCollapsed, navOrder, reorderNavI
           <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Зажмите, чтобы переместить</span>
         </div>;
       })}
-      {drag?.active && <span className="nav-drop-slot" style={{ top: `${drag.firstTop - drag.navTop + drag.targetIndex * drag.slotHeight}px`, height: `${drag.height}px` }} aria-hidden="true" />}
+      {drag?.active && <span className="nav-drop-slot" style={{ top: `${drag.rowTops[drag.targetIndex] - drag.navTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
-      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettings size={18} stroke={1.7} /></button>
+      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
     </nav>
     <div className="sidebar-bottom">
-      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettings size={18} stroke={1.7} /><span>Настройки</span></button>
-      <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>
-      <button className="nav-item muted-item" onClick={openKnowledge} aria-haspopup="dialog"><IconInfoCircle size={18} stroke={1.7} /><span>Помощь</span></button>
+      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} aria-label="Настройки" onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettingsFilled size={18} /><span>Настройки</span></button>
+      {FEEDBACK_PAGE_ENABLED && <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>}
+      <button className="nav-item sidebar-help-item" onClick={openKnowledge} aria-haspopup="dialog" aria-label="Помощь"><IconLifebuoyFilled size={18} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
-      <button className="lk-button" onClick={() => setPage("account")}>Перейти в ЛК <IconSwitchHorizontal size={19} /></button>
+      <button className="lk-button" aria-label="Перейти в ЛК" title="Перейти в ЛК" onClick={() => setPage("account")}><span className="lk-button-label">Перейти в ЛК</span><img className="lk-button-icon" src={sidebarAccountIcon} alt="" /></button>
     </div>
   </aside>;
 }
 
 function NavDragOverlay({ item, active, top, width }) {
-  const Icon = item.icon;
   return <div className="nav-drag-overlay" style={{ top: `${top}px`, width: `${width}px` }} aria-hidden="true">
     <div className={active ? "nav-item active" : "nav-item"}>
-      <Icon size={18} stroke={1.7} />
+      <SidebarIcon item={item} />
       <span>{item.label}</span>
-      {item.arrow && <IconChevronRight className="nav-arrow" size={18} stroke={1.5} />}
+      {item.arrow && <IconChevronDown className="nav-arrow" size={20} stroke={1.25} />}
     </div>
   </div>;
 }
@@ -531,8 +582,18 @@ function HeaderBalance({ home = false, setPage, balanceCents, bonusBalanceCents,
   const anchorRef = useRef(null);
   return <div className={home ? 'header-balance header-balance-home' : 'header-balance'}>
     <button ref={anchorRef} className={home ? 'home-balance' : 'balance'} onClick={() => setPage('billing')}>Баланс <strong>{formatRubles(balanceCents)}</strong><span className="bonus-balance" title="Бонусные рубли">{formatRubles(bonusBalanceCents)}</span></button>
+    {bonusNotice.trialActive && <button className="trial-bonus-trigger" type="button" onClick={bonusNotice.onShowWelcome} title="Бонусы пробного периода" aria-label="Бонусы пробного периода" aria-haspopup="dialog"><IconGift size={17} stroke={1.7} /></button>}
     {bonusNotice.open && <DailyBonusNotice anchorRef={anchorRef} onClose={bonusNotice.onClose} onStart={bonusNotice.onStart} />}
   </div>;
+}
+
+function HeaderShortcuts({ setPage }) {
+  return <>
+    <div className="header-shortcuts">
+      <button className="header-icon" type="button" aria-label="Уведомления"><IconBell size={22} stroke={1.5} /></button>
+      <button className="lk-small" type="button" aria-label="Перейти в личный кабинет" onClick={() => setPage('account')}><span>в ЛК</span><img className="header-account-icon" src={headerAccountIcon} width={16} height={18} alt="" /></button>
+    </div>
+  </>;
 }
 
 function Topbar({ page, setPage, balanceCents, bonusBalanceCents, bonusNotice }) {
@@ -540,7 +601,7 @@ function Topbar({ page, setPage, balanceCents, bonusBalanceCents, bonusNotice })
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
     <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
-    <div className="topbar-actions"><HeaderBalance setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><button className="header-icon" aria-label="Уведомления"><IconBell size={21} stroke={1.5} /></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={21} stroke={1.5} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={18} /></button></div>
+    <div className="topbar-actions"><HeaderBalance setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><HeaderShortcuts setPage={setPage} /></div>
   </header>;
 }
 
@@ -706,7 +767,7 @@ function HomePage({ setPage, notify, balanceCents, bonusBalanceCents, bonusNotic
   });
   const renderDashboardItem = (item) => item.type === "metric" ? renderMetric(item) : item.type === "chart" ? renderChart(item) : item.type === "catalog" ? <DashboardPanel title={item.label} className="home-catalog-widget" onHide={() => hideWidget(item)}><div className="home-catalog-widget-body"><WidgetCatalogPreview item={item} /></div></DashboardPanel> : renderSummary(item);
   return <section className="home-dashboard">
-    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<HeaderBalance home setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><button className="header-icon home-notification" aria-label="Уведомления"><IconBell size={20} /><i>8</i></button><button className="header-icon" aria-label="Поддержка"><IconHeadphones size={20} /></button><button className="lk-small" onClick={() => setPage("account")}>в ЛК <IconSwitchHorizontal size={17} /></button></div></header>
+    <header className="home-dashboard-header"><h1>Главная</h1><div className="home-header-controls">{customizing ? <><span className="home-customize-status"><IconGripVertical size={16} />Перетаскивайте виджеты</span><button className="home-catalog-button" onClick={() => setCatalogOpen(true)}><IconLayoutGridAdd size={17} />Каталог</button><button className="home-customize-done" onClick={() => { setCustomizing(false); setCatalogOpen(false); }}>Готово</button></> : <button className="home-catalog-button" onClick={() => setCustomizing(true)}><IconLayoutGridAdd size={17} />Настроить главную</button>}{hiddenWidgets.length > 0 && <button className="home-restore-widgets" onClick={() => { setDashboardLayout((current) => { const restored = [...current]; hiddenWidgets.forEach((id) => { const emptyIndex = restored.indexOf(null); if (emptyIndex >= 0) restored[emptyIndex] = id; }); return restored; }); setHiddenWidgets([]); notify("Все виджеты возвращены"); }}>Вернуть скрытые <span>{hiddenWidgets.length}</span></button>}<HeaderBalance home setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><HeaderShortcuts setPage={setPage} /></div></header>
     <ReorderableDashboardGrid className="home-unified-grid" items={dashboardItems} order={dashboardLayout} slots={DASHBOARD_SLOTS} renderItem={renderDashboardItem} onReorder={reorderDashboard} editing={customizing} onOpenCatalog={() => { setCustomizing(true); setCatalogOpen(true); }} />
     {catalogOpen && <div className="widget-catalog-layer"><button className="widget-catalog-backdrop" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}></button><section className="widget-catalog" role="dialog" aria-modal="true" aria-labelledby="widget-catalog-title">
       <header className="widget-catalog-header"><div className="widget-catalog-heading"><h2 id="widget-catalog-title">Каталог виджетов</h2><p>Готовые виджеты для аналитики звонков и работы с командой</p></div><div className="widget-catalog-toolbar"><label className="widget-catalog-search"><IconSearch size={17} /><input value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder="Поиск виджетов..." autoFocus /></label><button className="widget-catalog-close" aria-label="Закрыть каталог" onClick={() => setCatalogOpen(false)}><IconX size={22} /></button></div></header>
@@ -1041,13 +1102,6 @@ function DocumentsWorkspace({ notify }) {
   return <section className="settings-product-page settings-structure-content tone-analyst"><DocumentsExperience header={header}><DocumentsPage notify={notify} embedded /></DocumentsExperience></section>;
 }
 
-function EmployeesPage({ notify }) {
-  const [query, setQuery] = useState("");
-  const [departments, setDepartments] = useState(["12312", "231"]);
-  const addDepartment = () => { setDepartments([...departments, `Новый отдел ${departments.length + 1}`]); notify("Отдел создан"); };
-  return <section><div className="title-row"><PageTitle>Сотрудники</PageTitle><div className="row-actions"><button className="light-button" onClick={() => notify("Дубли не найдены")}><IconUsers size={20} />Поиск дублей</button><button className="dark-button" onClick={addDepartment}><IconPlus size={22} />Создать отдел</button></div></div><div className="employees-layout"><aside className="department-panel"><div className="inner-title">Список отделов компании <button className="header-icon mini"><IconAdjustmentsHorizontal size={17} /></button></div><label className="search-field block"><IconSearch size={19} /><input placeholder="Поиск по отделам" /></label><button className="department-item active"><strong>Все сотрудники</strong><small>1 сотрудник</small></button>{departments.map((name, index) => <button className="department-item" key={name}><strong>{name}</strong><small className={index ? "danger-text" : ""}>{index ? "Нет сотрудников" : "1 сотрудник"}</small><span>⋮</span></button>)}<div className="department-note"><IconUsers size={20} /><span>Добавить/удалить сотрудника можно только в <b>Личном кабинете</b></span></div></aside><div className="employees-table-panel"><div className="table-toolbar"><button className="header-icon"><IconAdjustmentsHorizontal size={19} /></button><label className="search-field"><IconSearch size={19} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Поиск" /></label><span>На странице по: <b>25</b></span><span>Всего строк: 1</span></div><div className="employees-table"><div className="employee-table-row table-head-row"><span></span><span>ФИО сотрудника</span><span>Отдел</span><span>Источник</span><span>Привязанный шаблон</span><span>Роль</span></div>{!query || "Самойленко Даниил".toLowerCase().includes(query.toLowerCase()) ? <div className="employee-table-row"><input type="checkbox" /><strong>Самойленко Даниил</strong><span>12312</span><span><em className="source-tag">IQ Mentor</em></span><span>Стандартный шаблон оценки качества</span><span>Администратор</span></div> : <div className="table-empty">Сотрудники не найдены</div>}</div></div></div></section>;
-}
-
 function DocumentsPage({ notify, embedded = false }) {
   const [modal, setModal] = useState(false); const [type, setType] = useState("Нормативные документы"); const [keywords, setKeywords] = useState([]); const [keyword, setKeyword] = useState(""); const [files, setFiles] = useState([]); const inputRef = useRef(null);
   const addKeyword = () => { if (!keyword.trim() || keywords.length >= 8) return; setKeywords([...keywords, keyword.trim()]); setKeyword(""); notify("Ключевое слово добавлено"); };
@@ -1071,9 +1125,9 @@ function SettingsSection({ id, settings, update, notify }) {
   const save = () => notify("Настройки сохранены");
   if (id === "notifications") return <GeneralNotificationSettings settings={settings} update={update} />;
   const section = resolveSettingsSection(id);
-  if (section.item.reportType) return <ReportSettings kind={section.group.id} reportType={section.item.reportType} reportLabel={section.item.label} value={settings.reports[section.group.id]} scoringValue={section.item.id === 'analyst-reports-calls' ? settings.scoring : undefined} update={update} save={save} notify={notify} />;
+  if (section.item.reportType) return <ReportSettings kind={section.group.id} reportType={section.item.reportType} value={settings.reports[section.group.id]} scoringValue={section.item.id === 'analyst-reports-calls' ? settings.scoring : undefined} update={update} save={save} notify={notify} />;
   if (id === "documents") return <DocumentsPage notify={notify} embedded />;
-  if (id === "employees") return <div className="employees-settings-embedded"><EmployeesPage notify={notify} /></div>;
+  if (id === "employees") return <EmployeesSettings notify={notify} />;
   if (id === "profile") return <ProfileSettings value={settings.profile} onChange={(key, value) => update((next) => { next.profile[key] = value; })} save={save} />;
   if (id === "company") return <CompanySettings value={settings.company} onChange={(key, value) => update((next) => { next.company[key] = value; })} save={save} />;
   if (id === "security") return <SecuritySettings value={settings.security} onChange={(key, value) => update((next) => { next.security[key] = value; })} save={save} notify={notify} />;
@@ -1081,11 +1135,11 @@ function SettingsSection({ id, settings, update, notify }) {
   if (id === "analyst-notifications" || id === "trainer-notifications") { const kind = id.startsWith("analyst") ? "analyst" : "trainer"; return <NotificationSettings kind={kind} value={settings.notifications[kind]} update={update} save={save} />; }
   if (id === "integrations") return <IntegrationsSettings value={settings.integrations} update={update} notify={notify} />;
   if (id === "analyst-reports" || id === "trainer-reports") { const kind = id.startsWith("analyst") ? "analyst" : "trainer"; return <ReportSettings kind={kind} value={settings.reports[kind]} update={update} save={save} notify={notify} />; }
-  if (id === "stereo") return <StereoSettings value={settings.stereo} update={update} save={save} notify={notify} />;
+  if (id === "stereo") return <StereoSettings value={settings.stereo} update={update} />;
   return <ScoringSettings value={settings.scoring} update={update} save={save} notify={notify} />;
 }
 
-function SettingsForm({ children, onSave }) { return <form className="settings-form" onSubmit={(e) => { e.preventDefault(); onSave(); }}>{children}<div className="settings-actions"><button type="submit" className="dark-button"><IconDeviceFloppy size={19} />Сохранить</button></div></form>; }
+function SettingsForm({ children }) { return <div className="settings-form">{children}</div>; }
 function Field({ label, children, hint }) { return <label className="form-field"><span>{label}</span>{children}{hint && <small>{hint}</small>}</label>; }
 
 function ProfileSettings({ value, onChange, save }) { return <SettingsForm onSave={save}><div className="form-section"><h3>Личные данные</h3><p>Информация отображается в IQ Mentor и отчетах.</p><div className="form-grid"><Field label="ФИО"><input value={value.name} onChange={(e) => onChange("name", e.target.value)} /></Field><Field label="Должность"><input value={value.position} onChange={(e) => onChange("position", e.target.value)} /></Field><Field label="Email"><input type="email" value={value.email} onChange={(e) => onChange("email", e.target.value)} /></Field><Field label="Телефон"><input value={value.phone} onChange={(e) => onChange("phone", e.target.value)} placeholder="+7 (___) ___-__-__" /></Field></div></div></SettingsForm>; }
@@ -1160,24 +1214,16 @@ function GeneralNotificationSettings({ settings, update }) {
 }
 
 function NotificationSettings({ kind, value, update }) {
-  const events = kind === "trainer" ? [
-    ["trainingStarted", "Тренировка началась", true],
-    ["recommendations", "Получены рекомендации", true],
-    ["progress", "Обновлён прогресс сотрудника", true],
-    ["reportComplete", "Генерация отчёта завершена", true],
-  ] : [
-    ["submitted", "Звонок отправлен на оценку", false],
-    ["analysisComplete", "Анализ звонка завершен", true],
-    ["reportPreparing", "Подготовка отчета", true],
-    ["reportComplete", "Генерация отчета завершена", true],
-  ];
+  const events = NOTIFICATION_EVENTS[kind];
   const defaults = Object.fromEntries(events.map(([key, , hasDisplay]) => [key, { display: hasDisplay, sound: true }]));
-  const checked = (event, channel) => value.events?.[event]?.[channel] ?? defaults[event][channel];
+  const checked = (event, channel) => notificationPreference(kind, value, event, channel);
   const change = (event, channel, enabled) => update((next) => {
+    next.notifications ??= {};
+    next.notifications[kind] ??= {};
     next.notifications[kind].events ??= {};
     next.notifications[kind].events[event] = { ...defaults[event], ...next.notifications[kind].events[event], [channel]: enabled };
   });
-  return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head"><span>Событие</span><span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
+  return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head"><span>Уведомлять меня об</span><span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
 }
 
 function NotificationSwitch({ label, checked, onChange }) {
@@ -1234,53 +1280,50 @@ function TokenIntegration({ service, connected, token, regenerate, copy, toggle 
   return <div className="integration-detail-body"><div className="token-integration-copy"><span>{isBitrix ? "Интеграция с Битрикс24" : "Интеграция с amoCRM"}</span><h4>{isBitrix ? "Интеграция позволяет связать сервис Б24 с IQ Mentor" : "Свяжите amoCRM с IQ Mentor"}</h4><p>{isBitrix ? "После настройки новые звонки автоматически подтягиваются в CRM: фиксируются входящие и исходящие вызовы, номера, длительность и запись разговора." : "После подключения звонки, сделки и контакты синхронизируются с IQ Mentor. Записи разговоров автоматически передаются в Аналитик."}</p><p>{isBitrix ? "Звонки можно привязывать к сделкам, лидам и контактам. Структура сотрудников из Битрикс24 помогает корректно распределять записи по менеджерам." : "Система связывает звонки со сделками и ответственными менеджерами, сохраняя актуальную структуру команды."}</p><p>Подключение выполняется один раз через ключ-токен, после чего интеграция работает автоматически.</p></div><div className="integration-token-row"><div className="integration-token"><IconKey size={20} /><input value={token.replace(/./g, "•")} readOnly aria-label={`Ключ-токен ${isBitrix ? "Bitrix24" : "amoCRM"}`} /></div><button className="token-copy-button" aria-label="Скопировать ключ-токен" onClick={() => copy(token)}><IconCopy size={19} /></button><button className="orange-button" onClick={regenerate}><IconSwitchHorizontal size={18} />{connected ? "Перегенерировать" : "Создать токен"}</button></div>{connected && <button className="integration-disconnect" onClick={toggle}>Отключить интеграцию</button>}</div>;
 }
 
-function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" : "training", reportLabel = "Категории", value, scoringValue, update, save, notify }) {
-  const initialPeriods = () => getReportPeriods(value, kind, reportType);
+function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" : "training", value, scoringValue, update }) {
+  const periods = getReportPeriods(value, kind, reportType);
   const withScoring = kind === "analyst" && reportType === "calls" && scoringValue !== undefined;
-  const initialScoring = () => ({ minDuration: scoringValue?.minDuration || "00:00:30", autoAnalyze: scoringValue?.autoAnalyze ?? false });
-  const [periods, setPeriods] = useState(initialPeriods);
-  const [scoringDraft, setScoringDraft] = useState(initialScoring);
-  useEffect(() => { setPeriods(initialPeriods()); setScoringDraft(initialScoring()); }, [kind, reportType]);
-  const reset = () => { setPeriods(initialPeriods()); setScoringDraft(initialScoring()); };
-  const submit = () => {
-    update((next) => {
-      next.reports[kind].types ??= {};
-      next.reports[kind].types[reportType] = { periods, enabled: Object.values(periods).some(Boolean) };
-      if (withScoring) {
-        next.scoring.minDuration = scoringDraft.minDuration;
-        next.scoring.autoAnalyze = scoringDraft.autoAnalyze;
-      }
-    });
-    save();
-  };
+  const scoring = { minDuration: scoringValue?.minDuration ?? "00:00:30", autoAnalyze: scoringValue?.autoAnalyze ?? false };
+  const changePeriod = (period, enabled) => update((next) => {
+    next.reports[kind] = setReportPeriod(next.reports[kind], kind, reportType, period, enabled);
+  });
+  const changeScoring = (fields) => update((next) => { Object.assign(next.scoring, fields); });
   const rows = [["day", "За прошедший день"], ["week", "За прошедшую неделю"], ["month", "За прошедший месяц"]];
-  return <div className={`report-generator-card tone-${kind}`}><div className="report-generator-title"><h3>Периодичность отчёта</h3><button type="button" className="report-close" aria-label="Закрыть" onClick={() => { reset(); notify("Изменения отменены"); }}><IconX size={18} /></button></div><p>Выберите периоды для автоматического отчёта «{reportLabel}».</p><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => setPeriods({ ...periods, [key]: e.target.checked })} /><i></i><span>{label}</span></label>)}</div>{withScoring && <section className="report-call-analysis" aria-labelledby="report-call-analysis-title"><h3 id="report-call-analysis-title">Параметры анализа звонков</h3><ScoringFields draft={scoringDraft} setDraft={setScoringDraft} /></section>}<div className="report-generator-actions"><button type="button" className="dark-button" onClick={submit}>Сохранить</button></div></div>;
+  return <div className={`report-generator-card tone-${kind}`}><div className="report-generator-title"><h3>Периодичность отчёта</h3></div><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => changePeriod(key, e.target.checked)} /><i></i><span>{label}</span></label>)}</div>{withScoring && <section className="report-call-analysis" aria-labelledby="report-call-analysis-title"><h3 id="report-call-analysis-title">Параметры анализа звонков</h3><ScoringFields draft={scoring} setDraft={changeScoring} /></section>}</div>;
 }
 
-function StereoSettings({ value, update, save, notify }) {
-  const current = value.format || (value.left === "Клиент" ? "client-left" : "operator-left");
+function StereoSettings({ value, update }) {
+  const [channelHelpOpen, setChannelHelpOpen] = useState(false);
+  const current = getStereoFormat(value);
   const change = (format) => update((next) => {
-    next.stereo.format = format;
-    next.stereo.mode = "Стерео";
-    next.stereo.left = format === "operator-left" ? "Сотрудник" : "Клиент";
-    next.stereo.right = format === "operator-left" ? "Клиент" : "Сотрудник";
+    next.stereo = setStereoFormat(next.stereo, format);
   });
-  return <form className="stereo-format-form" onSubmit={(e) => { e.preventDefault(); save(); }}><div className="stereo-format-section"><label className="stereo-format-field"><span>Стереоформат звонков</span><p>Выберите, в каком канале стереозаписи находятся оператор и клиент. Настройка применяется ко всем входящим звонкам, передаваемым на анализ.</p><div className="stereo-format-note"><IconInfoCircle size={18} /><span><strong>Что это такое?</strong>Звонок записывается в два отдельных канала: L — левый, R — правый. Укажите, где слышно оператора, а где клиента — так система правильно различит участников разговора.</span></div><select value={current} onChange={(e) => change(e.target.value)}><option value="operator-left">L (Оператор), R (Клиент) (по умолчанию)</option><option value="client-left">L (Клиент), R (Оператор)</option></select></label></div><div className="stereo-format-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
+  return <section className="stereo-format-form" aria-labelledby="stereo-settings-title">
+    <h2 id="stereo-settings-title">Стереоформат звонков</h2>
+    <div className="stereo-format-section">
+      <div className="stereo-format-label-row">
+        <span className="stereo-format-field" id="stereo-channel-label">Распределение каналов</span>
+        <div className="stereo-channel-help" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setChannelHelpOpen(false); }}>
+          <button type="button" aria-label="Что означают L и R?" aria-expanded={channelHelpOpen} aria-controls="stereo-channel-hint"
+            onClick={() => setChannelHelpOpen((open) => !open)} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); setChannelHelpOpen(false); } }}>
+            <IconInfoCircle size={16} aria-hidden="true" />
+          </button>
+          {channelHelpOpen && <div id="stereo-channel-hint" className="stereo-channel-help-text">L — левый канал записи.<br />R — правый канал записи.</div>}
+        </div>
+      </div>
+      <StereoFormatSelect value={current} onChange={change} labelledBy="stereo-channel-label" describedBy="stereo-format-scope" />
+    </div>
+    <div id="stereo-format-scope" className="stereo-format-scope" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>По умолчанию все звонки отправляются на анализ в выбранном формате.</p></div>
+  </section>;
 }
 
 function ScoringFields({ draft, setDraft }) {
   return <div className="scoring-settings-content"><label className="scoring-duration-field"><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input value={draft.minDuration} onChange={(e) => setDraft({ ...draft, minDuration: e.target.value })} aria-label="Минимальная длительность звонка" /></div></label><label className="scoring-auto-check"><input type="checkbox" checked={draft.autoAnalyze} onChange={(e) => setDraft({ ...draft, autoAnalyze: e.target.checked })} /><i><IconCheck size={14} /></i><span><strong>Автоматически отправлять звонок на анализ</strong><small>Не придется запускать анализ вручную</small></span></label></div>;
 }
 
-function ScoringSettings({ value, update, save, notify }) {
-  const initialDraft = () => ({ minDuration: value.minDuration || "00:00:30", autoAnalyze: value.autoAnalyze ?? false });
-  const [draft, setDraft] = useState(initialDraft);
-  const reset = () => { setDraft(initialDraft()); notify("Изменения отменены"); };
-  const submit = () => {
-    update((next) => { next.scoring.minDuration = draft.minDuration; next.scoring.autoAnalyze = draft.autoAnalyze; });
-    save();
-  };
-  return <form className="scoring-settings-form" onSubmit={(e) => { e.preventDefault(); submit(); }}><button type="button" className="report-close scoring-close" aria-label="Закрыть" onClick={reset}><IconX size={18} /></button><ScoringFields draft={draft} setDraft={setDraft} /><div className="scoring-settings-actions"><button type="submit" className="dark-button">Сохранить</button></div></form>;
+function ScoringSettings({ value, update }) {
+  const fields = { minDuration: value.minDuration ?? "00:00:30", autoAnalyze: value.autoAnalyze ?? false };
+  return <div className="scoring-settings-form"><ScoringFields draft={fields} setDraft={(nextFields) => update((next) => { Object.assign(next.scoring, nextFields); })} /></div>;
 }
 
 function SettingToggle({ title, description, checked, onChange }) { return <label className="setting-toggle"><span><strong>{title}</strong><small>{description}</small></span><input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>; }

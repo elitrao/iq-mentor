@@ -10,6 +10,140 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- Header account button matches the production reference at 84×44px with a compact 16×18px door icon; set intrinsic image dimensions too so the raster never renders at its oversized natural size. Do not fabricate the reference's 99+ notification count.
+
+- Mark «Сотрудники» ready for review in Settings navigation with the same quiet green check and «Готово к просмотру» description as the other completed sections.
+
+- Remove the technical-support headphones shortcut from the shared IQ Mentor product header (Home and other pages). Keep notifications and the account action. The «в ЛК» action uses the user's supplied gray door raster asset `src/assets/sidebar/account-door-gray.png`, with the compact pale-gray rounded button reference; preserve account navigation and the sidebar's separate white door asset.
+
+- On desktop Employees, align the All employees row and count vertically with the right-hand table header: use the same 14px gap after search and 44px header-row height. Preserve the denser independent filter layout when stacked.
+
+- The Employees vertical divider follows the right-hand results column from its heading to the table's bottom, independent of the department list height. Anchor it to the results column, not the department rail; keep it hidden in the stacked layout.
+
+- Department names remain single-line badges with ellipsis and a full-name tooltip, never two-line pills. Give the desktop department rail 210px to accommodate ordinary names beside counts/actions. Latest selection preference: use a light-gray (#F1F1EF) highlight across the entire department row, including badge, count and ellipsis, with no outline. Badges always retain their configured colors. One shared highlight glides between measured row positions over 320ms, adapts to wrapping/resizing, and respects reduced motion. All employees styling stays unchanged. Preserve filtering, aria-pressed and keyboard focus indicators.
+
+- Department action triggers use vertical three-dot icons, not horizontal ellipses.
+
+- Departments support a compact Notion-like preset icon grid (including no icon), stored alongside color and shown in badges everywhere. Each department has a quiet ellipsis action menu: edit name/color/icon, or delete with confirmation. Editing preserves the stable department ID and employee membership. Deleting removes only the department; employees remain and display «Без отдела». Persist deletions without restoring seed departments on reload.
+
+- Separate «Все сотрудники» from the department badges: a standalone row with a small people icon and total count, no badge, followed by a thin neutral divider and 8px spacing before departments. Keep the same soft selected-row state and filtering behavior on wide and narrow layouts.
+
+- Department creation uses an API-style name-and-badge dialog with live preview and eight fixed accessible pastel/text combinations (gray, peach, yellow, green, teal, blue, purple, pink), not a color picker. Show matching badges in the department filter list and employee table. Persist local department names/colors, reject blank/duplicate names, and preserve existing demo employee assignments. No backend or employee reassignment is implied.
+
+- Add a «Сотрудники» subsection heading above the employee search/table, matching the left «Отделы» heading (14px Inter Medium, muted gray, 12px bottom gap). Keep the existing page heading and account note.
+
+- Employees heading capsule explicitly names employees: «Добавление и удаление сотрудников — в личном кабинете». Keep the existing icon, account-phrase accent and content-sized capsule.
+
+- Both search fields on Employees show only «Поиск» as their placeholder; retain descriptive accessibility labels for department and employee search.
+
+- Restore the thin #EEEDE9 vertical divider between Employees departments and the employee list on wide layouts; keep it absent in the stacked narrow layout. Preserve the compact department rows.
+
+- Employees department selector is denser: 32px minimum row height, 6px/10px padding, 2px vertical list gaps (4px in the wrapped strip), preserving 13px text and capsule selection styling.
+
+- Employees has no vertical divider between departments and the employee list; preserve the spacing. The heading capsule uses lowercase «личном кабинете».
+
+- Keep the shortened Employees capsule copy on one natural line beside the heading on desktop: remove the text-column width cap, use non-growing/non-shrinking intrinsic pill width and 7×12px padding. The account phrase follows the preceding text on the same line; retain max-width 100% and narrow-screen wrapping.
+
+- Employees heading capsule uses the shorter copy «Добавление и удаление — в Личном кабинете», with the account phrase orange; the adjacent heading supplies the employee context.
+
+- Employees note typography is 13px Inter regular with a 20px line height; allow a 275px text column so the slightly larger copy retains natural wrapping. Preserve the capsule and intrinsic sizing.
+
+- Employees heading note uses fully rounded capsule corners (999px), matching the buttons; retain its content-sized width, current text, color and padding.
+
+- Employees note must hug its text instead of reserving a 320px flex basis: use intrinsic width, flex-basis auto and a 250px maximum text column, preserving compact padding and responsive shrinking.
+
+- Refine the peach Employees note to fit the real heading: flexible max-320px width, 8×12px padding, 10px corners, 20px ID icon, 12px/18px quiet text and natural wrapping (no forced line break). Use «Добавить или удалить сотрудника можно только в Личном кабинете», keeping the account phrase orange and together. Center beside the heading with a 16px gap; wrap below on small widths. Supersedes the fixed 304px / 24px-icon version.
+
+- Employees heading note follows the latest peach reference: 304px compact pill-like callout, #FFF2E5 fill, 14px corners, no border/left rule; orange 24px ID-card icon and 13px dark copy on two lines «Добавить/удалить сотрудника можно / только в Личном кабинете», with «Личном кабинете» orange. Keep beside the heading and responsive wrapping. Supersedes the gray quote-style note.
+
+- Employees' account-management note sits beside the «Сотрудники» heading in a compact neutral quote-style callout (quiet info icon, soft fill, fine left rule), not beneath the table. Wrap below the heading on narrow content; preserve its exact wording and existing employee controls.
+
+- Settings «Общие» uses a compact three-slider icon instead of the 2×2 square grid. Preserve the existing neutral gray, 15px size and heading alignment; Analyst/Trainer icons stay unchanged.
+
+- Latest report-tab labels supersede shortened names: Analyst «Отчёт по звонкам», «Сводный отчёт», «Отчёт по категориям»; Trainer «Отчёт по тренировкам», «Сводный отчёт». Keep «Автогенерация отчётов» as the section title and preserve existing IDs and saved settings.
+
+- Both Analyst and Trainer «Автогенерация отчётов» navigation entries carry the same quiet green readiness check and «Готово к просмотру» description as Notifications, Integrations and Stereo.
+
+- Settings pages have no Save action: report periods and call-analysis fields update and persist immediately through the shared settings state. Remove «Отменить изменения» and «Выберите, как часто создавать этот отчёт.». Report period rows match Notifications' 48px density, 14px Inter labels and compact section gaps. Preserve explicit creation/edit confirmations in record dialogs. This supersedes older report Save/Cancel and draft instructions.
+
+- Report settings use Notifications-style pills between report TYPES, not products: Analyst «Звонки / Сводный / Категории», Trainer «Тренировки / Сводный». Show the selected form directly beneath the shared «Автогенерация отчётов» heading and tabs, replacing the overview list and nested breadcrumb/title. Preserve existing section IDs, independent schedules and call-analysis fields; retain mounted inert inactive panels for smooth transitions and local drafts. Keep Analyst/Trainer as separate left-navigation groups.
+
+- Reverted the report-renaming experiment: use «Автогенерация отчётов» for both products, with Analyst «Звонки» / «Сводный» / «Категории» and Trainer «Тренировки» / «Сводный». This supersedes «Отчёты по расписанию» and expanded report labels; preserve all other UI changes.
+
+- Report settings are named «Отчёты по расписанию» in both products, including navigation, overview and breadcrumbs. Analyst types: «Отчёт по звонкам», «Общий отчёт», «Отчёт по категориям оценки». Trainer: «Отчёт по тренировкам», «Общий отчёт». Keep existing section IDs and saved schedules unchanged. Supersedes «Автогенерация отчётов» and short ambiguous report labels.
+
+- Mark «Стереоформат звонков» ready for review with the same trailing green check and «Готово к просмотру» description as Integrations and Notifications.
+
+- In Stereo settings, keep the page heading «Стереоформат звонков» and label the dropdown «Распределение каналов» to avoid repeating the title.
+
+- Stereo settings has no Save button or submit action. The existing settings update/persistence effect saves a selected format immediately; preserve autosave and other sections' Save buttons.
+
+- Latest Stereo legend refinement supersedes L/R chips: no legend beneath the selector. Put a quiet info button beside the field label; clicking reveals the left/right channel explanation in a small white popup, dismissed by blur or Escape. Keep the field note below unchanged.
+
+- Stereo channel legend uses two compact inline groups below the selector: small neutral rounded L/R letter labels beside «Левый канал» / «Правый канал». No punctuation-heavy sentence. Keep 12px quiet captions, 22px letter chips and wrapping on narrow widths; these are explanatory labels, not buttons.
+
+- Refined Stereo default note is a compact borderless pale-gray strip with one sentence, no separate title: «По умолчанию все звонки отправляются на анализ в выбранном формате.». Center the 16px info icon against the text block; use 11px/14px padding, 8px radius and 12px quiet text. Supersedes the two-level bordered note.
+
+- Below the Stereo selector, explain the default behavior in a compact neutral note: title «По умолчанию», text «Все звонки будут отправляться на анализ с выбранным стереоформатом.». Use a quiet info icon, very light gray surface, fine neutral border and 10px corners, aligned to the selector's 520px width. This is a field note, not an introductory page description.
+
+- Latest description preference: omit introductory purpose paragraphs beneath Integrations, Notifications and Stereo headings. Keep contextual field hints and existing title-to-controls spacing. This supersedes the earlier request to add short descriptions.
+
+- Integrations and Notifications have one short purpose description beneath their underlined heading. Match Stereo's quiet supporting text: 13px Inter regular, #85827b, 1.6 line height, 520px maximum width and 20px top gap. This supersedes the older instruction to omit the Integrations description; do not restore search or dividers.
+
+- Stereo dropdown closes as smoothly as it opens: keep the popup mounted and use reversible 360ms opacity/transform transitions with delayed visibility hiding. Disable pointer and accessibility interaction immediately on close; no delayed state timers. Reduced-motion opening/closing is immediate.
+
+- Stereo dropdown opens with a soft 360ms eased fade/downward settle from -8px and .985 scale, synchronized with the chevron rotation. Reduced motion disables the entrance animation.
+
+- Stereo format uses a custom accessible dropdown, not the native select: pale gray 44px trigger, blue open/focus outline, upward chevron when expanded, white rounded popup and neutral selected/hover rows. Offer client-left, operator-left and automatic detection. Preserve explicit saved formats and honor legacy automatic mode; selecting auto must not erase manual channel assignments. No real audio detection backend is added by this prototype UI.
+
+- Notification event rows are slightly denser: 48px minimum height and 8px vertical label padding, preserving 44px switch hit targets, current text sizes and both products' behavior. Allow wrapped event labels to grow naturally.
+
+- Settings group headings have no horizontal hairlines beside their labels. Keep the group icons, text and whitespace between groups.
+
+- Settings navigation items beneath General / Analyst / Trainer are text-only, aligned with the group-heading text. Keep group icons and quiet readiness checks; remove leading row icons. Notification tables use the compact heading «Уведомлять меня об» instead of «Событие», with existing Display/Sound columns and product tabs unchanged. The dark screenshot is a hierarchy reference, not a theme or notification-channel change.
+
+- Stereo call settings follows the current lightweight Settings style: one regular orange-underlined heading, Inter typography, short neutral explanatory copy, a compact dropdown for the two left/right presets and a compact left-aligned Save action. No duplicate category/icon header or colored information card. Preserve saved channel mappings and existing behavior.
+
+- Trainer notifications use the seven events from the supplied production reference. Display switches only for creation started, training created, report preparing and report complete; sound switches for all seven. Keep independent per-product/channel saved preferences, default new controls on, preserve existing reportComplete values and do not reinterpret obsolete training/progress events.
+- Use Inter, sans-serif throughout Settings, including headings, navigation, form controls, dialogs and code fields. Preserve the existing type sizes/weights unless explicitly requested otherwise.
+
+- On desktop with a mouse, a manually collapsed sidebar temporarily expands only after 500ms of continuous hover, then smoothly collapses on pointer exit (120ms exit grace period, existing 360ms transition). Leaving early cancels opening; returning before the exit delay cancels closing. Hover does not change the user's pinned state; clicking the menu toggle during preview pins it open. Pinned-open menus do not auto-collapse. Disable hover preview for touch/mobile and clear both timers on toggle, breakpoint changes and unmount.
+- Connected integration catalog entries have a compact, very light mint «Подключено» pill beside the service name, similar to Notifications' product tabs: rgba(40,160,120,.06) background, no border, muted #327a64 text/check. This supersedes the lime palette. Keep 16px total height, 9px type, 10px check and 2px/6px padding. Show only for actually connected local records; preserve the active/available split, gear/plus controls and lightweight unboxed catalog.
+
+- Sidebar collapse uses a synchronized 360ms eased width/content-offset transition on desktop. Keep the grid layout and lower-control heights stable; fade labels/logo instead of toggling display, move icons gently into the narrow rail. Respect reduced motion and retain independent automatic compact/mobile layouts.
+- Account footer stays accessible in collapsed desktop/compact rails: avatar above a 44×44 dark button, using the exact supplied transparent door asset `src/assets/sidebar/account-door.png`. Expanded button shows «Перейти в ЛК» with that same icon. Animate only the button width/gap/label, never hide the action or remove it from keyboard navigation. The existing account destination is unchanged; mobile bottom bar still hides the entire footer.
+
+- Collapsing the desktop sidebar must not expose the mobile Settings shortcut beneath Documents. Desktop Settings remains only in the lower sidebar. Show the separate shortcut only in the mobile bottom bar (820px and below), with selector priority sufficient to override collapsed-nav display rules.
+
+- Sidebar Settings uses the filled Tabler gear (`IconSettingsFilled`, 18px box), not an outline gear, matching the other compact filled navigation silhouettes. Apply to both desktop and mobile shortcuts; retain neutral gray and the orange active state.
+
+- Latest sidebar text request restores the inspector reference's size: #333333, Inter, sans-serif, 14px and a 20px line box. Apply the neutral text color to both resting and active main menu labels; retain the explicitly requested Medium (500) weight and current icon colors.
+
+- Main sidebar uses a white 270px rail, #333333 Inter, sans-serif, Medium (500), 14px labels, filled gray source icons and orange active icon only. Order is Home, Analyst, Trainer, Templates, Documents; omit Employees/Integrations here, preserving their Settings pages. Latest explicit grouping request overrides the production screenshot: Templates and Documents form one group with normal 48px row pitch, with the extra 18px gap only before Templates, without borders. Navigation starts 25px below the brand divider. Source silhouettes are 16px visibly wide (compensate transparent margins); chevron SVGs are 20px with a fine 1.25 stroke. Keep existing navigation and measured-row drag reordering.
+- Lower sidebar has only «Помощь» with a neutral gray filled lifebuoy (`IconLifebuoyFilled`, 18px box), opening the existing knowledge dialog. It must not duplicate Analyst's book silhouette. Do not add a separate «База знаний» item.
+- Sidebar brand uses only the monochrome IQ logo (40px wide), small dark menu button, and thin divider at approximately 58px from the top. No «Ментор» text in this header; preserve the brand elsewhere.
+
+- During the trial, show a small orange gift button immediately after the bonus balance, with tooltip «Бонусы пробного периода». It reopens the original welcome dialog without changing funds or renewal counts, and is absent in the trial-ended preview. Trial eligibility remains demo-only until backend data is connected.
+- The product header uses the supplied light-gray bell / «в ЛК» pair: 44px height, 44px bell, 86px account button, 8px gap, 12px radius, fine neutral border, gray outline icons, and no unread badge. Keep the pair adjacent in both header variants and preserve account navigation; wrap on small screens instead of hiding the account control.
+
+- Header balance matches the October 20 screenshot: neutral regular 14px «Баланс» label, 4px gaps, 26px-high rounded badges (6px radius), solid #FF9025 regular balance with white semibold 12px text, and #FFF2E5 bonus balance with orange regular 12px text. No gold fill, border or shadow. Apply equally to Home and other product headers; preserve live balance values, currency formatting and navigation.
+
+- In the large trial-ended modal, «закончился» is a separate subtitle using the exact shared `.daily-bonus-heading` styling of «бонусами каждый день» (warm peach, 25px desktop / 21px mobile, semibold). Keep «Пробный период» as the larger heading.
+
+- The trial-ended state is a large welcome-sized modal, not a compact balance notice: «Пробный период закончился», continuation copy, and an ivory «Пополнить баланс» CTA opening the existing account top-up page. Use a soft entrance and subtle slow background drift, stationary text, and reduced-motion support. Preview with `?welcome=exhausted`; do not infer real billing exhaustion or show the refreshed-bonus notice in this preview.
+
+- The compact daily-bonus notice includes a quiet centered «Осталось обновлений: 9 из 10» line below the midnight schedule, with the numeric remainder emphasized. Values are configurable and explicitly demo-only until billing supplies real trial data; do not decrement on reload or dismissal.
+
+- Daily bonus artwork and prototype copy describe limits resetting every day at 00:00. Welcome: «Лимиты обновляются в 00:00 — всего 10 раз за пробный период.» Compact notice: «Следующее обновление лимитов — в 00:00». Remove the rolling 24-hour/14:35 wording; this copy does not implement billing accrual.
+
+- Report overviews in Analyst and Trainer show only the icon, report name, any enabled schedule and navigation chevron. Omit descriptive subtitles and horizontal row separators; separate compact rows with spacing and retain a soft hover background.
+
+- Settings → Integrations is restored to the first catalog iteration (commit 862cced): separate «Активные» and «Все интеграции» sections, compact two-column grid (single column on narrow content), circular service logos, gear icons for active services and plus icons for available services. Entire service items are buttons with soft gray hover backgrounds. Keep the orange title underline, existing detail screens and saved state. This restoration supersedes the later full-width row-list, status-badge and text-action experiments.
+- Settings group headings use compact filled icons before every label: a simple 2×2 rounded-square grid for General, the supplied open-book asset for Analyst, and the supplied graduation-cap asset for Trainer. Render all three in the same neutral gray, without product orange or violet, and keep their visible size and weight balanced. Compensate for the Trainer PNG's large transparent canvas so its visible silhouette matches the Analyst icon at roughly 15px; do not size the cap by its raw bitmap bounds.
+- The standalone «Предложить идею» page is temporarily hidden. Keep its implementation intact behind the shared FEEDBACK_PAGE_ENABLED switch, omit its lower-sidebar entry, and redirect legacy #feedback navigation to Home until it is restored.
+- Daily bonus promotion is enabled again through DAILY_BONUS_PROMOTION_ENABLED. Show the welcome on full reload in the existing review mode, then the compact balance-anchored notice after dismissal on pages other than Settings. Preserve their updated midnight/10-refresh trial copy and existing close/start behavior.
+- Autogeneration of reports in both Analyst and Trainer now follows the minimal Settings style. Use one regular heading with an orange text-width underline and a compact, unboxed list of report types with quiet icons, descriptions and saved schedule summaries. Omit the repeated «Не настроен» labels when a report has no enabled schedule; leave only its quiet navigation chevron. The side navigation shows only one «Автогенерация отчётов» item per product; never expand it into the report-type links. Choose report types in the main content. Do not show robot artwork or dark campaign cards. Report details use breadcrumbs and the same heading treatment, with lightweight divider rows for period switches. Keep every report type, independent saved schedules and Analyst call-analysis fields.
+- Employees now follows Integrations/Notifications: a single regular 24–34px title with the orange text-width underline, no generic category/icon header, white surfaces and compact pill actions/search. Keep departments and the employee table lightweight, with no forced tall gray panels. Use a left department rail on wide content, a compact department strip above the table on narrower content, and labeled employee details on phones. Preserve all employee fields, selection, duplicate search and local department creation; department search/filter should work. Do not automatically mark Employees ready or push these changes without a current request.
 - Notification switches should match the soft product-tab pills: use a 36×22px rounded track with the same pale orange/violet fill and a fine tinted border, plus a saturated #FF9025 / #6467F2 thumb. Avoid a solid bright track with a white knob. Off state is wholly neutral gray; retain 44px hit targets, clear focus and smooth thumb movement.
 - Mark Integrations and Notifications in the Settings navigation as ready for review with a small quiet green circular check at the right and the tooltip/accessibility description «Готово к просмотру». This is a status mark, not an extra nested toggle; preserve navigation behavior.
 - Notifications product switching should feel smooth: one pill highlight glides/resizes between tabs over 400ms with eased settling, label/icon colors transition over 320ms, and event panels softly crossfade with a subtle 4px movement. Keep panel height stable, inactive controls inert and hidden from accessibility, rapid switching interruptible, and reduced-motion switching immediate.
@@ -71,7 +205,10 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 - Settings must use existing IQ Mentor UI patterns. The entire LK settings group is intentionally omitted; keep the Analyst and Trainer sections working and clickable.
 - In Settings, keep General neutral, use muted orange only as the Analyst accent, and use muted violet only as the Trainer accent; avoid large or bright color fills.
 - Settings navigation follows the latest supplied Notion reference (October 7), superseding the GitHub direction: almost-white menu surface, spacious rows, quiet uppercase category labels, neutral inactive outline icons, and soft selected/hover row fills without a colored edge marker. Separate every category with generous spacing and quiet thin dividers; category headings remain neutral. Keep icons only on primary sections; nested report types are indented text-only rows aligned with the parent label. Retain the product's light palette and existing settings behavior.
-- Settings navigation selection should feel soft and tactile: a shared rounded highlight glides between selected rows over approximately 320ms with eased settling and smoothly interpolates its color over 420ms. General selection is neutral, Analyst uses a very light product-orange tint, and Trainer uses a very light production-violet (#6467F2) tint; the selected primary icon matches the product accent. Color only the selection, never whole groups or headings. Keep text crisp, avoid heavy shadows, track collapsed parents and responsive resizing, and disable motion for reduced-motion users.
+- Settings navigation selection uses one shared, extremely light translucent gray rounded island (about 2.5% neutral fill) that glides between active rows with the same soft 400ms eased motion as the Notifications product selector. Keep it borderless and free of underlines, side markers, shadows and product-color accents; selected text may be slightly stronger. All navigation and group-heading icons remain gray even inside Analyst and Trainer. Track collapsed parents and disable the motion for reduced-motion users.
+- Hovered and selected Settings navigation rows must look identical: use the same 2.5% neutral fill, 10px radius, neutral icon color, text color and medium font weight. The only difference is behavioral—the selected island persists and glides, while the hover island disappears with the pointer.
+- Keep the Settings navigation hierarchy airy rather than visually merged: each General / Analyst / Trainer heading is a compact 11px label with its filled icon and a quiet hairline extending to the right; separate groups with 24px of whitespace instead of full-width divider rules. Use compact 36px rows, 2px between sibling items, regular-weight muted inactive labels, and the established matching medium-weight hover/selected state.
+- The top-level «Настройки» heading uses the same thin orange text-width underline as the Integrations, Notifications, Employees and report settings pages.
 - Keep the settings menu surface almost white (#fcfcfb), not a large gray panel; reserve subtle tints for hover and selection only.
 - On every entry to Settings, Analyst automatic reports, Trainer report generation, and call criteria start collapsed. Reveal nested links only after the user explicitly opens the relevant parent; do not restore expanded state from the previous visit.
 - Use the latest concise Settings labels: notifications are titled «Уведомления» (sound controls remain included), and report generation is titled «Автогенерация отчётов» in both Analyst and Trainer.

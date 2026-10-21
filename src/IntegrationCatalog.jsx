@@ -1,4 +1,4 @@
-import { IconSettings, IconPlus, IconCode } from '@tabler/icons-react';
+import { IconSettings, IconPlus, IconCode, IconCheck } from '@tabler/icons-react';
 import bitrix24Logo from './assets/integrations/bitrix24.png';
 import amoCrmLogo from './assets/integrations/amocrm.png';
 import yandexDiskLogo from './assets/integrations/yandex-disk-official.png';
@@ -29,7 +29,7 @@ export function IntegrationCatalog({ value, onSelect }) {
         onClick={(event) => onSelect(service.key, event.currentTarget.id)} aria-label={`Настроить подключённую интеграцию «${service.name}»`}
       >
         <IntegrationLogo service={service.key} decorative />
-        <span className="integration-catalog-service-copy"><strong>{service.name}</strong><span>{service.description}</span></span>
+        <span className="integration-catalog-service-copy"><span className="integration-catalog-service-title"><strong>{service.name}</strong><span className="integration-connected-badge"><IconCheck size={12} stroke={2.4} aria-hidden="true" />Подключено</span></span><span>{service.description}</span></span>
         <span className="integration-catalog-service-action" title="Настроить"><IconSettings size={18} stroke={1.5} aria-hidden="true" /></span>
       </button>)}</div> : <p className="integration-connected-empty">Пока нет подключённых сервисов. Выберите интеграцию ниже.</p>}
     </section>
