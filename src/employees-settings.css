@@ -161,11 +161,32 @@ button.employee-role-badge:hover { filter: brightness(.96); }
 .employee-selection-actions button { min-height: 36px; border: 0; border-radius: 8px; padding: 6px 10px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .employee-selection-actions button:hover { background: #ffffff14; }
 .employee-selection-actions button:last-child { font-weight: 500; }
-.employee-move-options { display: grid; gap: 4px; max-height: 45vh; overflow: auto; border: 0; margin: 12px 0 0; padding: 4px; }
-.employee-move-options > label { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 7px 10px; border-radius: 9px; color: #575751; font-size: 13px; cursor: pointer; }
-.employee-move-options > label:hover, .employee-move-options > label:has(input:checked) { background: #f5f5f3; }
-.employee-move-options input { flex-shrink: 0; accent-color: #ff9025; }
-.employee-move-dialog button:disabled { opacity: .45; cursor: not-allowed; }
+.employee-move-dialog { width: min(567px, calc(100vw - 32px)); box-sizing: border-box; overflow: visible; border: 0; border-radius: 16px; padding: 22px 23px; font-family: Inter, sans-serif; }
+.employee-move-dialog > header { align-items: center; margin-bottom: 21px; }
+.employee-move-dialog h2 { color: #171717; font-size: 26px; line-height: 1.3; font-weight: 400; letter-spacing: -.6px; }
+.employee-move-dialog > header button { width: 36px; height: 36px; border: 1px solid #f2f2f2; border-radius: 10px; background: #fff; color: #666; }
+.employee-move-selected { display: block; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 0 0 12px; overflow: hidden; border-radius: 999px; background: #f5f5f5; padding: 4px 13px; color: #151515; font-size: 13px; line-height: 16px; text-overflow: ellipsis; white-space: nowrap; }
+.employee-move-field { position: relative; display: grid; gap: 8px; }
+.employee-move-field > label { color: #161616; font-size: 12px; line-height: 16px; }
+.employee-move-trigger { display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0; height: 44px; border: 1px solid transparent; border-radius: 12px; background: #f5f5f5; padding: 0 13px; color: #37352f; font: inherit; font-size: 16px; text-align: left; cursor: pointer; }
+.employee-move-trigger > svg:first-child { flex-shrink: 0; color: #9da2a5; }
+.employee-move-trigger > span, .employee-move-trigger > .employee-department-badge { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.employee-move-trigger .is-placeholder { color: #9da2a5; }
+.employee-move-trigger:focus-visible, .employee-move-trigger.is-open { border-color: #e6cbb5; outline: 2px solid #fff3e8; outline-offset: 1px; }
+.employee-move-chevron { flex-shrink: 0; margin-left: auto; color: #9da2a5; transition: transform .18s ease; }
+.employee-move-trigger.is-open .employee-move-chevron { transform: rotate(180deg); }
+.employee-move-options { position: absolute; z-index: 2; top: calc(100% + 5px); right: 0; left: 0; display: grid; gap: 3px; max-height: min(220px, 30vh); overflow: auto; border: 1px solid #eae9e6; border-radius: 12px; padding: 5px; background: #fff; box-shadow: 0 8px 24px #00000012; }
+.employee-move-options > button { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; min-height: 38px; border: 0; border-radius: 8px; background: transparent; padding: 5px 9px; color: #575751; font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.employee-move-options > button:hover, .employee-move-options > button:focus-visible, .employee-move-options > button[aria-selected="true"] { outline: none; background: #f5f5f3; }
+.employee-move-options > button > svg { flex-shrink: 0; color: #73716b; }
+.employee-move-dialog footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 22px; }
+.employee-move-dialog footer button { width: 100%; min-width: 0; height: 44px; border-radius: 11px; font-size: 14px; }
+.employee-move-dialog footer .light-button { background: #f5f5f5; color: #5c5c5c; }
+.employee-move-dialog footer .dark-button { background: #262625; }
+.employee-move-dialog footer .dark-button:disabled { border-color: #eaeaea; background: #eaeaea; color: #c5c5c5; opacity: 1; cursor: not-allowed; }
+.employee-move-dialog button:focus-visible { outline: 2px solid #ffb576; outline-offset: 2px; }
+@media (max-width: 480px) { .employee-move-dialog { padding: 20px; } .employee-move-dialog h2 { font-size: 20px; } .employee-move-dialog footer { gap: 8px; } }
+@media (prefers-reduced-motion: reduce) { .employee-move-chevron { transition: none; } }
 .department-icon-options { min-width: 0; border: 0; margin: 18px 0 0; padding: 0; }
 .department-icon-options legend { padding: 0; margin-bottom: 8px; font-size: 12px; color: #37352f; }
 .department-icon-options > div { display: grid; grid-template-columns: repeat(6, 44px); gap: 4px; }

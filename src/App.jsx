@@ -28,6 +28,7 @@ import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
 import { EmployeesSettings } from "./EmployeesSettings.jsx";
+import { sidebarDragLayout } from "./sidebar-reorder.js";
 import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
 import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
 import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
@@ -437,8 +438,8 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   const dragRef = useRef(null);
   const previewCloseTimer = useRef(null);
   const previewOpenTimer = useRef(null);
-  const suppressClickRef = useRef(false);
   const [drag, setDrag] = useState(null);
+  const [reorderAnnouncement, setReorderAnnouncement] = useState('');
   const [analyticsOpen, setAnalyticsOpen] = useState(page === "analytics");
   const orderedItems = navOrder.map((id) => NAV_ITEMS.find((item) => item.id === id)).filter((item) => item && !HIDDEN_NAV_ITEMS.has(item.id));
 
@@ -470,6 +471,7 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   const closeHoverPreview = () => {
     window.clearTimeout(previewOpenTimer.current);
     window.clearTimeout(previewCloseTimer.current);
+    if (dragRef.current) return;
     // A small grace period avoids flicker when the pointer briefly crosses the edge.
     previewCloseTimer.current = window.setTimeout(() => onPreviewChange(false), 120);
   };
@@ -481,48 +483,83 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
 
   const updateDrag = (next) => { dragRef.current = next; setDrag(next); };
   const startDrag = (event, item, index) => {
-    if (event.button !== 0 || collapsed || window.matchMedia("(max-width: 1200px)").matches) return;
+    if (event.button !== 0 || event.pointerType === 'touch' || collapsed || window.matchMedia("(max-width: 1200px)").matches || dragRef.current) return;
+    window.clearTimeout(previewOpenTimer.current);
+    window.clearTimeout(previewCloseTimer.current);
     const navRect = navRef.current.getBoundingClientRect();
     const rowRect = event.currentTarget.closest(".nav-row").getBoundingClientRect();
-    const firstRect = navRef.current.querySelector(".nav-row").getBoundingClientRect();
-    try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* Pointer capture is optional; window events still bubble during ordinary dragging. */ }
+    const rows = [...navRef.current.querySelectorAll(':scope > .nav-row')].map((row) => {
+      const rect = row.getBoundingClientRect();
+      const style = window.getComputedStyle(row);
+      return { top: rect.top - navRect.top, height: rect.height, marginTop: parseFloat(style.marginTop) || 0, marginBottom: parseFloat(style.marginBottom) || 0 };
+    });
+    event.currentTarget.focus({ preventScroll: true });
+    event.preventDefault();
+    try { event.currentTarget.setPointerCapture(event.pointerId); } catch { return; }
     updateDrag({
       id: item.id,
       pointerId: event.pointerId,
+      handle: event.currentTarget,
       sourceIndex: index,
       targetIndex: index,
       startY: event.clientY,
       pointerY: event.clientY,
       offsetY: event.clientY - rowRect.top,
       navTop: navRect.top,
-      firstTop: firstRect.top,
-      rowTops: [...navRef.current.querySelectorAll(".nav-row")].map((row) => row.getBoundingClientRect().top),
+      navBounds: { left: navRect.left, right: navRect.right, top: navRect.top, bottom: navRect.bottom },
+      rows,
+      gap: parseFloat(window.getComputedStyle(navRef.current).rowGap) || 0,
       width: rowRect.width,
       height: rowRect.height,
-      slotHeight: rowRect.height + 2,
       active: false,
     });
   };
   const continueDrag = (event) => {
     const current = dragRef.current;
     if (!current || current.pointerId !== event.pointerId) return;
-    const active = current.active || Math.abs(event.clientY - current.startY) > 6;
-    const dragTop = event.clientY - current.offsetY;
-    const targetIndex = current.rowTops.reduce((nearest, top, index) => Math.abs(top - dragTop) < Math.abs(current.rowTops[nearest] - dragTop) ? index : nearest, 0);
+    const active = current.active || Math.abs(event.clientY - current.startY) > 8;
+    const dragTop = event.clientY - current.offsetY - current.navTop;
+    const targetIndex = current.rows.reduce((nearest, row, index) => Math.abs(row.top - dragTop) < Math.abs(current.rows[nearest].top - dragTop) ? index : nearest, 0);
     if (active) event.preventDefault();
     updateDrag({ ...current, pointerY: event.clientY, targetIndex, active });
   };
   const finishDrag = (event, canceled = false) => {
     const current = dragRef.current;
     if (!current || current.pointerId !== event.pointerId) return;
-    if (current.active) {
-      suppressClickRef.current = true;
-      if (!canceled) reorderNavItem(current.id, current.targetIndex);
+    const bounds = current.navBounds;
+    const inside = event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+    if (current.active && !canceled && inside) {
+      if (current.sourceIndex !== current.targetIndex) reorderNavItem(current.id, current.targetIndex);
+      setReorderAnnouncement(`Раздел «${orderedItems[current.sourceIndex].label}»: позиция ${current.targetIndex + 1} из ${orderedItems.length}`);
+    } else if (current.active) {
+      setReorderAnnouncement('Перемещение отменено');
     }
     updateDrag(null);
+    if (current.handle.hasPointerCapture(current.pointerId)) current.handle.releasePointerCapture(current.pointerId);
+    if (!inside) closeHoverPreview();
+  };
+  useEffect(() => {
+    if (drag?.pointerId == null) return undefined;
+    const cancel = () => { if (dragRef.current) finishDrag({ pointerId: dragRef.current.pointerId }, true); };
+    const onKeyDown = (event) => { if (event.key === 'Escape') { event.preventDefault(); cancel(); } };
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('blur', cancel);
+    window.addEventListener('resize', cancel);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('blur', cancel);
+      window.removeEventListener('resize', cancel);
+    };
+  }, [drag?.pointerId]);
+  const moveWithKeyboard = (event, item, index) => {
+    if (dragRef.current || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+    event.preventDefault();
+    const target = Math.max(0, Math.min(orderedItems.length - 1, index + (event.key === 'ArrowUp' ? -1 : 1)));
+    if (target === index) return;
+    reorderNavItem(item.id, target);
+    setReorderAnnouncement(`Раздел «${item.label}»: позиция ${target + 1} из ${orderedItems.length}`);
   };
   const openPage = (id) => {
-    if (suppressClickRef.current) { suppressClickRef.current = false; return; }
     if (id === "analytics" && !collapsed && !window.matchMedia("(max-width: 1200px)").matches) {
       setAnalyticsOpen((current) => !current);
       return;
@@ -530,6 +567,7 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     setPage(id);
   };
   const draggedItem = drag?.active ? orderedItems.find((item) => item.id === drag.id) : null;
+  const dragLayout = drag?.active ? sidebarDragLayout(drag.rows, drag.sourceIndex, drag.targetIndex, drag.gap) : null;
   return <aside className="sidebar" onPointerEnter={openHoverPreview} onPointerLeave={closeHoverPreview}>
     <div className="sidebar-brand">
       <button className="bare-icon crop-button" aria-label={compactMode ? collapsed ? "Развернуть меню" : "Закрепить меню" : "Свернуть меню"} aria-expanded={!collapsed} onClick={togglePinnedMenu}><IconMenu2 size={18} stroke={1.6} /></button>
@@ -537,11 +575,11 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     </div>
     <nav ref={navRef} className={drag?.active ? "sidebar-nav is-reordering" : "sidebar-nav"} aria-label="Основная навигация">
       {orderedItems.map((item, index) => {
-        const shift = !drag?.active || index === drag.sourceIndex ? 0 : drag.sourceIndex < drag.targetIndex && index > drag.sourceIndex && index <= drag.targetIndex ? drag.rowTops[index - 1] - drag.rowTops[index] : drag.sourceIndex > drag.targetIndex && index >= drag.targetIndex && index < drag.sourceIndex ? drag.rowTops[index + 1] - drag.rowTops[index] : 0;
+        const shift = !dragLayout || index === drag.sourceIndex ? 0 : dragLayout.offsets[index];
         const isAnalytics = item.id === "analytics";
         const isExpanded = isAnalytics && analyticsOpen && !collapsed;
         return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}${item.id === "templates" ? " nav-row-separated" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
-          <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} onClick={() => openPage(item.id)} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} aria-describedby={`nav-drag-hint-${item.id}`} aria-expanded={isAnalytics ? isExpanded : undefined}>
+          <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} onClick={() => openPage(item.id)} aria-expanded={isAnalytics ? isExpanded : undefined}>
             <SidebarIcon item={item} />
             <span>{item.label}</span>
             {item.arrow && <IconChevronDown className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={20} stroke={1.25} />}
@@ -551,13 +589,18 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
               <span>Список звонков</span>
             </button>
           </div>}
-          <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Зажмите, чтобы переместить</span>
+          <button type="button" className="nav-drag-handle" aria-label={`Переместить раздел «${item.label}»`} aria-describedby={`nav-drag-hint-${item.id} nav-reorder-keyboard-help`} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} onLostPointerCapture={(event) => finishDrag(event, true)} onKeyDown={(event) => moveWithKeyboard(event, item, index)} onClick={(event) => event.preventDefault()}>
+            <IconGripVertical size={16} stroke={1.6} aria-hidden="true" />
+          </button>
+          <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Потяните за точки, чтобы переместить</span>
         </div>;
       })}
-      {drag?.active && <span className="nav-drop-slot" style={{ top: `${drag.rowTops[drag.targetIndex] - drag.navTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
-      {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
+      {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
+      {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
       <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
     </nav>
+    <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов. Escape отменяет перетаскивание.</span>
+    <span className="nav-reorder-sr-only" role="status" aria-live="polite">{reorderAnnouncement}</span>
     <div className="sidebar-bottom">
       <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} aria-label="Настройки" onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettingsFilled size={18} /><span>Настройки</span></button>
       {FEEDBACK_PAGE_ENABLED && <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>}
@@ -568,13 +611,15 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   </aside>;
 }
 
-function NavDragOverlay({ item, active, top, width }) {
+function NavDragOverlay({ item, active, expanded, top, width }) {
   return <div className="nav-drag-overlay" style={{ top: `${top}px`, width: `${width}px` }} aria-hidden="true">
     <div className={active ? "nav-item active" : "nav-item"}>
       <SidebarIcon item={item} />
       <span>{item.label}</span>
-      {item.arrow && <IconChevronDown className="nav-arrow" size={20} stroke={1.25} />}
+      {item.arrow && <IconChevronDown className={expanded ? "nav-arrow expanded" : "nav-arrow"} size={20} stroke={1.25} />}
     </div>
+    {expanded && <div className="nav-submenu open"><div className={active ? "nav-subitem active" : "nav-subitem"}>Список звонков</div></div>}
+    <span className="nav-drag-handle" aria-hidden="true"><IconGripVertical size={16} stroke={1.6} /></span>
   </div>;
 }
 

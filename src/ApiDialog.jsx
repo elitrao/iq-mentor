@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { IconX } from '@tabler/icons-react';
 
-export function ApiDialog({ title, close, children, className = '', closeLabel = 'Закрыть окно API' }) {
+export function ApiDialog({ title, close, children, className = '', closeLabel = 'Закрыть окно API', onCancel }) {
   const ref = useRef(null);
   useEffect(() => {
     const dialog = ref.current;
@@ -10,7 +10,7 @@ export function ApiDialog({ title, close, children, className = '', closeLabel =
     dialog.querySelector('input:not([readonly])')?.focus();
     return () => { dialog.close(); if (previous?.isConnected) previous.focus(); };
   }, []);
-  return <dialog ref={ref} className={`api-record-dialog ${className}`} aria-labelledby="api-record-dialog-title" onCancel={(event) => { event.preventDefault(); close(); }}>
+  return <dialog ref={ref} className={`api-record-dialog ${className}`} aria-labelledby="api-record-dialog-title" onCancel={(event) => { event.preventDefault(); (onCancel || close)(event); }}>
     <header><h2 id="api-record-dialog-title">{title}</h2><button type="button" aria-label={closeLabel} onClick={close}><IconX size={20} /></button></header>{children}
   </dialog>;
 }

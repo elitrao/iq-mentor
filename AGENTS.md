@@ -10,6 +10,10 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- Sidebar reorder must not start from the section label/icon. Use a separate six-dot grip visible on row hover or keyboard focus, only in the expanded desktop mouse layout. Begin dragging after more than 8px of vertical movement; ordinary clicks and small pointer movements preserve the order. Keep the insertion outline, smooth row motion and saved order; Escape, pointer cancellation, window blur/resize or release outside the navigation cancel the move. The grip's tooltip explains dragging; focused grips also support ArrowUp/ArrowDown. This supersedes whole-row dragging and its whole-row hold tooltip.
+
+- October 22 local directory cleanup supersedes the populated demo roster for localhost:4170. On each browser's first load of this revision, remove all departments and demo employees, keep only Samoylenko Daniil without a department, and preserve his existing role. Apply once with a backup; later-created departments and unrelated settings must survive reloads. Never apply this cleanup to hosted deployments.
+
 - Remove the green readiness checkmarks and «Готово к просмотру» metadata from every Settings navigation item. Preserve navigation icons, group chevrons, and functional checkboxes elsewhere.
 
 - Integration catalog rows omit service descriptions; keep logos, names, connection status/date and actions.

@@ -221,7 +221,7 @@ export function EmployeesSettings({ notify }) {
       </div>
     </div>
     {filterOpen && <EmployeeFilterDialog value={filters} employees={employees} close={() => setFilterOpen(false)} onApply={(next) => { setFilters(next); setFilterOpen(false); }} onReset={() => { setFilters(EMPTY_EMPLOYEE_FILTERS); setFilterOpen(false); }} />}
-    {movingEmployees && <MoveEmployeesDialog count={selected.length} departments={departments} close={() => setMovingEmployees(false)} onMove={moveSelectedEmployees} />}
+    {movingEmployees && <MoveEmployeesDialog count={selected.length} selectedEmployees={employees.filter((employee) => selected.includes(employee.id))} departments={departments} close={() => setMovingEmployees(false)} onMove={moveSelectedEmployees} />}
     {displayOpen && <EmployeeDisplayDialog value={display} onChange={updateDisplay} close={() => setDisplayOpen(false)} />}
     {creatingDepartment && <DepartmentDialog close={() => setCreatingDepartment(false)} onCreate={addDepartment} />}
     {editingDepartment && <DepartmentDialog department={editingDepartment} close={() => setEditingDepartment(null)} onCreate={editDepartment} />}
