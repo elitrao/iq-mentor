@@ -27,13 +27,15 @@ import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
+import { SettingsModal } from "./SettingsModal.jsx";
+import { SettingsStandalone } from "./SettingsStandalone.jsx";
 import { EmployeesSettings } from "./EmployeesSettings.jsx";
 import { sidebarDragLayout } from "./sidebar-reorder.js";
 import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
 import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
 import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
 import { DocumentsExperience } from "./DocumentsExperience.jsx";
-import { initialNavigation, navigatePrototype, navigationHash } from "./settings/navigation.js";
+import { initialNavigation, navigatePrototype, navigationHash, closeSettingsVariant } from "./settings/navigation.js";
 import { getReportPeriods, setReportPeriod, resolveSettingsSection } from "./settings/schema.js";
 import { NOTIFICATION_EVENTS, notificationPreference } from "./settings/notifications.js";
 import { StereoFormatSelect } from "./StereoFormatSelect.jsx";
@@ -50,7 +52,7 @@ import {
   IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", feedback: "Предложить идею" };
+const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки 1", feedback: "Предложить идею" };
 // Enable both daily bonus banners for prototype review.
 const DAILY_BONUS_PROMOTION_ENABLED = true;
 const FEEDBACK_PAGE_ENABLED = false;
@@ -307,8 +309,14 @@ function loadDashboardLayout() {
 }
 
 export function App() {
-  const [navigation, setNavigation] = useState(() => initialNavigation(window.location.hash));
+  const [navigation, setNavigation] = useState(() => {
+    const saved = window.history.state?.iqMentorNavigation;
+    return saved && navigationHash(saved) === window.location.hash ? saved : initialNavigation(window.location.hash);
+  });
   const { page } = navigation;
+  const activeSettingsVariant = navigation.settingsModal ? 'settings-2' : page === 'settings-3' ? 'settings-3' : null;
+  const previousSettingsVariant = useRef(activeSettingsVariant);
+  const settingsOpener = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarPreviewOpen, setSidebarPreviewOpen] = useState(false);
   const [settings, setSettings] = useState(loadSettings);
@@ -330,25 +338,71 @@ export function App() {
   };
 
   const setPage = (destination) => {
-    if (['settings', 'employees'].includes(destination)) {
+    if (['settings', 'employees', 'settings-2', 'settings-3'].includes(destination)) {
       setKnowledgeOpen(false);
-      if (destination !== 'settings') setSettingSection(destination);
+      if (destination === 'employees') setSettingSection(destination);
     }
-    setNavigation((current) => navigatePrototype(current, destination));
+    const next = navigatePrototype(navigation, destination);
+    const fromVariant = navigation.settingsModal || page === 'settings-3';
+    const toVariant = next.settingsModal || next.page === 'settings-3';
+    if (toVariant && !fromVariant) settingsOpener.current = { element: document.activeElement, variant: next.settingsModal ? 'settings-2' : 'settings-3' };
+    const hash = navigationHash(next);
+    if (hash !== window.location.hash) {
+      window.history[fromVariant && toVariant ? 'replaceState' : 'pushState']({
+        iqMentorNavigation: next,
+        iqMentorSettingsEntry: !!toVariant && (!fromVariant || !!window.history.state?.iqMentorSettingsEntry),
+      }, '', hash);
+    }
+    setNavigation(next);
+  };
+  const closeSettings = () => {
+    if (window.history.state?.iqMentorSettingsEntry) { window.history.back(); return; }
+    const next = closeSettingsVariant(navigation);
+    window.history.replaceState({ iqMentorNavigation: next }, '', navigationHash(next));
+    setNavigation(next);
   };
   useEffect(() => { if (!FEEDBACK_PAGE_ENABLED && page === 'feedback') setPage('home'); }, [page]);
-  useEffect(() => { if (window.location.hash !== navigationHash(navigation)) window.location.hash = navigationHash(navigation); }, [navigation]);
+  useEffect(() => {
+    window.history.replaceState({ ...window.history.state, iqMentorNavigation: navigation }, '', navigationHash(navigation));
+  }, []);
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       const route = hash.replace(/^#/, '');
-      if (['settings', 'employees'].includes(route)) setKnowledgeOpen(false);
+      if (['settings', 'employees', 'settings-2', 'settings-3'].includes(route)) setKnowledgeOpen(false);
       if (route === 'employees') setSettingSection(route);
-      setNavigation((current) => navigationHash(current) === hash ? current : navigatePrototype(current, hash));
+      if (['settings-2', 'settings-3'].includes(route) && !previousSettingsVariant.current) {
+        settingsOpener.current = { element: document.activeElement, variant: route };
+      }
+      const saved = window.history.state?.iqMentorNavigation;
+      setNavigation((current) => saved && navigationHash(saved) === hash ? saved : navigationHash(current) === hash ? current : navigatePrototype(current, hash));
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
+  useEffect(() => {
+    const exitedVariant = previousSettingsVariant.current;
+    previousSettingsVariant.current = activeSettingsVariant;
+    if (!exitedVariant || activeSettingsVariant) return undefined;
+    // Wait for remounted page controls and the modal's own cleanup, including browser Back.
+    const frame = window.requestAnimationFrame(() => {
+      const visible = (element) => element?.isConnected && element !== document.body && !element.disabled
+        && !element.closest('[inert], [aria-hidden="true"]') && element.getClientRects().length
+        && getComputedStyle(element).visibility !== 'hidden';
+      if (Array.from(document.querySelectorAll('dialog[open], [role="dialog"][aria-modal="true"]')).some(visible)) return;
+      const opener = settingsOpener.current;
+      const label = (opener?.variant || exitedVariant) === 'settings-2' ? 'Настройки 2' : 'Настройки 3';
+      const preferredScope = opener?.element?.closest('.sidebar') ? '.sidebar' : '.settings-variant-links';
+      const controls = [opener?.element,
+        ...document.querySelectorAll(`${preferredScope} [aria-label="${label}"]`),
+        ...document.querySelectorAll(`.settings-variant-links [aria-label="${label}"], .sidebar [aria-label="${label}"]`),
+      ];
+      const target = controls.find(visible) || Array.from(document.querySelectorAll('main h1, main')).find(visible);
+      if (target?.matches('h1, main') && !target.hasAttribute('tabindex')) target.tabIndex = -1;
+      target?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeSettingsVariant]);
   useEffect(() => { localStorage.setItem("iq-mentor-settings", JSON.stringify(settings)); }, [settings]);
   useEffect(() => { localStorage.setItem(NAV_ORDER_STORAGE_KEY, JSON.stringify(navOrder)); }, [navOrder]);
   useEffect(() => { localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(billing)); }, [billing]);
@@ -381,14 +435,17 @@ export function App() {
     notify("Порядок разделов сохранен");
   };
 
-  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && <DailyBonusWelcome variant={dailyBonusVariant} onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage(dailyBonusVariant === 'exhausted' ? 'account-tariff' : 'home'); }} />;
+  const workspaceProps = { active: settingSection, setActive: setSettingSection, settings, update, notify, renderSection: (id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} /> };
+  const settingsModal = navigation.settingsModal && <SettingsModal {...workspaceProps} close={closeSettings} toast={toast} />;
+  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && !navigation.settingsModal && page !== 'settings-3' && <DailyBonusWelcome variant={dailyBonusVariant} onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage(dailyBonusVariant === 'exhausted' ? 'account-tariff' : 'home'); }} />;
   const bonusNotice = {
     trialActive: DAILY_BONUS_PROMOTION_ENABLED && dailyBonusVariant !== 'exhausted',
     onShowWelcome: () => { setKnowledgeOpen(false); setDailyBonusWelcomeOpen(true); },
-    open: dailyBonusNoticeOpen && dailyBonusVariant !== 'exhausted' && !dailyBonusWelcomeOpen && !knowledgeOpen && page !== 'settings',
+    open: dailyBonusNoticeOpen && dailyBonusVariant !== 'exhausted' && !dailyBonusWelcomeOpen && !knowledgeOpen && !navigation.settingsModal && !['settings', 'settings-3'].includes(page),
     onClose: () => setDailyBonusNoticeOpen(false),
     onStart: () => { setDailyBonusNoticeOpen(false); setPage('home'); },
   };
+  if (page === 'settings-3') return <SettingsStandalone {...workspaceProps} close={closeSettings} returnLabel={PAGE_LABELS[navigation.returnPage] || 'Главная'} toast={toast} />;
   if (page === "account" || page === "account-tariff" || page === "account-survey") return <>
     <AccountPortal
       page={page}
@@ -403,10 +460,11 @@ export function App() {
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
     {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
     {welcomeModal}
+    {settingsModal}
   </>;
 
   return <div className={collapsed && !sidebarPreviewOpen ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+    <Sidebar page={navigation.settingsModal ? 'settings-2' : page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
@@ -415,14 +473,15 @@ export function App() {
         {page === "templates" && <TemplatesPage settings={settings} update={update} notify={notify} />}
         {page === "documents" && <DocumentsWorkspace notify={notify} />}
         {page === "trainer" && <TrainerPage />}
-        {page === "settings" && <SettingsWorkspace active={settingSection} setActive={setSettingSection} settings={settings} update={update} notify={notify} renderSection={(id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} />} />}
+        {page === "settings" && (navigation.settingsModal ? <div className="settings-background-title">Настройки 1</div> : <SettingsWorkspace {...workspaceProps} title="Настройки 1" headerActions={<div className="settings-variant-links" aria-label="Другие варианты настроек"><button aria-label="Настройки 2" onClick={() => setPage('settings-2')}>Настройки 2 · в окне</button><button aria-label="Настройки 3" onClick={() => setPage('settings-3')}>Настройки 3 · отдельная страница</button></div>} />)}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
         {FEEDBACK_PAGE_ENABLED && page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
       </main>
     </div>
-    {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
+    {toast && !navigation.settingsModal && <div className="toast"><IconCheck size={18} />{toast}</div>}
     {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
     {welcomeModal}
+    {settingsModal}
   </div>;
 }
 
@@ -597,12 +656,14 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
       })}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
-      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
+      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки 1" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
     </nav>
     <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов. Escape отменяет перетаскивание.</span>
     <span className="nav-reorder-sr-only" role="status" aria-live="polite">{reorderAnnouncement}</span>
     <div className="sidebar-bottom">
-      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} aria-label="Настройки" onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettingsFilled size={18} /><span>Настройки</span></button>
+      <button className={page === "settings" ? "nav-item muted-item active settings-variant-link" : "nav-item muted-item settings-variant-link"} aria-label="Настройки 1" onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettingsFilled size={18} /><span>Настройки 1</span><small>1</small></button>
+      <button className={`nav-item muted-item settings-variant-link${page === 'settings-2' ? ' active' : ''}`} aria-label="Настройки 2" title="Настройки 2 — в окне" onClick={() => setPage('settings-2')}><IconSettingsFilled size={18} /><span>Настройки 2</span><small>2</small></button>
+      <button className="nav-item muted-item settings-variant-link" aria-label="Настройки 3" title="Настройки 3 — отдельная страница" onClick={() => setPage('settings-3')}><IconSettingsFilled size={18} /><span>Настройки 3</span><small>3</small></button>
       {FEEDBACK_PAGE_ENABLED && <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>}
       <button className="nav-item sidebar-help-item" onClick={openKnowledge} aria-haspopup="dialog" aria-label="Помощь"><IconLifebuoyFilled size={18} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>

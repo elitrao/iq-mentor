@@ -79,6 +79,6 @@ export function EmployeeRoleBadge({ value, employeeName, onChange }) {
         </button>)}
       </div>
       {error && <p className="employee-role-error" role="alert">{error}</p>}
-    </div>, document.body)}
+    </div>, trigger.current?.closest('dialog[open]') || document.body)}
   </>;
 }

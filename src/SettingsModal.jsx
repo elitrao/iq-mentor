@@ -1,21 +1,25 @@
-import { useEffect, useRef } from 'react';
-import { IconCheck, IconX } from '@tabler/icons-react';
+import { useEffect, useRef, useState } from 'react';
+import { IconBrandDiscord, IconCheck, IconX } from '@tabler/icons-react';
 import { SettingsWorkspace } from './SettingsWorkspace.jsx';
 import './settings-modal.css';
 
 export function SettingsModal({ close, toast, ...workspaceProps }) {
   const ref = useRef(null);
   const outsideStart = useRef(false);
+  const [referenceOpen, setReferenceOpen] = useState(false);
   useEffect(() => {
     const dialog = ref.current;
     const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
     return () => {
       dialog.close();
       document.body.style.overflow = previousOverflow;
-      if (previousFocus?.isConnected) previousFocus.focus();
+      const focusTarget = previousFocus?.isConnected && previousFocus !== document.body
+        ? previousFocus
+        : document.querySelector('.sidebar [aria-label="Настройки 2"]');
+      focusTarget?.focus({ preventScroll: true });
     };
   }, []);
 
@@ -29,11 +33,12 @@ export function SettingsModal({ close, toast, ...workspaceProps }) {
     if (event.key !== 'Tab' || event.target.closest('dialog') !== dialog) return;
     const scope = dialog.querySelector('.modal-backdrop .modal-card') || dialog;
     const focusable = Array.from(scope.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
-      .filter((element) => !element.hidden && element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden');
+      .filter((element) => !element.hidden && !element.closest('[inert], [aria-hidden="true"]') && element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden');
     const first = focusable[0];
     const last = focusable.at(-1);
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    if (!first) { event.preventDefault(); return; }
+    if (event.shiftKey && (document.activeElement === first || !scope.contains(document.activeElement))) { event.preventDefault(); last?.focus(); }
+    else if (!event.shiftKey && (document.activeElement === last || !scope.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
   };
   return <dialog ref={ref} className="settings-modal" aria-labelledby="settings-modal-title"
     onKeyDown={containKeyboardFocus}
@@ -43,10 +48,29 @@ export function SettingsModal({ close, toast, ...workspaceProps }) {
       // Preserve an existing custom child modal instead of dismissing all Settings.
       if (!ref.current.querySelector('.modal-backdrop')) close();
     }}
-    onPointerDown={(event) => { outsideStart.current = isOutside(event); }}
+    onPointerDown={(event) => { outsideStart.current = event.button === 0 && isOutside(event); }}
+    onPointerCancel={() => { outsideStart.current = false; }}
     onClick={(event) => { if (outsideStart.current && isOutside(event)) close(); outsideStart.current = false; }}>
-    <button type="button" className="settings-modal-close" aria-label="Закрыть настройки" onClick={close}><IconX size={20} stroke={1.7} /></button>
-    <SettingsWorkspace {...workspaceProps} modal />
+    <button type="button" className="settings-modal-close" aria-label="Закрыть настройки 2" onClick={close}><IconX size={20} stroke={1.7} /></button>
+    <SettingsWorkspace {...workspaceProps} modal title="Настройки 2" sidebarActions={<button type="button" className="settings-reference-trigger" aria-haspopup="dialog" onClick={() => setReferenceOpen(true)}><IconBrandDiscord size={17} stroke={1.7} aria-hidden="true" /><span>Референс Discord</span></button>} />
     {toast && <div className="settings-modal-toast" role="status"><IconCheck size={16} />{toast}</div>}
+    {referenceOpen && <DiscordReferenceDialog close={() => setReferenceOpen(false)} />}
+  </dialog>;
+}
+
+function DiscordReferenceDialog({ close }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    const previousFocus = document.activeElement;
+    dialog.showModal();
+    return () => {
+      dialog.close();
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, []);
+  return <dialog ref={ref} className="settings-reference-dialog" aria-labelledby="settings-reference-title" onCancel={(event) => { event.preventDefault(); event.stopPropagation(); close(); }}>
+    <header><h2 id="settings-reference-title"><IconBrandDiscord size={20} stroke={1.7} aria-hidden="true" />Референс Discord</h2><button type="button" aria-label="Закрыть референс Discord" onClick={close}><IconX size={20} stroke={1.7} /></button></header>
+    <img src="/references/discord-settings.gif" width="1920" height="911" alt="Анимация интерфейса настроек Discord — референс для обсуждения" />
   </dialog>;
 }

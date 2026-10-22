@@ -86,7 +86,7 @@ function SettingsNav({ active, setActive }) {
         const ItemIcon = ICONS[item.icon];
         const containsActive = item.children?.some((child) => child.id === active);
         return <div key={item.id}>
-          <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id ? 'page' : undefined} onClick={() => setActive(item.id)}>
+          <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id || containsActive ? 'page' : undefined} onClick={() => setActive(item.id)}>
             {ItemIcon && <ItemIcon size={16} stroke={1.6} aria-hidden="true" />}
             <span className="settings-item-label" title={item.label}>{item.label}</span>
           </button>
@@ -97,7 +97,7 @@ function SettingsNav({ active, setActive }) {
   </nav>;
 }
 
-export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false }) {
+export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false, title = 'Настройки', headerActions, sidebarActions }) {
   const { group, item, parent } = resolveSettingsSection(active);
   const reportParent = item.children ? item : parent;
   const contentScrollRef = useRef(null);
@@ -107,9 +107,9 @@ export function SettingsWorkspace({ active, setActive, settings, update, notify,
   const ActiveIcon = ICONS[item.icon || parent?.icon];
   const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
   return <section className={`settings-structure-workspace${modal ? '' : ' settings-page-workspace'}`}>
-    {!modal && <h1>Настройки</h1>}
+    {!modal && <><h1>{title}</h1>{headerActions}</>}
     <div className="settings-structure-layout">
-      {modal ? <aside className="settings-modal-sidebar"><h1 id="settings-modal-title">Настройки</h1><SettingsNav active={item.id} setActive={setActive} /></aside> : <SettingsNav active={item.id} setActive={setActive} />}
+      {modal ? <aside className="settings-modal-sidebar"><h1 id="settings-modal-title">{title}</h1>{sidebarActions}<SettingsNav active={item.id} setActive={setActive} /></aside> : <SettingsNav active={item.id} setActive={setActive} />}
       <div ref={contentScrollRef} className={modal ? 'settings-modal-content-scroll' : undefined}>
       <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}`}>
         {!reportParent && !['employees', 'integrations', 'notifications', 'stereo'].includes(item.id) && header}

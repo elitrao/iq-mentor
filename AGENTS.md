@@ -10,6 +10,10 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- Keep three settings prototypes for comparison: «Настройки 1» is the original embedded page (`#settings`); «Настройки 2» is a large adaptive modal (`#settings-2`); «Настройки 3» is a dedicated settings space (`#settings-3`) with one navigation rail and a return-to-service action. Reuse settings content and persisted data in all variants. Variant 3 takes the structural idea from Google Account while retaining IQ Mentor's light theme, Inter and module accents.
+- In Settings 3, keep a compact official Google logo/reference link to `https://myaccount.google.com/`, opening a new tab. In Settings 2, keep a compact «Референс Discord» action that opens the supplied GIF for comparison; do not copy its account information or dark theme into IQ Mentor itself.
+- Reference actions must stand out: Discord uses a filled #5865F2 button with white label/icon; Google uses a #E3EEFF blue surface, #9EC3FF edge and #185ABC label, with the original multicolor wordmark.
+
 - Sidebar reorder must not start from the section label/icon. Use a separate six-dot grip visible on row hover or keyboard focus, only in the expanded desktop mouse layout. Begin dragging after more than 8px of vertical movement; ordinary clicks and small pointer movements preserve the order. Keep the insertion outline, smooth row motion and saved order; Escape, pointer cancellation, window blur/resize or release outside the navigation cancel the move. The grip's tooltip explains dragging; focused grips also support ArrowUp/ArrowDown. This supersedes whole-row dragging and its whole-row hold tooltip.
 
 - October 22 local directory cleanup supersedes the populated demo roster for localhost:4170. On each browser's first load of this revision, remove all departments and demo employees, keep only Samoylenko Daniil without a department, and preserve his existing role. Apply once with a backup; later-created departments and unrelated settings must survive reloads. Never apply this cleanup to hosted deployments.
