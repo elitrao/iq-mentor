@@ -31,7 +31,7 @@ function SettingsGroupProductIcon({ product, src }) {
   </svg>;
 }
 
-function SettingsGroupIcon({ groupId }) {
+export function SettingsGroupIcon({ groupId }) {
   if (groupId === 'general') return <svg className="settings-group-general-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
     <path d="M2 3.5h12M2 8h12M2 12.5h12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <rect x="4" y="1.5" width="3" height="4" rx="1" fill="currentColor" />
@@ -97,24 +97,29 @@ function SettingsNav({ active, setActive }) {
   </nav>;
 }
 
-export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false, title = 'Настройки', headerActions, sidebarActions }) {
+export function SettingsSectionContent({ active, setActive, renderSection }) {
   const { group, item, parent } = resolveSettingsSection(active);
   const reportParent = item.children ? item : parent;
+  const ActiveIcon = ICONS[item.icon || parent?.icon];
+  const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
+  return <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}`}>
+    {!reportParent && !['employees', 'integrations', 'notifications', 'stereo'].includes(item.id) && header}
+    <div key={reportParent?.id || item.id} className="settings-section-body">{reportParent ? <ReportOverview group={group} item={reportParent} active={item.id} onSelect={setActive} renderSection={renderSection} /> : renderSection(item.id)}</div>
+  </section>;
+}
+
+export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false, title = 'Настройки', headerActions, sidebarActions }) {
+  const { item } = resolveSettingsSection(active);
   const contentScrollRef = useRef(null);
   useLayoutEffect(() => {
     if (modal && contentScrollRef.current) contentScrollRef.current.scrollTop = 0;
   }, [item.id, modal]);
-  const ActiveIcon = ICONS[item.icon || parent?.icon];
-  const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
   return <section className={`settings-structure-workspace${modal ? '' : ' settings-page-workspace'}`}>
     {!modal && <><h1>{title}</h1>{headerActions}</>}
     <div className="settings-structure-layout">
       {modal ? <aside className="settings-modal-sidebar"><h1 id="settings-modal-title">{title}</h1>{sidebarActions}<SettingsNav active={item.id} setActive={setActive} /></aside> : <SettingsNav active={item.id} setActive={setActive} />}
       <div ref={contentScrollRef} className={modal ? 'settings-modal-content-scroll' : undefined}>
-      <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}`}>
-        {!reportParent && !['employees', 'integrations', 'notifications', 'stereo'].includes(item.id) && header}
-        <div key={reportParent?.id || item.id} className="settings-section-body">{reportParent ? <ReportOverview group={group} item={reportParent} active={item.id} onSelect={setActive} renderSection={renderSection} /> : renderSection(item.id)}</div>
-      </section>
+        <SettingsSectionContent active={active} setActive={setActive} renderSection={renderSection} />
       </div>
     </div>
   </section>;

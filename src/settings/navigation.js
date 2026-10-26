@@ -1,28 +1,27 @@
-const SETTINGS_ROUTES = new Set(['settings', 'employees']);
+const SETTINGS_ROUTES = new Set(['settings', 'employees', 'settings-2', 'settings-3']);
 const routeName = (route) => route.replace(/^#/, '') || 'home';
-const regularPage = (route) => SETTINGS_ROUTES.has(route) ? 'settings' : route;
 
 function backgroundPage(current) {
-  const page = regularPage(current.page === 'settings-3' ? current.returnPage : current.page);
-  return !page || page === 'settings-2' || page === 'settings-3' ? 'home' : page;
+  const page = current.page === 'settings-3' ? current.returnPage : current.page;
+  return !page || SETTINGS_ROUTES.has(page) || page === 'feedback' ? 'home' : page;
 }
 
-export function initialNavigation(hash) {
-  return navigatePrototype({ page: 'home' }, hash);
+export function initialNavigation(hash, saved) {
+  return navigatePrototype(saved || { page: 'home' }, hash);
 }
 
 export function navigatePrototype(current, destination) {
   const route = routeName(destination);
-  if (route === 'settings-2') return { page: backgroundPage(current), settingsModal: true };
-  if (route === 'settings-3') return { page: route, returnPage: backgroundPage(current) };
-  return { page: regularPage(route) };
+  if (SETTINGS_ROUTES.has(route)) return { page: backgroundPage(current), settingsModal: true };
+  if (route === 'feedback') return { page: backgroundPage(current), feedbackModal: true };
+  return { page: route };
 }
 
-export function closeSettingsVariant(current) {
-  if (current.settingsModal || current.page === 'settings-3') return { page: backgroundPage(current) };
+export function closeNavigationModal(current) {
+  if (current.settingsModal || current.feedbackModal || SETTINGS_ROUTES.has(current.page) || current.page === 'feedback') return { page: backgroundPage(current) };
   return current;
 }
 
 export function navigationHash(navigation) {
-  return navigation.settingsModal ? '#settings-2' : `#${navigation.page}`;
+  return navigation.settingsModal ? '#settings' : navigation.feedbackModal ? '#feedback' : `#${navigation.page}`;
 }

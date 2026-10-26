@@ -1,8 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sidebarDragLayout } from '../src/sidebar-reorder.js';
+import { sidebarDragLayout, sidebarGroup, groupSidebarOrder, moveSidebarItem } from '../src/sidebar-reorder.js';
 
 const gap = 2;
+test('legacy order is grouped without losing the order within either group', () => {
+  const saved = Object.freeze(['documents', 'trainer', 'templates', 'analytics', 'home']);
+  assert.deepEqual(groupSidebarOrder(saved), ['trainer', 'analytics', 'home', 'documents', 'templates']);
+  assert.equal(sidebarGroup('templates'), 'materials');
+  assert.equal(sidebarGroup('home'), 'primary');
+});
+
+test('keyboard and pointer target indexes move only within their own group', () => {
+  const order = Object.freeze(['home', 'analytics', 'trainer', 'templates', 'documents']);
+  assert.deepEqual(moveSidebarItem(order, 'documents', 0), ['home', 'analytics', 'trainer', 'documents', 'templates']);
+  assert.deepEqual(moveSidebarItem(order, 'home', 2), ['analytics', 'trainer', 'home', 'templates', 'documents']);
+  for (const target of [-1, 2, 3, 4, undefined, 0.5]) assert.equal(moveSidebarItem(order, 'templates', target), order);
+  assert.equal(moveSidebarItem(order, 'home', 3), order);
+  assert.equal(moveSidebarItem(order, 'unknown', 0), order);
+});
+
+test('material group keeps its heading gap outside the animated rows', () => {
+  const rows = [
+    { top: 225, height: 46, marginTop: 0, marginBottom: 0 },
+    { top: 273, height: 46, marginTop: 0, marginBottom: 0 },
+  ];
+  assert.deepEqual(sidebarDragLayout(rows, 1, 0, gap), { offsets: [48, -48], slotTop: 225 });
+});
 const compactRows = Object.freeze([25, 73, 121, 169, 217].map((top) => Object.freeze({ top, height: 46, marginTop: 0, marginBottom: 0 })));
 const expandedRows = Object.freeze([
   { top: 25, height: 46, marginTop: 0, marginBottom: 0 },

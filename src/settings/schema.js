@@ -22,6 +22,15 @@ export const SETTINGS_GROUPS = [
   ] },
 ];
 
+// A flat navigation alternative; report types keep their existing section IDs.
+export const SETTINGS_PILL_SECTIONS = SETTINGS_GROUPS.flatMap((group) => group.items.map((item) => ({
+  id: item.id,
+  icon: item.icon,
+  group: group.id,
+  label: item.id === 'analyst-reports' ? 'Отчёты · Аналитик'
+    : item.id === 'trainer-reports' ? 'Отчёты · Тренер' : item.label,
+})));
+
 export function resolveSettingsSection(id) {
   if (id === 'scoring') id = 'analyst-reports-calls';
   for (const group of SETTINGS_GROUPS) {

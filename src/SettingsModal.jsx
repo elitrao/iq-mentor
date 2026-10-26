@@ -3,7 +3,7 @@ import { IconBrandDiscord, IconCheck, IconX } from '@tabler/icons-react';
 import { SettingsWorkspace } from './SettingsWorkspace.jsx';
 import './settings-modal.css';
 
-export function SettingsModal({ close, toast, ...workspaceProps }) {
+export function SettingsModal({ close, toast, openPills, ...workspaceProps }) {
   const ref = useRef(null);
   const outsideStart = useRef(false);
   const [referenceOpen, setReferenceOpen] = useState(false);
@@ -18,7 +18,7 @@ export function SettingsModal({ close, toast, ...workspaceProps }) {
       document.body.style.overflow = previousOverflow;
       const focusTarget = previousFocus?.isConnected && previousFocus !== document.body
         ? previousFocus
-        : document.querySelector('.sidebar [aria-label="Настройки 2"]');
+        : document.querySelector('.sidebar [aria-label="Настройки"]');
       focusTarget?.focus({ preventScroll: true });
     };
   }, []);
@@ -51,8 +51,11 @@ export function SettingsModal({ close, toast, ...workspaceProps }) {
     onPointerDown={(event) => { outsideStart.current = event.button === 0 && isOutside(event); }}
     onPointerCancel={() => { outsideStart.current = false; }}
     onClick={(event) => { if (outsideStart.current && isOutside(event)) close(); outsideStart.current = false; }}>
-    <button type="button" className="settings-modal-close" aria-label="Закрыть настройки 2" onClick={close}><IconX size={20} stroke={1.7} /></button>
-    <SettingsWorkspace {...workspaceProps} modal title="Настройки 2" sidebarActions={<button type="button" className="settings-reference-trigger" aria-haspopup="dialog" onClick={() => setReferenceOpen(true)}><IconBrandDiscord size={17} stroke={1.7} aria-hidden="true" /><span>Референс Discord</span></button>} />
+    <button type="button" className="settings-modal-close" aria-label="Закрыть настройки" onClick={close}><IconX size={20} stroke={1.7} /></button>
+    <SettingsWorkspace {...workspaceProps} modal title="Настройки" sidebarActions={<>
+      <button type="button" className="settings-reference-trigger" aria-haspopup="dialog" onClick={() => setReferenceOpen(true)}><IconBrandDiscord size={17} stroke={1.7} aria-hidden="true" /><span>Референс Discord</span></button>
+      {openPills && <button type="button" className="settings-pills-alternative" onClick={openPills}>Настройки 4 · кнопки</button>}
+    </>} />
     {toast && <div className="settings-modal-toast" role="status"><IconCheck size={16} />{toast}</div>}
     {referenceOpen && <DiscordReferenceDialog close={() => setReferenceOpen(false)} />}
   </dialog>;

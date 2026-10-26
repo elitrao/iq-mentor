@@ -322,6 +322,43 @@
 .kb-chat-form button { padding: 5px; border: 0; background: transparent; color: #ef773e; line-height: 0; }
 .kb-chat-form button:disabled { color: #c9cdcf; cursor: default; }
 
+.kb-improvement {
+  width: min(100%, 720px);
+  margin: 0 auto;
+}
+.kb-improvement .feedback-page {
+  min-height: 0;
+  padding: 4px 10px 24px;
+  background: transparent;
+}
+.kb-improvement .feedback-page-inner {
+  width: 100%;
+  margin: 0 auto;
+}
+.kb-improvement .feedback-heading {
+  margin-bottom: 22px;
+  text-align: left;
+}
+.kb-improvement .feedback-heading h1 {
+  font-size: 26px;
+  line-height: 1.2;
+}
+.kb-improvement .feedback-heading p { margin-top: 7px; }
+.kb-improvement .feedback-form,
+.kb-improvement .feedback-field-pair { gap: 14px; }
+.kb-improvement .feedback-field-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.kb-improvement .feedback-field { gap: 6px; }
+.kb-improvement .feedback-field input,
+.kb-improvement .feedback-field select,
+.kb-improvement .feedback-select-trigger { height: 42px; }
+.kb-improvement .feedback-field textarea { min-height: 100px; }
+.kb-improvement .feedback-dropzone { min-height: 76px; }
+.kb-improvement .feedback-submit { min-height: 44px; }
+.kb-improvement .feedback-page-success {
+  min-height: 420px;
+  padding: 48px 16px;
+}
+
 .kb-ai-chat {
   position: relative;
   min-height: calc(100% + 32px);
@@ -447,4 +484,7 @@
   .kb-ai-chat { margin: -12px -11px -18px; padding: 48px 14px 14px; }
   .kb-ai-chat-heading h3 { font-size: 21px; line-height: 27px; }
   .kb-ai-suggestions { grid-template-columns: 1fr; }
+  .kb-improvement .feedback-page { padding: 2px 0 22px; }
+  .kb-improvement .feedback-heading h1 { font-size: 23px; }
+  .kb-improvement .feedback-field-pair { grid-template-columns: 1fr; }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { IconArrowLeft, IconArrowUpRight, IconBook2, IconBriefcase, IconChevronRight, IconCopy, IconMessageCircle, IconPlayerPlay, IconRefresh, IconSearch, IconSend, IconSparkles, IconThumbDown, IconThumbUp, IconX } from "@tabler/icons-react";
+import { IconArrowLeft, IconArrowUpRight, IconBook2, IconBriefcase, IconBulbFilled, IconChevronRight, IconCopy, IconMessageCircle, IconPlayerPlay, IconRefresh, IconSearch, IconSend, IconSparkles, IconThumbDown, IconThumbUp, IconX } from "@tabler/icons-react";
+import { FeedbackPage } from "./FeedbackPage.jsx";
 import "./knowledge-base.css";
 
 const NAV_ITEMS = [
@@ -9,6 +10,7 @@ const NAV_ITEMS = [
   { label: "База знаний", icon: IconBook2, external: true },
   { label: "Спросить у ИИ", icon: IconSparkles, separated: true },
   { label: "Написать нам", icon: IconMessageCircle },
+  { label: "Предложить идею", icon: IconBulbFilled },
 ];
 const CASES = [
   { id: "hiring", title: "Проверка кандидатов через AI Тренер", teaser: "Как подготовить новичков к общению с клиентами...", image: "case-cover-hiring-v2", description: "Ошибочный найм приводит к дополнительным затратам. Тренировочный диалог помогает увидеть навыки кандидата на практике.", steps: ["Подготовьте одинаковый сценарий для кандидатов.", "Предложите каждому пройти тренировку.", "Сравните результаты по единым критериям."] },
@@ -98,7 +100,7 @@ function renderStreamingAiText(text) {
   >{word}</span>);
 }
 
-export function KnowledgeBaseModal({ close, notify }) {
+export function KnowledgeBaseModal({ close, notify, customer, initialSection = "Кейсы" }) {
   const dialogRef = useRef(null);
   const contentRef = useRef(null);
   const conversationRef = useRef(null);
@@ -106,7 +108,7 @@ export function KnowledgeBaseModal({ close, notify }) {
   const thinkingTimer = useRef(null);
   const typingTimer = useRef(null);
   const feedbackTimer = useRef(null);
-  const [section, setSection] = useState("Кейсы");
+  const [section, setSection] = useState(initialSection);
   const [article, setArticle] = useState(null);
   const [search, setSearch] = useState("");
   const [question, setQuestion] = useState("");
@@ -259,6 +261,8 @@ export function KnowledgeBaseModal({ close, notify }) {
           </> : <div className="kb-ai-conversation" ref={conversationRef} aria-live="polite">{messages.map((message, index) => message.role === "user" ? <div className="kb-ai-message user" key={index}>{message.text}</div> : <div className="kb-ai-message assistant" key={index}>{message.thinking ? <span className="kb-ai-thinking"><i /><i /><i /></span> : <><p>{isAnswering && index === messages.length - 1 ? renderStreamingAiText(message.text) : renderAiText(message.text)}</p>{!isAnswering && <div className="kb-ai-response-actions"><button type="button" className={ratings[index] === "up" ? "selected" : ""} aria-label="Ответ полезен" aria-pressed={ratings[index] === "up"} onClick={() => rateAnswer(index, "up")}><IconThumbUp size={14} /></button><button type="button" className={ratings[index] === "down" ? "selected" : ""} aria-label="Ответ не помог" aria-pressed={ratings[index] === "down"} onClick={() => rateAnswer(index, "down")}><IconThumbDown size={14} /></button><button type="button" aria-label="Копировать ответ"><IconCopy size={14} /></button><button type="button" aria-label="Повторить ответ"><IconRefresh size={14} /></button></div>}</>}</div>)}</div>}
           <form className="kb-ai-composer" onSubmit={askQuestion}><textarea ref={composerRef} rows="1" aria-label="Сообщение чат-боту" placeholder="Сообщение чат-боту" value={question} onChange={updateQuestion} /><button type="submit" disabled={!question.trim() || isAnswering} aria-label="Отправить вопрос"><IconSend size={15} /></button></form>
           {feedbackVisible && <div className="kb-ai-feedback-toast" role="status"><img src="/knowledge/feedback-bot.png" alt="" /><strong>Ответ оценён, спасибо!</strong></div>}
+        </section> : section === "Предложить идею" ? <section className="kb-improvement">
+          <FeedbackPage customer={customer} notify={notify} title="Предложить идею" description="Расскажите, что можно сделать удобнее — идея попадёт к нам на рассмотрение." />
         </section> : section === "Написать нам" ? <section className="kb-chat">
           <h3>Написать нам</h3><p>Опишите вопрос — команда поддержки поможет разобраться.</p>
           <div className="kb-chat-messages" aria-live="polite"><p>Здесь можно написать команде поддержки. В прототипе сообщение никуда не отправляется.</p></div>

@@ -26,36 +26,33 @@ import headerAccountIcon from "./assets/sidebar/account-door-gray.png";
 import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
-import { SettingsWorkspace } from "./SettingsWorkspace.jsx";
 import { SettingsModal } from "./SettingsModal.jsx";
-import { SettingsStandalone } from "./SettingsStandalone.jsx";
+import { SettingsPills } from "./SettingsPills.jsx";
 import { EmployeesSettings } from "./EmployeesSettings.jsx";
-import { sidebarDragLayout } from "./sidebar-reorder.js";
+import { sidebarDragLayout, sidebarGroup, groupSidebarOrder, moveSidebarItem } from "./sidebar-reorder.js";
 import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
 import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
 import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
 import { DocumentsExperience } from "./DocumentsExperience.jsx";
-import { initialNavigation, navigatePrototype, navigationHash, closeSettingsVariant } from "./settings/navigation.js";
+import { initialNavigation, navigatePrototype, navigationHash, closeNavigationModal } from "./settings/navigation.js";
 import { getReportPeriods, setReportPeriod, resolveSettingsSection } from "./settings/schema.js";
 import { NOTIFICATION_EVENTS, notificationPreference } from "./settings/notifications.js";
 import { StereoFormatSelect } from "./StereoFormatSelect.jsx";
 import { getStereoFormat, setStereoFormat } from "./settings/stereo.js";
 import { CallsReportPage } from "./CallsReportPage.jsx";
-import { FeedbackPage } from "./FeedbackPage.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowLeft, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
   IconChevronDown, IconChevronRight, IconCirclePlus, IconCopy, IconCrown, IconFile,
   IconDotsVertical, IconFileText, IconFolder, IconHeadphones, IconHome, IconInfoCircle, IconKey, IconLock,
-  IconBulb, IconChartDonut, IconGift, IconGripVertical, IconLayoutGridAdd, IconLifebuoyFilled, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettingsFilled,
+  IconChartDonut, IconGift, IconGripVertical, IconLayoutGridAdd, IconLifebuoyFilled, IconMenu2, IconPlus, IconPlugConnected, IconReportAnalytics, IconSearch, IconSettingsFilled,
   IconPhoneCall, IconShieldCheck, IconSchool, IconSparkles, IconStar, IconSwitchHorizontal, IconTargetArrow, IconTemplate, IconUpload,
   IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки 1", feedback: "Предложить идею" };
+const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", 'settings-4': "Настройки 4", feedback: "Предложить идею" };
 // Enable both daily bonus banners for prototype review.
 const DAILY_BONUS_PROMOTION_ENABLED = true;
-const FEEDBACK_PAGE_ENABLED = false;
 const NAV_ITEMS = [
   { id: "home", label: "Главная", image: sidebarHomeIcon },
   { id: "analytics", label: "Аналитик", image: sidebarAnalystIcon, compactImage: true, arrow: true },
@@ -267,7 +264,7 @@ function loadNavOrder() {
   try {
     const saved = JSON.parse(localStorage.getItem(NAV_ORDER_STORAGE_KEY) || "[]");
     const valid = Array.isArray(saved) ? saved.filter((id) => DEFAULT_NAV_ORDER.includes(id)) : [];
-    return [...new Set([...valid, ...DEFAULT_NAV_ORDER])];
+    return groupSidebarOrder([...new Set([...valid, ...DEFAULT_NAV_ORDER])]);
   } catch { return DEFAULT_NAV_ORDER; }
 }
 
@@ -311,12 +308,12 @@ function loadDashboardLayout() {
 export function App() {
   const [navigation, setNavigation] = useState(() => {
     const saved = window.history.state?.iqMentorNavigation;
-    return saved && navigationHash(saved) === window.location.hash ? saved : initialNavigation(window.location.hash);
+    return initialNavigation(window.location.hash, saved);
   });
   const { page } = navigation;
-  const activeSettingsVariant = navigation.settingsModal ? 'settings-2' : page === 'settings-3' ? 'settings-3' : null;
-  const previousSettingsVariant = useRef(activeSettingsVariant);
-  const settingsOpener = useRef(null);
+  const activeNavigationModal = navigation.settingsModal ? 'settings' : navigation.feedbackModal ? 'feedback' : null;
+  const previousNavigationModal = useRef(activeNavigationModal);
+  const modalOpener = useRef(null);
   const [collapsed, setCollapsed] = useState(false);
   const [sidebarPreviewOpen, setSidebarPreviewOpen] = useState(false);
   const [settings, setSettings] = useState(loadSettings);
@@ -338,30 +335,31 @@ export function App() {
   };
 
   const setPage = (destination) => {
-    if (['settings', 'employees', 'settings-2', 'settings-3'].includes(destination)) {
+    if (['settings', 'employees', 'settings-2', 'settings-3', 'settings-4', 'feedback'].includes(destination)) {
       setKnowledgeOpen(false);
       if (destination === 'employees') setSettingSection(destination);
     }
     const next = navigatePrototype(navigation, destination);
-    const fromVariant = navigation.settingsModal || page === 'settings-3';
-    const toVariant = next.settingsModal || next.page === 'settings-3';
-    if (toVariant && !fromVariant) settingsOpener.current = { element: document.activeElement, variant: next.settingsModal ? 'settings-2' : 'settings-3' };
+    const fromVariant = activeNavigationModal;
+    const toVariant = next.settingsModal || next.feedbackModal;
+    if (toVariant && !fromVariant) modalOpener.current = { element: document.activeElement };
     const hash = navigationHash(next);
     if (hash !== window.location.hash) {
       window.history[fromVariant && toVariant ? 'replaceState' : 'pushState']({
         iqMentorNavigation: next,
-        iqMentorSettingsEntry: !!toVariant && (!fromVariant || !!window.history.state?.iqMentorSettingsEntry),
+        iqMentorModalVersion: 1,
+        iqMentorModalEntry: !!toVariant && (!fromVariant || !!window.history.state?.iqMentorModalEntry),
       }, '', hash);
     }
     setNavigation(next);
   };
-  const closeSettings = () => {
-    if (window.history.state?.iqMentorSettingsEntry) { window.history.back(); return; }
-    const next = closeSettingsVariant(navigation);
+  const closeModal = () => {
+    const state = window.history.state;
+    if ((state?.iqMentorModalEntry && state?.iqMentorModalVersion === 1) || (state?.iqMentorSettingsEntry && state?.iqMentorSettingsModalVersion === 1)) { window.history.back(); return; }
+    const next = closeNavigationModal(navigation);
     window.history.replaceState({ iqMentorNavigation: next }, '', navigationHash(next));
     setNavigation(next);
   };
-  useEffect(() => { if (!FEEDBACK_PAGE_ENABLED && page === 'feedback') setPage('home'); }, [page]);
   useEffect(() => {
     window.history.replaceState({ ...window.history.state, iqMentorNavigation: navigation }, '', navigationHash(navigation));
   }, []);
@@ -369,40 +367,44 @@ export function App() {
     const handleHashChange = () => {
       const hash = window.location.hash;
       const route = hash.replace(/^#/, '');
-      if (['settings', 'employees', 'settings-2', 'settings-3'].includes(route)) setKnowledgeOpen(false);
+      if (['settings', 'employees', 'settings-2', 'settings-3', 'settings-4', 'feedback'].includes(route)) setKnowledgeOpen(false);
       if (route === 'employees') setSettingSection(route);
-      if (['settings-2', 'settings-3'].includes(route) && !previousSettingsVariant.current) {
-        settingsOpener.current = { element: document.activeElement, variant: route };
+      if (['settings', 'employees', 'settings-2', 'settings-3', 'feedback'].includes(route) && !previousNavigationModal.current) {
+        modalOpener.current = { element: document.activeElement };
       }
       const saved = window.history.state?.iqMentorNavigation;
-      setNavigation((current) => saved && navigationHash(saved) === hash ? saved : navigationHash(current) === hash ? current : navigatePrototype(current, hash));
+      setNavigation((current) => {
+        const next = initialNavigation(hash, saved || current);
+        if (navigationHash(next) !== hash) window.history.replaceState({ ...window.history.state, iqMentorNavigation: next }, '', navigationHash(next));
+        return next;
+      });
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
   useEffect(() => {
-    const exitedVariant = previousSettingsVariant.current;
-    previousSettingsVariant.current = activeSettingsVariant;
-    if (!exitedVariant || activeSettingsVariant) return undefined;
+    const exitedVariant = previousNavigationModal.current;
+    previousNavigationModal.current = activeNavigationModal;
+    if (!exitedVariant || activeNavigationModal) return undefined;
     // Wait for remounted page controls and the modal's own cleanup, including browser Back.
     const frame = window.requestAnimationFrame(() => {
       const visible = (element) => element?.isConnected && element !== document.body && !element.disabled
         && !element.closest('[inert], [aria-hidden="true"]') && element.getClientRects().length
         && getComputedStyle(element).visibility !== 'hidden';
       if (Array.from(document.querySelectorAll('dialog[open], [role="dialog"][aria-modal="true"]')).some(visible)) return;
-      const opener = settingsOpener.current;
-      const label = (opener?.variant || exitedVariant) === 'settings-2' ? 'Настройки 2' : 'Настройки 3';
-      const preferredScope = opener?.element?.closest('.sidebar') ? '.sidebar' : '.settings-variant-links';
+      const opener = modalOpener.current;
+      const label = exitedVariant === 'feedback' ? 'Помощь' : 'Настройки';
+      const preferredScope = '.sidebar';
       const controls = [opener?.element,
         ...document.querySelectorAll(`${preferredScope} [aria-label="${label}"]`),
-        ...document.querySelectorAll(`.settings-variant-links [aria-label="${label}"], .sidebar [aria-label="${label}"]`),
+        ...document.querySelectorAll(`.sidebar [aria-label="${label}"]`),
       ];
       const target = controls.find(visible) || Array.from(document.querySelectorAll('main h1, main')).find(visible);
       if (target?.matches('h1, main') && !target.hasAttribute('tabindex')) target.tabIndex = -1;
       target?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [activeSettingsVariant]);
+  }, [activeNavigationModal]);
   useEffect(() => { localStorage.setItem("iq-mentor-settings", JSON.stringify(settings)); }, [settings]);
   useEffect(() => { localStorage.setItem(NAV_ORDER_STORAGE_KEY, JSON.stringify(navOrder)); }, [navOrder]);
   useEffect(() => { localStorage.setItem(BILLING_STORAGE_KEY, JSON.stringify(billing)); }, [billing]);
@@ -425,27 +427,24 @@ export function App() {
   const openBillingSurvey = () => setPage("account-survey");
   const reorderNavItem = (id, targetIndex) => {
     setNavOrder((current) => {
-      const next = current.filter((item) => !HIDDEN_NAV_ITEMS.has(item));
-      const from = next.indexOf(id);
-      if (from < 0 || targetIndex < 0 || targetIndex >= next.length || from === targetIndex) return current;
-      const [moved] = next.splice(from, 1);
-      next.splice(targetIndex, 0, moved);
+      const next = moveSidebarItem(current.filter((item) => !HIDDEN_NAV_ITEMS.has(item)), id, targetIndex);
       return [...next, ...current.filter((item) => HIDDEN_NAV_ITEMS.has(item))];
     });
     notify("Порядок разделов сохранен");
   };
 
   const workspaceProps = { active: settingSection, setActive: setSettingSection, settings, update, notify, renderSection: (id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} /> };
-  const settingsModal = navigation.settingsModal && <SettingsModal {...workspaceProps} close={closeSettings} toast={toast} />;
-  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && !navigation.settingsModal && page !== 'settings-3' && <DailyBonusWelcome variant={dailyBonusVariant} onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage(dailyBonusVariant === 'exhausted' ? 'account-tariff' : 'home'); }} />;
+  const settingsModal = navigation.settingsModal && <SettingsModal {...workspaceProps} close={closeModal} toast={toast} openPills={() => setPage('settings-4')} />;
+  const helpCustomer = { ...settings.profile, company: settings.company.name };
+  const feedbackModal = navigation.feedbackModal && <KnowledgeBaseModal close={closeModal} notify={notify} customer={helpCustomer} initialSection="Предложить идею" />;
+  const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && !activeNavigationModal && <DailyBonusWelcome variant={dailyBonusVariant} onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage(dailyBonusVariant === 'exhausted' ? 'account-tariff' : 'home'); }} />;
   const bonusNotice = {
     trialActive: DAILY_BONUS_PROMOTION_ENABLED && dailyBonusVariant !== 'exhausted',
     onShowWelcome: () => { setKnowledgeOpen(false); setDailyBonusWelcomeOpen(true); },
-    open: dailyBonusNoticeOpen && dailyBonusVariant !== 'exhausted' && !dailyBonusWelcomeOpen && !knowledgeOpen && !navigation.settingsModal && !['settings', 'settings-3'].includes(page),
+    open: dailyBonusNoticeOpen && dailyBonusVariant !== 'exhausted' && !dailyBonusWelcomeOpen && !knowledgeOpen && !activeNavigationModal,
     onClose: () => setDailyBonusNoticeOpen(false),
     onStart: () => { setDailyBonusNoticeOpen(false); setPage('home'); },
   };
-  if (page === 'settings-3') return <SettingsStandalone {...workspaceProps} close={closeSettings} returnLabel={PAGE_LABELS[navigation.returnPage] || 'Главная'} toast={toast} />;
   if (page === "account" || page === "account-tariff" || page === "account-survey") return <>
     <AccountPortal
       page={page}
@@ -458,13 +457,14 @@ export function App() {
       notify={notify}
     />
     {toast && <div className="toast"><IconCheck size={18} />{toast}</div>}
-    {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
+    {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} customer={helpCustomer} />}
     {welcomeModal}
     {settingsModal}
+    {feedbackModal}
   </>;
 
   return <div className={collapsed && !sidebarPreviewOpen ? "app-shell sidebar-collapsed" : "app-shell"}>
-    <Sidebar page={navigation.settingsModal ? 'settings-2' : page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+    <Sidebar page={activeNavigationModal || page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
@@ -473,15 +473,15 @@ export function App() {
         {page === "templates" && <TemplatesPage settings={settings} update={update} notify={notify} />}
         {page === "documents" && <DocumentsWorkspace notify={notify} />}
         {page === "trainer" && <TrainerPage />}
-        {page === "settings" && (navigation.settingsModal ? <div className="settings-background-title">Настройки 1</div> : <SettingsWorkspace {...workspaceProps} title="Настройки 1" headerActions={<div className="settings-variant-links" aria-label="Другие варианты настроек"><button aria-label="Настройки 2" onClick={() => setPage('settings-2')}>Настройки 2 · в окне</button><button aria-label="Настройки 3" onClick={() => setPage('settings-3')}>Настройки 3 · отдельная страница</button></div>} />)}
+        {page === 'settings-4' && <SettingsPills {...workspaceProps} openModal={() => setPage('settings')} />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
-        {FEEDBACK_PAGE_ENABLED && page === "feedback" && <FeedbackPage customer={{ ...settings.profile, company: settings.company.name }} notify={notify} />}
       </main>
     </div>
-    {toast && !navigation.settingsModal && <div className="toast"><IconCheck size={18} />{toast}</div>}
-    {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} />}
+    {toast && !activeNavigationModal && <div className="toast"><IconCheck size={18} />{toast}</div>}
+    {knowledgeOpen && <KnowledgeBaseModal close={() => setKnowledgeOpen(false)} notify={notify} customer={helpCustomer} />}
     {welcomeModal}
     {settingsModal}
+    {feedbackModal}
   </div>;
 }
 
@@ -501,6 +501,10 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   const [reorderAnnouncement, setReorderAnnouncement] = useState('');
   const [analyticsOpen, setAnalyticsOpen] = useState(page === "analytics");
   const orderedItems = navOrder.map((id) => NAV_ITEMS.find((item) => item.id === id)).filter((item) => item && !HIDDEN_NAV_ITEMS.has(item.id));
+  const navGroups = [
+    { id: 'primary', label: 'Основные разделы' },
+    { id: 'materials', label: 'Материалы' },
+  ].map((group) => ({ ...group, items: orderedItems.filter((item) => sidebarGroup(item.id) === group.id) }));
 
   useEffect(() => {
     setAnalyticsOpen(page === "analytics");
@@ -546,8 +550,10 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     window.clearTimeout(previewOpenTimer.current);
     window.clearTimeout(previewCloseTimer.current);
     const navRect = navRef.current.getBoundingClientRect();
+    const groupElement = event.currentTarget.closest('.sidebar-nav-group');
+    const groupRect = groupElement.getBoundingClientRect();
     const rowRect = event.currentTarget.closest(".nav-row").getBoundingClientRect();
-    const rows = [...navRef.current.querySelectorAll(':scope > .nav-row')].map((row) => {
+    const rows = [...groupElement.querySelectorAll(':scope > .nav-row')].map((row) => {
       const rect = row.getBoundingClientRect();
       const style = window.getComputedStyle(row);
       return { top: rect.top - navRect.top, height: rect.height, marginTop: parseFloat(style.marginTop) || 0, marginBottom: parseFloat(style.marginBottom) || 0 };
@@ -557,6 +563,8 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     try { event.currentTarget.setPointerCapture(event.pointerId); } catch { return; }
     updateDrag({
       id: item.id,
+      group: sidebarGroup(item.id),
+      label: item.label,
       pointerId: event.pointerId,
       handle: event.currentTarget,
       sourceIndex: index,
@@ -565,9 +573,9 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
       pointerY: event.clientY,
       offsetY: event.clientY - rowRect.top,
       navTop: navRect.top,
-      navBounds: { left: navRect.left, right: navRect.right, top: navRect.top, bottom: navRect.bottom },
+      navBounds: { left: groupRect.left, right: groupRect.right, top: navRect.top + rows[0].top, bottom: groupRect.bottom },
       rows,
-      gap: parseFloat(window.getComputedStyle(navRef.current).rowGap) || 0,
+      gap: parseFloat(window.getComputedStyle(groupElement).rowGap) || 0,
       width: rowRect.width,
       height: rowRect.height,
       active: false,
@@ -589,7 +597,7 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     const inside = event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
     if (current.active && !canceled && inside) {
       if (current.sourceIndex !== current.targetIndex) reorderNavItem(current.id, current.targetIndex);
-      setReorderAnnouncement(`Раздел «${orderedItems[current.sourceIndex].label}»: позиция ${current.targetIndex + 1} из ${orderedItems.length}`);
+      setReorderAnnouncement(`Раздел «${current.label}»: позиция ${current.targetIndex + 1} из ${current.rows.length} в группе`);
     } else if (current.active) {
       setReorderAnnouncement('Перемещение отменено');
     }
@@ -613,10 +621,11 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   const moveWithKeyboard = (event, item, index) => {
     if (dragRef.current || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
     event.preventDefault();
-    const target = Math.max(0, Math.min(orderedItems.length - 1, index + (event.key === 'ArrowUp' ? -1 : 1)));
+    const groupLength = orderedItems.filter((candidate) => sidebarGroup(candidate.id) === sidebarGroup(item.id)).length;
+    const target = Math.max(0, Math.min(groupLength - 1, index + (event.key === 'ArrowUp' ? -1 : 1)));
     if (target === index) return;
     reorderNavItem(item.id, target);
-    setReorderAnnouncement(`Раздел «${item.label}»: позиция ${target + 1} из ${orderedItems.length}`);
+    setReorderAnnouncement(`Раздел «${item.label}»: позиция ${target + 1} из ${groupLength} в группе`);
   };
   const openPage = (id) => {
     if (id === "analytics" && !collapsed && !window.matchMedia("(max-width: 1200px)").matches) {
@@ -633,11 +642,13 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
       <img src="/iq-logo.svg" className="brand-logo" alt="IQ" />
     </div>
     <nav ref={navRef} className={drag?.active ? "sidebar-nav is-reordering" : "sidebar-nav"} aria-label="Основная навигация">
-      {orderedItems.map((item, index) => {
-        const shift = !dragLayout || index === drag.sourceIndex ? 0 : dragLayout.offsets[index];
+      {navGroups.map((group) => <div key={group.id} className={`sidebar-nav-group sidebar-nav-group-${group.id}`} role="group" aria-label={group.label}>
+        {group.id === 'materials' && <div className="sidebar-group-heading" aria-hidden="true"><span>Материалы</span></div>}
+        {group.items.map((item, index) => {
+        const shift = !dragLayout || drag.group !== group.id || index === drag.sourceIndex ? 0 : dragLayout.offsets[index];
         const isAnalytics = item.id === "analytics";
         const isExpanded = isAnalytics && analyticsOpen && !collapsed;
-        return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}${item.id === "templates" ? " nav-row-separated" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
+        return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
           <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} onClick={() => openPage(item.id)} aria-expanded={isAnalytics ? isExpanded : undefined}>
             <SidebarIcon item={item} />
             <span>{item.label}</span>
@@ -653,18 +664,17 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
           </button>
           <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Потяните за точки, чтобы переместить</span>
         </div>;
-      })}
+        })}
+      </div>)}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
-      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки 1" aria-current={page === 'settings' ? 'page' : undefined} onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
+      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-haspopup="dialog" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
     </nav>
-    <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов. Escape отменяет перетаскивание.</span>
+    <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов внутри группы. Escape отменяет перетаскивание.</span>
     <span className="nav-reorder-sr-only" role="status" aria-live="polite">{reorderAnnouncement}</span>
     <div className="sidebar-bottom">
-      <button className={page === "settings" ? "nav-item muted-item active settings-variant-link" : "nav-item muted-item settings-variant-link"} aria-label="Настройки 1" onClick={() => setPage("settings")} aria-current={page === 'settings' ? 'page' : undefined}><IconSettingsFilled size={18} /><span>Настройки 1</span><small>1</small></button>
-      <button className={`nav-item muted-item settings-variant-link${page === 'settings-2' ? ' active' : ''}`} aria-label="Настройки 2" title="Настройки 2 — в окне" onClick={() => setPage('settings-2')}><IconSettingsFilled size={18} /><span>Настройки 2</span><small>2</small></button>
-      <button className="nav-item muted-item settings-variant-link" aria-label="Настройки 3" title="Настройки 3 — отдельная страница" onClick={() => setPage('settings-3')}><IconSettingsFilled size={18} /><span>Настройки 3</span><small>3</small></button>
-      {FEEDBACK_PAGE_ENABLED && <button className={page === "feedback" ? "nav-item muted-item active" : "nav-item muted-item"} onClick={() => setPage("feedback")}><IconBulb size={18} stroke={1.7} /><span>Предложить идею</span></button>}
+      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} aria-label="Настройки" aria-haspopup="dialog" onClick={() => setPage("settings")}><IconSettingsFilled size={18} /><span>Настройки</span></button>
+      <button className={page === 'settings-4' ? 'nav-item muted-item active' : 'nav-item muted-item'} aria-label="Настройки 4" onClick={() => setPage('settings-4')}><IconSettingsFilled size={18} /><span>Настройки 4</span></button>
       <button className="nav-item sidebar-help-item" onClick={openKnowledge} aria-haspopup="dialog" aria-label="Помощь"><IconLifebuoyFilled size={18} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
       <button className="lk-button" aria-label="Перейти в ЛК" title="Перейти в ЛК" onClick={() => setPage("account")}><span className="lk-button-label">Перейти в ЛК</span><img className="lk-button-icon" src={sidebarAccountIcon} alt="" /></button>

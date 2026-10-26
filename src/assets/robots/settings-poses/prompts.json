@@ -1,0 +1,42 @@
+{
+  "generator": "Built-in image_gen",
+  "transparentBackground": true,
+  "prompts": [
+    {
+      "id": "employees",
+      "prompt": "Use case: stylized-concept.\nAsset type: transparent 3D mascot cutout for a small dark UI button-card in IQ Mentor.\nInput image 1: character identity and rendering reference. Create a new pose of this SAME robot, preserving the rounded rectangular monitor head, black glass face with luminous white friendly geometric eyes and smile, two camera-eye antennae, metallic casing, neck and mechanical shoulders. Preserve high-quality realistic 3D materials and warm studio highlights. Not a different cartoon robot.\nComposition: one upper-body robot with head and hands, compact silhouette, head large and clearly readable at thumbnail size. Three-quarter angle looking slightly toward viewer's LEFT. All antennas, hands and the small thematic prop inside frame. Transparent space around the silhouette, no background, no floor, no text, no watermark, no scene, no frame, no multiple poses.\n\nPrimary request: Orange robot welcoming the team: friendly open-palm wave with one hand; the other holds a small orange-and-cream employee ID badge with a simple person silhouette, NO writing. Inviting cheerful posture, slightly tilted head.",
+      "reference": "settings-companion.png",
+      "output": "employees.png"
+    },
+    {
+      "id": "integrations",
+      "prompt": "Use case: stylized-concept.\nAsset type: transparent 3D mascot cutout for a small dark UI button-card in IQ Mentor.\nInput image 1: character identity and rendering reference. Create a new pose of this SAME robot, preserving the rounded rectangular monitor head, black glass face with luminous white friendly geometric eyes and smile, two camera-eye antennae, metallic casing, neck and mechanical shoulders. Preserve high-quality realistic 3D materials and warm studio highlights. Not a different cartoon robot.\nComposition: one upper-body robot with head and hands, compact silhouette, head large and clearly readable at thumbnail size. Three-quarter angle looking slightly toward viewer's LEFT. All antennas, hands and the small thematic prop inside frame. Transparent space around the silhouette, no background, no floor, no text, no watermark, no scene, no frame, no multiple poses.\n\nPrimary request: Orange robot leaning forward in a focused happy pose, holding two chunky cable connectors with both hands, plugging them together at chest level. A short dark cable loop, clean simple connection theme. Keep its face fully visible.",
+      "reference": "settings-companion.png",
+      "output": "integrations.png"
+    },
+    {
+      "id": "notifications",
+      "prompt": "Use case: stylized-concept.\nAsset type: transparent 3D mascot cutout for a small dark UI button-card in IQ Mentor.\nInput image 1: character identity and rendering reference. Create a new pose of this SAME robot, preserving the rounded rectangular monitor head, black glass face with luminous white friendly geometric eyes and smile, two camera-eye antennae, metallic casing, neck and mechanical shoulders. Preserve high-quality realistic 3D materials and warm studio highlights. Not a different cartoon robot.\nComposition: one upper-body robot with head and hands, compact silhouette, head large and clearly readable at thumbnail size. Three-quarter angle looking slightly toward viewer's LEFT. All antennas, hands and the small thematic prop inside frame. Transparent space around the silhouette, no background, no floor, no text, no watermark, no scene, no frame, no multiple poses.\n\nPrimary request: Orange robot in a lively alert pose, holding up a single small golden notification bell beside its head with one hand, the other hand raised with index finger pointing upward. Friendly surprised glowing eyes, slight head tilt. Keep bell compact and distinct.",
+      "reference": "settings-companion.png",
+      "output": "notifications.png"
+    },
+    {
+      "id": "analyst-reports",
+      "prompt": "Use case: stylized-concept.\nAsset type: transparent 3D mascot cutout for a small dark UI button-card in IQ Mentor.\nInput image 1: character identity and rendering reference. Create a new pose of this SAME robot, preserving the rounded rectangular monitor head, black glass face with luminous white friendly geometric eyes and smile, two camera-eye antennae, metallic casing, neck and mechanical shoulders. Preserve high-quality realistic 3D materials and warm studio highlights. Not a different cartoon robot.\nComposition: one upper-body robot with head and hands, compact silhouette, head large and clearly readable at thumbnail size. Three-quarter angle looking slightly toward viewer's LEFT. All antennas, hands and the small thematic prop inside frame. Transparent space around the silhouette, no background, no floor, no text, no watermark, no scene, no frame, no multiple poses.\n\nPrimary request: Orange robot studying a small dark tablet at chest level, one hand holding it and the other pointing at a simple orange three-bar rising chart on the tablet. No text or numbers. Thoughtful engaged pose, head tilted down slightly yet eyes visible.",
+      "reference": "settings-companion.png",
+      "output": "analyst-reports.png"
+    },
+    {
+      "id": "call-assessment",
+      "prompt": "Use case: stylized-concept.\nAsset type: transparent 3D mascot cutout for a small dark UI button-card in IQ Mentor.\nInput image 1: character identity and rendering reference. Create a new pose of this SAME robot, preserving the rounded rectangular monitor head, black glass face with luminous white friendly geometric eyes and smile, two camera-eye antennae, metallic casing, neck and mechanical shoulders. Preserve high-quality realistic 3D materials and warm studio highlights. Not a different cartoon robot.\nComposition: one upper-body robot with head and hands, compact silhouette, head large and clearly readable at thumbnail size. Three-quarter angle looking slightly toward viewer's LEFT. All antennas, hands and the small thematic prop inside frame. Transparent space around the silhouette, no background, no floor, no text, no watermark, no scene, no frame, no multiple poses.\n\nPrimary request: Orange robot listening to a call, wearing a neat dark over-ear headset with short microphone boom, one hand lightly touching the earpiece and head tilted in attentive listening. Other hand gives a small thumbs-up at chest level. Keep the camera antennae and original face unobscured.",
+      "reference": "settings-companion.png",
+      "output": "call-assessment.png"
+    },
+    {
+      "id": "trainer-reports",
+      "prompt": "Use case: stylized-concept.\nAsset type: transparent 3D mascot cutout for a small dark UI button-card in IQ Mentor.\nInput image 1: character identity and rendering reference. Create a new pose of this SAME robot, preserving the rounded rectangular monitor head, black glass face with luminous white friendly geometric eyes and smile, two camera-eye antennae, metallic casing, neck and mechanical shoulders. Preserve high-quality realistic 3D materials and warm studio highlights. Not a different cartoon robot.\nComposition: one upper-body robot with head and hands, compact silhouette, head large and clearly readable at thumbnail size. Three-quarter angle looking slightly toward viewer's LEFT. All antennas, hands and the small thematic prop inside frame. Transparent space around the silhouette, no background, no floor, no text, no watermark, no scene, no frame, no multiple poses.\n\nPrimary request: Purple robot with its original dark graduation cap, teaching enthusiastically: one hand holds an open compact cream notebook at chest level, other hand holds a short pointer angled upward beside the head. No writing on book. Friendly knowing smile, upright confident posture. Preserve purple metal and original square cap.",
+      "reference": "trainer-purple.png",
+      "output": "trainer-reports.png"
+    }
+  ]
+}
