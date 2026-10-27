@@ -1,5 +1,5 @@
 .employee-directory { container: employee-directory / inline-size; min-width: 0; color: #37352f; }
-.employee-directory-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 24px; margin-bottom: 28px; }
+.employee-directory-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px 24px; margin-bottom: 22px; }
 .employee-directory-heading { display: flex; align-items: center; flex: 1 1 560px; gap: 16px; min-width: 0; }
 .employee-directory-heading h2 { flex-shrink: 0; }
 .employee-directory-header h2 { width: fit-content; margin: 0; border-bottom: 2px solid #ff8d20; padding-bottom: 7px; color: #242424; font-size: clamp(24px, 2.1vw, 34px); line-height: 1.25; font-weight: 400; letter-spacing: -.8px; }
@@ -10,7 +10,7 @@
 .employee-directory-button.is-primary:hover { background: #41413f; }
 .employee-directory-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 24px; align-items: start; }
 .employee-departments { min-width: 0; padding-right: 20px; }
-.employee-departments-header h3, .employee-results-title { margin: 0 0 12px; color: #73716b; font-size: 14px; line-height: 1.5; font-weight: 500; }
+.employee-departments > h3, .employee-results-title { margin: 0 0 12px; color: #73716b; font-size: 14px; line-height: 1.5; font-weight: 500; }
 .employee-directory-search { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 36px; box-sizing: border-box; border: 1px solid #f0f0f0; border-radius: 9px; background: #fafafa; padding: 0 12px; color: #aaa; }
 .employee-directory-search svg { flex-shrink: 0; }
 .employee-directory-search:focus-within { border-color: #ff9025; outline: 2px solid #fff3e8; }
@@ -33,6 +33,8 @@
 .employee-directory-results::before { content: ''; position: absolute; top: 0; bottom: 0; left: -25px; width: 1px; background: #eeede9; pointer-events: none; }
 .employee-directory-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; min-height: 36px; margin-bottom: 14px; }
 .employee-directory-toolbar .employee-directory-search { width: min(100%, 260px); }
+.employee-directory-toolbar .employee-directory-actions { width: auto; flex: 0 0 auto; flex-wrap: nowrap; margin-left: auto; }
+.employee-directory-toolbar .employee-directory-actions button { flex: 0 0 auto; white-space: nowrap; }
 .employee-search-controls { display: flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; }
 .employee-search-controls .employee-directory-search { flex: 1; }
 .employee-filter-button { position: relative; display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; border: 1px solid #e9e8e4; border-radius: 11px; background: #fafafa; color: #73716b; cursor: pointer; }

@@ -50,7 +50,10 @@ export function SettingsModal({ close, toast, ...workspaceProps }) {
     onPointerDown={(event) => { outsideStart.current = event.button === 0 && isOutside(event); }}
     onPointerCancel={() => { outsideStart.current = false; }}
     onClick={(event) => { if (outsideStart.current && isOutside(event)) close(); outsideStart.current = false; }}>
-    <button type="button" className="settings-modal-close" aria-label="Закрыть настройки" onClick={close}><IconX size={20} stroke={1.7} /></button>
+    <button type="button" className="settings-modal-close" aria-label="Закрыть настройки" title="Закрыть настройки" onClick={close}>
+      <span className="settings-modal-close-icon"><IconX size={22} stroke={1.8} /></span>
+      <span className="settings-modal-close-hint" aria-hidden="true">ESC</span>
+    </button>
     <SettingsWorkspace {...workspaceProps} modal title="Настройки" />
     {toast && <div className="settings-modal-toast" role="status"><IconCheck size={16} />{toast}</div>}
   </dialog>;

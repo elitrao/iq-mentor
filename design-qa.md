@@ -48,6 +48,46 @@ No blocking polish items. A narrow-screen screenshot remains optional because th
 
 final result: passed
 
+# Design QA — Discord settings pattern adaptation (October 27)
+
+- Source visual truth: `design-qa-artifacts/discord-settings-reference.png`, official Discord support capture, 1255 × 924 px.
+- Implementation screenshot: `design-qa-artifacts/settings-discord-pattern-compact.png`, 432 × 674 CSS px at device scale 1.
+- State: Settings modal, Employees selected, compact responsive layout.
+- Scope: adapt Discord's two-zone settings pattern to IQ Mentor rather than reproduce Discord's theme or copy.
+
+## Full-view comparison
+
+The source and implementation were inspected together. The implementation keeps the requested 280px desktop menu width, gives navigation its own neutral surface, reserves a readable content column, and moves close/ESC into a dedicated right-side control on desktop. At the captured compact width, navigation intentionally becomes a horizontal scrollable region and the ESC caption is hidden so content remains usable.
+
+## Focused comparison
+
+The navigation, active state, content heading and close control are legible in the full captures, so a separate crop was not needed. The implementation's employee controls and table semantics were additionally inspected through the browser accessibility tree.
+
+## Required fidelity surfaces
+
+- Fonts and typography: Inter remains consistent with IQ Mentor; navigation is 13px, modal title 24px semibold, and page headings keep the established 28px desktop hierarchy.
+- Spacing and layout rhythm: desktop uses the preserved 280px rail, 48px content inset and an independent scrolling content area; compact layout avoids overlap and document-level overflow.
+- Colors and visual tokens: Discord's dark palette is intentionally replaced by IQ Mentor neutral surfaces and orange accents. The active item gains a clearer neutral fill without color-only meaning.
+- Image and icon quality: existing Tabler icons and product assets are preserved; no placeholder or improvised graphics were introduced.
+- Copy and content: existing Russian labels, settings groups and employee actions remain unchanged.
+
+## Interaction and accessibility checks
+
+- Switched between Notifications and Employees after the shell update.
+- Verified active navigation state, independent content scrolling and the close button label.
+- Escape behavior and focus containment remain implemented by the existing native dialog.
+- Browser console returned no errors. Production build passed; only the existing bundle-size advisory remains.
+
+## Findings
+
+No actionable P0, P1 or P2 issue was found in the adapted pattern. The desktop Discord composition and the compact IQ Mentor capture are intentionally different responsive states, so no pixel-level fidelity claim is made.
+
+## Follow-up polish
+
+- P3: capture the updated desktop shell at a wide viewport if a strict side-by-side spacing review is needed later.
+
+final result: passed
+
 # Design QA — Call report (October 26)
 
 - Source: authenticated `https://mentor.iqgroup.ai/detailed-report?page=1&pageSize=25`, inspected without submitting changes.
@@ -95,6 +135,31 @@ The first comparison used an expanded prototype sidebar against the collapsed so
 
 final result: passed
 
+
+# Design QA — Settings content composition and density (October 27)
+
+## Contextual help follow-up
+
+- Section-edge alignment correction: removed the nested 440px control-group cap so every Call Assessment row fills its parent section (up to 560px). Dropdown, switch track, time field and section rule now end on one right edge. Checked the wide layout at 1280 × 900 and restored the browser viewport; its scaled capture remains soft but shows the common boundary (`settings-section-edge-desktop.jpg`). Native compact evidence is `settings-section-edge-final.jpg`. Final build and whitespace checks passed; control values and menu dimensions are unchanged.
+
+- Final row-unification correction: stereo now also uses a left label and right control in the same row. A shared 440px row width aligns its 236px selector, the analysis switch and the 128px duration field to one right edge. The switch's visual track aligns with the fields while retaining its hit area. Native narrow-screen check shows labels wrapping without horizontal overflow or clipped values; screenshot `design-qa-artifacts/settings-call-controls-aligned.jpg`. Build passed; this supersedes earlier stacked-stereo captures.
+
+- Latest consistency and duration refinement supersedes the indented field below: all labels share a left edge, while the automatic-analysis switch and 128px duration input share the right edge of a 440px control group. The duration label and input are on one row; stereo retains its 320px selector beneath the label. Both fields share 44px height, border, background, radius, typography and focus treatment. No internal rule or nested indent. Native narrow-screen screenshot `design-qa-artifacts/settings-duration-compact-right.jpg` confirms wrapping without clipping the time value and preserves the disabled field state. Production build and whitespace check passed.
+
+- Subsequent Call Assessment composition refinement: the 320px stereo selector now sits below its label. The automatic-analysis switch leads its label, and minimum duration is nested underneath with a 160px input. Removed the rule between these dependent controls. Other preference rows and menu width are unchanged. Browser check confirmed the narrow layout fits, the existing disabled duration state remains, and contextual help stays accessible. Evidence: `design-qa-artifacts/settings-call-controls-grouped.jpg`. Production build passed after this CSS change.
+
+- Replaced repeated schedule captions and embedded explanatory notes with info buttons next to section headings. Added plain-language descriptions for each report type, stereo channels, automatic analysis and notification delivery channels. Field labels and Display/Sound column headings remain visible.
+- Shared tooltips support pointer entry, focus and a pinned click state. Their native popover layer avoids modal scroll clipping, clamps position to viewport edges and follows scroll/resize; Escape dismisses the tooltip without closing Settings.
+- Browser checks verified click opening, keyboard focus reopening, Escape dismissal, route-change cleanup, compact field labels and no visible repeated periodicity caption. Call assessment retained its disabled duration field. Console had no errors. Production build passed with the existing bundle-size advisory.
+- Evidence: `design-qa-artifacts/settings-category-tooltip.jpg`, captured at the native compact viewport with the tooltip above its heading to fit the screen. Saved setting values were not changed. No Git push.
+
+- Source: the user's Discord Account Status, Friend Request Permissions and Sounds screenshots. Adaptation concerns the open-section layout, not Discord's dark theme or the settings-menu width.
+- Removed enclosing cards and heading islands from Notifications, Analyst/Trainer autogeneration and Call Assessment. Section headings are 20px semibold; labels and controls share a left/right row, with contextual help beneath the label and thin section separators.
+- Applied the user's subsequent compactness correction: 560px maximum content width (previously 696px), 48px preference rows (previously 64px), 12px heading gaps and 24px section spacing. Compact channel/duration inputs stack when their content container becomes narrow.
+- Browser verification covered report sections, both notification groups, and call assessment. Toggling automatic analysis enabled/disabled minimum duration correctly; the original disabled state and 00:00:30 value were restored. No console errors were reported.
+- Wide viewport captures verified section structure, alignment and absence of enclosing cards; the in-app browser's scaled wide captures were visibly soft, so these are composition evidence rather than a pixel-fidelity claim. Native narrow captures were sharp and confirmed wrapping without clipped controls. Temporary viewport overrides were reset.
+- Evidence: `design-qa-artifacts/settings-open-notifications-desktop.jpg`, `settings-open-notifications-narrow.jpg`, `settings-open-scoring-narrow.jpg`, and the latest density capture `settings-compact-final.jpg`. Older captures precede the 560px/48px correction.
+- The 12 existing settings-structure, notification and stereo model checks passed when run directly. Production build passed after the final compactness edit; the existing bundle-size advisory remains. No Git push was performed.
 
 # Design QA — Analyst pages and report refinements (October 26)
 

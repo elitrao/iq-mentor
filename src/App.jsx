@@ -27,6 +27,7 @@ import { AccountPortal } from "./AccountPortal.jsx";
 import { BillingSimulator } from "./BillingSimulator.jsx";
 import { KnowledgeBaseModal } from "./KnowledgeBaseModal.jsx";
 import { SettingsModal } from "./SettingsModal.jsx";
+import { SettingsHint } from "./SettingsHint.jsx";
 import { SettingsPills } from "./SettingsPills.jsx";
 import { EmployeesSettings } from "./EmployeesSettings.jsx";
 import { sidebarDragLayout, sidebarGroup, groupSidebarOrder, moveSidebarItem } from "./sidebar-reorder.js";
@@ -568,7 +569,7 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     window.clearTimeout(previewOpenTimer.current);
     window.clearTimeout(previewCloseTimer.current);
     if (compactMode && event.pointerType === "mouse" && window.matchMedia("(min-width: 1201px) and (hover: hover) and (pointer: fine)").matches) {
-      previewOpenTimer.current = window.setTimeout(() => onPreviewChange(true), 500);
+      previewOpenTimer.current = window.setTimeout(() => onPreviewChange(true), 300);
     }
   };
   const closeHoverPreview = () => {
@@ -1323,47 +1324,19 @@ function NotificationProductIcon({ product, src }) {
 }
 
 function GeneralNotificationSettings({ settings, update }) {
-  const [kind, setKind] = useState("analyst");
-  const [highlight, setHighlight] = useState(null);
   const products = [["analyst", "Аналитик", notificationAnalystIcon], ["trainer", "Тренер", notificationTrainerIcon]];
-  const tabRefs = useRef({});
-  const tabsRef = useRef(null);
-  useLayoutEffect(() => {
-    const measure = () => {
-      const tab = tabRefs.current[kind];
-      if (!tab) return;
-      const next = { left: tab.offsetLeft, width: tab.offsetWidth };
-      setHighlight((current) => current?.left === next.left && current?.width === next.width ? current : next);
-    };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(tabsRef.current);
-    Object.values(tabRefs.current).forEach((tab) => tab && observer.observe(tab));
-    return () => observer.disconnect();
-  }, [kind]);
-  const onTabKeyDown = (event, key) => {
-    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-    event.preventDefault();
-    const next = event.key === "Home" ? "analyst" : event.key === "End" ? "trainer" : key === "analyst" ? "trainer" : "analyst";
-    setKind(next);
-    tabRefs.current[next]?.focus();
-  };
   return <section className="settings-general-notifications" aria-labelledby="notification-settings-title">
     <h2 id="notification-settings-title">Уведомления</h2>
-    <div ref={tabsRef} className="settings-product-tabs" role="tablist" aria-label="Продукт уведомлений">
-      {highlight && <span className={`notification-tab-highlight tone-${kind}`} aria-hidden="true" style={{ width: highlight.width, transform: `translateX(${highlight.left}px)` }} />}
-      {products.map(([key, label, icon]) => <button type="button" role="tab" aria-selected={kind === key}
-        aria-controls={`settings-notification-panel-${key}`} id={`settings-notification-tab-${key}`} key={key}
-        ref={(node) => { tabRefs.current[key] = node; }} tabIndex={kind === key ? 0 : -1}
-        className={kind === key ? `active tone-${key}` : ""} onClick={() => setKind(key)}
-        onKeyDown={(event) => onTabKeyDown(event, key)}><NotificationProductIcon product={key} src={icon} />{label}</button>)}
-    </div>
-    <div className="notification-product-panels">
-      {products.map(([key]) => <div key={key} className={`notification-product-panel${kind === key ? ' is-active' : ''}`}
-        role="tabpanel" id={`settings-notification-panel-${key}`} aria-labelledby={`settings-notification-tab-${key}`}
-        aria-hidden={kind !== key} inert={kind !== key}>
+    <div className="notification-continuous-list">
+      {products.map(([key, label, icon]) => <section key={key} className={`notification-continuous-section tone-${key}`} aria-labelledby={`settings-notification-section-${key}`}>
+        <div className="settings-heading-with-hint">
+          <h3 className="notification-continuous-heading" id={`settings-notification-section-${key}`}><NotificationProductIcon product={key} src={icon} /><span>{label}</span></h3>
+          <SettingsHint label={`Уведомления — ${label}`}><p>{key === 'analyst' ? 'Уведомления о ходе анализа звонков и подготовке отчётов.' : 'Уведомления о создании, назначении и анализе тренировок, а также подготовке отчётов.'}</p><p>«Отображение» включает сообщение в интерфейсе, «Звук» — звуковой сигнал. Их можно настроить отдельно для каждого события. Если переключателя нет, этот способ уведомления для события недоступен.</p></SettingsHint>
+        </div>
+        <div className="notification-continuous-content">
         <NotificationSettings kind={key} value={settings.notifications[key]} update={update} />
-      </div>)}
+        </div>
+      </section>)}
     </div>
   </section>;
 }
@@ -1378,11 +1351,11 @@ function NotificationSettings({ kind, value, update }) {
     next.notifications[kind].events ??= {};
     next.notifications[kind].events[event] = { ...defaults[event], ...next.notifications[kind].events[event], [channel]: enabled };
   });
-  return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head"><span>Уведомлять меня об</span><span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
+  return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head"><span /><span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
 }
 
-function NotificationSwitch({ label, checked, onChange, role }) {
-  return <label className="notification-switch" aria-label={label}><input type="checkbox" role={role} checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>;
+function NotificationSwitch({ label, checked, onChange, role, describedBy }) {
+  return <label className="notification-switch" aria-label={label}><input type="checkbox" role={role} aria-describedby={describedBy} checked={checked} onChange={(e) => onChange(e.target.checked)} /><i></i></label>;
 }
 
 function IntegrationsSettings({ value, update, notify }) {
@@ -1445,8 +1418,8 @@ function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" :
   const changeScoring = (fields) => update((next) => { Object.assign(next.scoring, fields); });
   const rows = [["day", "За прошедший день"], ["week", "За прошедшую неделю"], ["month", "За прошедший месяц"]];
   return <div className={`report-generator-card tone-${kind}${withScoring ? ' is-call-analysis' : ''}`}>
-    {!withScoring && <><div className="report-generator-title"><h3>Периодичность отчёта</h3></div><div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => changePeriod(key, e.target.checked)} /><i></i><span>{label}</span></label>)}</div></>}
-    {withScoring && <section className="report-call-analysis" aria-labelledby="report-call-analysis-title"><h3 id="report-call-analysis-title">Параметры анализа звонков</h3><ScoringFields draft={scoring} setDraft={changeScoring} /></section>}
+    {!withScoring && <div className="report-period-list">{rows.map(([key, label]) => <label className="report-period" key={key}><input type="checkbox" checked={periods[key]} onChange={(e) => changePeriod(key, e.target.checked)} /><i></i><span>{label}</span></label>)}</div>}
+    {withScoring && <div className="report-call-analysis"><ScoringFields draft={scoring} setDraft={changeScoring} preferenceList /></div>}
   </div>;
 }
 
@@ -1461,25 +1434,29 @@ function StereoSettings({ value, update, embedded = false }) {
     <div className="stereo-format-section">
       <div className="stereo-format-label-row">
         <span className="stereo-format-field" id="stereo-channel-label">Распределение каналов</span>
-        <div className="stereo-channel-help" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setChannelHelpOpen(false); }}>
+        {!embedded && <div className="stereo-channel-help" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setChannelHelpOpen(false); }}>
           <button type="button" aria-label="Что означают L и R?" aria-expanded={channelHelpOpen} aria-controls="stereo-channel-hint"
             onClick={() => setChannelHelpOpen((open) => !open)} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); setChannelHelpOpen(false); } }}>
             <IconInfoCircle size={16} aria-hidden="true" />
           </button>
           {channelHelpOpen && <div id="stereo-channel-hint" className="stereo-channel-help-text">L — левый канал записи.<br />R — правый канал записи.</div>}
-        </div>
+        </div>}
       </div>
-      <StereoFormatSelect value={current} onChange={change} labelledBy="stereo-channel-label" describedBy="stereo-format-scope" />
+      <StereoFormatSelect value={current} onChange={change} labelledBy="stereo-channel-label" describedBy={embedded ? undefined : 'stereo-format-scope'} />
     </div>
-    <div id="stereo-format-scope" className="stereo-format-scope" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>По умолчанию все звонки отправляются на анализ в выбранном формате.</p></div>
+    {!embedded && <div id="stereo-format-scope" className="stereo-format-scope" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>По умолчанию все звонки отправляются на анализ в выбранном формате.</p></div>}
   </section>;
 }
 
-function ScoringFields({ draft, setDraft }) {
-  return <div className="scoring-settings-content">
-    <div className="scoring-auto-toggle tone-analyst"><span>Автоматически отправлять звонок на анализ</span><NotificationSwitch role="switch" label="Автоматически отправлять звонок на анализ" checked={draft.autoAnalyze} onChange={(checked) => setDraft({ ...draft, autoAnalyze: checked })} /></div>
+function ScoringFields({ draft, setDraft, preferenceList = false }) {
+  const scopeText = 'Только для интеграций. Ручные загрузки анализируются независимо от длительности.';
+  return <div className={`scoring-settings-content${preferenceList ? ' is-preference-list' : ''}`}>
+    <div className="scoring-auto-toggle tone-analyst">
+      <span>Автоматически отправлять звонок на анализ</span>
+      <NotificationSwitch role="switch" label="Автоматически отправлять звонок на анализ" checked={draft.autoAnalyze} onChange={(checked) => setDraft({ ...draft, autoAnalyze: checked })} />
+    </div>
     <label className={`scoring-duration-field${draft.autoAnalyze ? '' : ' is-disabled'}`}><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input disabled={!draft.autoAnalyze} value={draft.minDuration} onChange={(e) => { if (draft.autoAnalyze) setDraft({ ...draft, minDuration: e.target.value }); }} aria-label="Минимальная длительность звонка" /></div></label>
-    <div className="scoring-scope-note" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>Только для интеграций. Ручные загрузки анализируются независимо от длительности.</p></div>
+    {!preferenceList && <div className="scoring-scope-note" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>{scopeText}</p></div>}
   </div>;
 }
 

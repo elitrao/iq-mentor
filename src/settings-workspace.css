@@ -217,28 +217,26 @@
 .report-call-analysis { margin-top: 26px; border-top: 1px solid #eceef0; padding-top: 22px; }
 .report-call-analysis > h3 { margin: 0 0 18px; color: #34393d; font-size: 17px; font-weight: 600; }
 .settings-structure-content .stereo-format-field select, .settings-structure-content .scoring-duration-field input { color: #3c4347; }
-.settings-general-notifications { container: notification-settings / inline-size; width: 100%; max-width: 696px; padding: 0 0 24px; color: #37352f; }
+.settings-general-notifications { container: notification-settings / inline-size; width: 100%; max-width: 560px; padding: 0 0 24px; color: #37352f; }
 .settings-general-notifications > h2 { width: fit-content; max-width: 100%; margin: 0; border-bottom: 2px solid #ff8d20; padding-bottom: 7px; color: #242424; font-size: clamp(24px, 2.1vw, 34px); line-height: 1.25; font-weight: 400; letter-spacing: -.8px; }
-.settings-product-tabs { position: relative; isolation: isolate; display: flex; gap: 6px; width: fit-content; margin-top: 22px; }
-.settings-product-tabs button { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; border: 0; border-radius: 999px; background: transparent; padding: 0 16px; color: #73716b; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: color .32s ease, background .24s ease; }
-.notification-tab-highlight { position: absolute; inset: 0 auto 0 0; border-radius: 999px; pointer-events: none; background: #fff3e8; transition: transform .4s cubic-bezier(.22,1,.36,1), width .4s cubic-bezier(.22,1,.36,1), background-color .4s ease; }
-.notification-tab-highlight.tone-trainer { background: #efeffe; }
 .notification-product-icon { display: block; width: 18px; height: 18px; flex-shrink: 0; }
-.settings-product-tabs button:hover { background: #f7f7f5; color: #37352f; }
-.settings-product-tabs button.active.tone-analyst { background: transparent; color: #ff9025; }
-.settings-product-tabs button.active.tone-trainer { background: transparent; color: #6467f2; }
-.notification-product-panels { display: grid; }
-.notification-product-panel { grid-area: 1 / 1; min-width: 0; opacity: 0; visibility: hidden; transform: translateY(4px); pointer-events: none; transition: opacity .24s ease, transform .32s cubic-bezier(.22,1,.36,1), visibility 0s .24s; }
-.notification-product-panel.is-active { opacity: 1; visibility: visible; transform: none; pointer-events: auto; transition-delay: 0s; }
+.notification-continuous-list { display: grid; gap: 0; margin-top: 24px; }
+.notification-continuous-section { min-width: 0; border: 0; border-radius: 0; background: transparent; padding: 0; }
+.notification-continuous-section + .notification-continuous-section { margin-top: 24px; border-top: 1px solid #e7e6e2; padding-top: 24px; }
+.notification-continuous-heading { display: flex; align-items: center; gap: 10px; width: fit-content; max-width: 100%; margin: 0; color: #2f2c28; font-size: 20px; font-weight: 600; line-height: 28px; letter-spacing: -.2px; }
+.notification-continuous-heading .notification-product-icon { width: 20px; height: 20px; }
+.notification-continuous-section.tone-analyst .notification-product-icon { color: #b66022; }
+.notification-continuous-section.tone-trainer .notification-product-icon { color: #6757a6; }
+.notification-continuous-content { margin-top: 12px; }
 .settings-general-notifications .notification-analyst { --notification-accent: #ff9025; --notification-tint: #fff3e8; }
 .settings-general-notifications .notification-trainer { --notification-accent: #6467f2; --notification-tint: #efeffe; }
-.settings-general-notifications .notification-settings { padding-top: 18px; }
+.settings-general-notifications .notification-settings { padding-top: 0; }
 .settings-general-notifications .notification-table { overflow: visible; border: 0; border-radius: 0; background: transparent; padding: 0; }
-.settings-general-notifications .notification-table .notification-row { min-width: 0; min-height: 48px; grid-template-columns: minmax(0, 1fr) 116px 64px; gap: 16px; border-bottom-color: #eeede9; color: #37352f; font-size: 14px; line-height: 1.5; }
-.settings-general-notifications .notification-row > span:first-child { padding: 8px 0; overflow-wrap: anywhere; }
+.settings-general-notifications .notification-table .notification-row { min-width: 0; min-height: 48px; grid-template-columns: minmax(0, 1fr) 104px 56px; gap: 12px; border-bottom-color: #eeede9; color: #37352f; font-size: 14px; line-height: 1.5; }
+.settings-general-notifications .notification-row > span:first-child { padding: 8px 0; overflow-wrap: anywhere; font-weight: 500; }
 .settings-general-notifications .notification-table .notification-head { min-height: 40px; color: #73716b; font-size: 12px; font-weight: 400; }
 .settings-general-notifications .notification-head > span:nth-child(n+2) { justify-content: center; }
-.settings-general-notifications .notification-head > span:first-child { color: #37352f; font-size: 16px; font-weight: 500; line-height: 1.4; }
+.settings-general-notifications .notification-head > span:first-child { color: #77736c; font-size: 13px; font-weight: 500; line-height: 1.45; }
 .settings-general-notifications .notification-switch { position: relative; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
 .settings-general-notifications .notification-switch input { inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; pointer-events: auto; }
 .settings-general-notifications .notification-switch i { box-sizing: border-box; width: 36px; height: 22px; border: 1px solid #e5e4df; background: #f5f5f3; pointer-events: none; transition: background-color .3s ease, border-color .3s ease; }
@@ -251,12 +249,9 @@
 @container notification-settings (max-width: 480px) {
   .settings-general-notifications .notification-table .notification-row { grid-template-columns: minmax(0, 1fr) 86px 44px; gap: 8px; font-size: 13px; }
   .settings-general-notifications .notification-table .notification-head { font-size: 11px; }
-  .settings-general-notifications .notification-head > span:first-child { font-size: 14px; }
+  .settings-general-notifications .notification-head > span:first-child { font-size: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .settings-general-notifications .settings-product-tabs button,
-  .settings-general-notifications .notification-tab-highlight,
-  .settings-general-notifications .notification-product-panel,
   .settings-general-notifications .notification-switch i,
   .settings-general-notifications .notification-switch i::after { transition: none; }
 }

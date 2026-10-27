@@ -52,18 +52,22 @@
 .catr-page-size [role=menuitemradio]:hover, .catr-page-size [aria-checked=true] { background: #fff0e4; color: #fa7b17; }
 .catr-table-scroll { overflow: auto; min-width: 0; min-height: 0; flex: 1 1 auto; border: 1px solid #e8e8e8; border-radius: 12px; background: #fff; scrollbar-width: thin; scrollbar-color: #ccc transparent; }
 .catr-table { border-collapse: separate; border-spacing: 0; table-layout: fixed; min-width: 1356px; width: 100%; font-size: 14px; line-height: 22px; font-weight: 500; }
-.catr-table th { position: sticky; top: 0; background: white; z-index: 1; height: 52px; font-weight: 500; text-align: left; color: #858585; border-bottom: 1px solid #e8e8e8; padding: 8px 12px; }
+.catr-table th { position: sticky; top: 0; background: white; z-index: 1; height: 72px; color: #4a4a46; font-size: 16px; line-height: 22px; font-weight: 600; text-align: left; border-bottom: 1px solid #e8e8e8; padding: 8px 12px; }
 .catr-table th, .catr-table td { border-left: 0; border-right: 0; }
-.catr-table th:not(:last-child) { border-right: 1px solid #ebebeb; }
+.catr-table th:not(:last-child) { border-right: 1px solid #ddddda; }
+.catr-table tbody tr:not(:last-child) > td { border-bottom: 1px solid #eeeeec; }
 .catr-table th > div { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
 .catr-table th button { color: #b5b5b5; background: none; border: 0; padding: 0; display: inline-flex; flex: 0 0 20px; }
 .catr-table th button .catr-source-icon { width: 16px; height: 16px; }
 .catr-table th button.active { color: #ff9025; }
 .catr-table td { height: 52px; padding: 8px 12px; color: #858585; }
 .catr-table .catr-empty-row td { padding: 0; }
-.catr-table tbody tr:nth-child(odd) { background: #fafafa; }
 .catr-table tbody tr:hover { background: #fff8f2; }
 .catr-table td > button { position: relative; display: flex; align-items: center; width: 100%; border: 0; padding: 0 84px 0 0; color: inherit; background: none; text-align: left; min-height: 30px; }
+.catr-score { display: inline-block; flex: none; padding: 2px 8px; border-radius: 12px; font-size: 14px; line-height: 20px; font-weight: 400; }
+.catr-score.gold { color: #c79a23; background: #fff7e6; }
+.catr-score.orange { color: #dd7a1e; background: #fff0e2; }
+.catr-score.red { color: #e56868; background: #fff0f0; }
 .catr-category-name { justify-content: flex-start; gap: 6px; }
 .catr-category-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .catr-category-name i { flex: 0 0 auto; font-size: 14px; line-height: 20px; color: #2d8bff; background: #eaf4ff; border: 1px solid #deecff; border-radius: 4px; padding: 0 3px; font-style: normal; }

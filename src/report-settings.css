@@ -2,7 +2,7 @@
 .report-settings-page .report-detail-heading,
 .report-settings-page .report-generator-card {
   width: 100%;
-  max-width: 696px;
+  max-width: 560px;
   box-sizing: border-box;
   color: #37352f;
 }
@@ -26,14 +26,20 @@
   margin-top: 26px;
 }
 
-.report-continuous-list { display: grid; gap: 28px; margin-top: 22px; }
+.report-continuous-list { display: grid; gap: 0; margin-top: 24px; }
 .report-continuous-section {
+  container: report-preferences / inline-size;
   min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
 }
-.report-continuous-heading { display: flex; align-items: center; gap: 9px; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 0; border-radius: 10px; background: #f8f8f6; padding: 9px 12px; color: #45413c; font-size: 15px; font-weight: 500; line-height: 22px; }
-.report-continuous-heading > svg { flex: 0 0 auto; color: #a76028; }
+.report-continuous-section + .report-continuous-section { margin-top: 24px; border-top: 1px solid #e7e6e2; padding-top: 24px; }
+.report-continuous-heading { display: flex; align-items: center; gap: 10px; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 0; color: #2f2c28; font-size: 20px; font-weight: 600; line-height: 28px; letter-spacing: -.2px; }
+.report-continuous-heading > svg { width: 20px; height: 20px; flex: 0 0 auto; color: #a76028; }
 .report-directory.tone-trainer .report-continuous-heading > svg { color: #6757a6; }
-.report-continuous-content { margin-top: 13px; }
+.report-continuous-content { margin-top: 12px; }
 
 .report-directory-row {
   display: grid;
@@ -74,7 +80,7 @@
 
 .settings-structure-content.report-settings-page .report-generator-card { margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
 .report-settings-page .report-generator-title { align-items: center; }
-.report-settings-page .report-generator-title h3 { margin: 0; color: #37352f; font-size: 16px; font-weight: 500; line-height: 1.4; }
+.report-settings-page .report-generator-title h3 { margin: 0; color: #77736c; font-size: 13px; font-weight: 500; line-height: 1.45; }
 .report-settings-page .report-close { width: auto; height: auto; min-height: 36px; border: 0; border-radius: 999px; background: transparent; padding: 6px 12px; color: #8a8780; font: inherit; font-size: 12px; white-space: nowrap; }
 .report-settings-page .report-close:hover { background: #f5f5f3; color: #37352f; }
 .report-settings-page .report-close:focus-visible { outline: 2px solid #ff9025; outline-offset: 2px; }
@@ -82,8 +88,10 @@
 .report-settings-page .report-period-list { gap: 0; margin-top: 8px; border-top: 0; }
 .report-settings-page .report-period { justify-content: space-between; min-height: 48px; border: 0; border-bottom: 1px solid #eeede9; border-radius: 0; background: transparent; padding: 0 4px; color: #37352f; font-size: 14px; }
 .report-settings-page .report-period:hover { background: #faf9f7; }
-.report-continuous-section .report-period { border-bottom: 0; border-radius: 8px; padding-inline: 0; }
-.report-continuous-section .report-period:hover { background: #f0f0ed; }
+.report-continuous-section .report-period-list { margin-top: 4px; }
+.report-continuous-section .report-period { min-height: 48px; gap: 16px; border-bottom: 0; border-radius: 0; padding-inline: 0; font-weight: 500; }
+.report-continuous-section .report-period:hover { background: transparent; }
+.report-continuous-section .report-period:hover > span { color: #171715; }
 .report-settings-page .report-period > span { order: -1; }
 .report-settings-page .report-period i { width: 36px; height: 22px; border: 1px solid #dadad8; background: #e8e8e6; box-sizing: border-box; }
 .report-settings-page .report-period i::after { width: 14px; height: 14px; top: 3px; left: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
@@ -92,7 +100,7 @@
 .report-settings-page .report-generator-card.tone-trainer .report-period input:checked + i { border-color: #b3b4fb; background: #efeffe; }
 .report-settings-page .report-generator-card.tone-trainer .report-period input:checked + i::after { background: #6467f2; }
 .report-settings-page .report-call-analysis { margin-top: 20px; border-top: 0; padding-top: 0; }
-.report-settings-page .report-call-analysis > h3 { margin-bottom: 12px; color: #37352f; font-size: 16px; font-weight: 500; }
+.report-settings-page .report-call-analysis > h3 { margin-bottom: 12px; color: #77736c; font-size: 13px; font-weight: 500; line-height: 1.45; }
 .report-settings-page .stereo-format-form.is-embedded .stereo-format-section { margin-top: 0; padding-top: 0; }
 .scoring-duration-field.is-disabled { opacity: .5; }
 .scoring-scope-note { display: flex; align-items: center; gap: 10px; margin-top: -6px; padding: 11px 14px; border-radius: 8px; background: #f7f7f5; color: #78766f; font-size: 12px; line-height: 1.6; }
@@ -113,6 +121,31 @@
 .scoring-auto-check input:focus-visible + i { outline: 2px solid #ff9025; outline-offset: 3px; }
 .report-settings-page .report-generator-actions { margin-top: 24px; }
 .report-settings-page .report-generator-actions .dark-button { min-height: 40px; border-radius: 10px; font-size: 13px; }
+
+/* Call settings share label alignment and control styling. */
+.report-continuous-section .scoring-settings-content.is-preference-list { width: 100%; gap: 12px; }
+.report-continuous-section .is-preference-list .scoring-auto-toggle { justify-content: space-between; gap: 16px; min-height: 44px; padding: 0; align-items: center; font-weight: 500; line-height: 20px; }
+.report-continuous-section .is-preference-list .scoring-auto-toggle .notification-switch { justify-content: flex-end; }
+.report-continuous-section .stereo-format-form .stereo-format-section { display: grid; grid-template-columns: minmax(0, 1fr) 236px; align-items: center; gap: 16px; min-height: 44px; width: 100%; margin: 0; padding: 0; border: 0; }
+.report-continuous-section .is-preference-list .scoring-duration-field { display: grid; grid-template-columns: minmax(0, 1fr) 128px; align-items: center; gap: 16px; width: 100%; margin: 0; padding: 0; border: 0; }
+.report-continuous-section .is-preference-list .scoring-duration-field > span { color: #37352f; font-size: 14px; font-weight: 500; line-height: 20px; }
+.report-continuous-section .is-preference-list .scoring-duration-field > div { box-sizing: border-box; width: 100%; height: 44px; border: 1px solid #e9e8e5; border-radius: 10px; background: #f5f5f5; padding: 10px 14px; transition: background .18s ease, border-color .18s ease; }
+.report-continuous-section .is-preference-list .scoring-duration-field input { min-width: 0; color: #37352f; font: inherit; font-size: 14px; line-height: 20px; }
+.report-continuous-section .is-preference-list .scoring-duration-field > div > svg { flex: 0 0 auto; color: #777; width: 16px; height: 16px; }
+.report-continuous-section .is-preference-list .scoring-duration-field:not(.is-disabled) > div:hover { background: #f1f1f1; border-color: #d9d8d4; }
+.report-continuous-section .is-preference-list .scoring-duration-field > div:focus-within,
+.report-continuous-section .stereo-format-trigger:focus-visible,
+.report-continuous-section .stereo-format-select.is-open .stereo-format-trigger { outline: 2px solid #ffb576; outline-offset: -1px; border-color: transparent; }
+.report-continuous-section .stereo-format-label-row { margin: 0; }
+.report-continuous-section .stereo-format-form .stereo-format-field { line-height: 20px; }
+.report-continuous-section .stereo-format-select { width: 100%; }
+.report-continuous-section .stereo-format-scope { max-width: none; margin-top: 10px; padding: 0; border-radius: 0; background: transparent; font-size: 13px; line-height: 20px; }
+@container report-preferences (max-width: 300px) {
+  .report-continuous-section .stereo-format-form .stereo-format-section { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .report-continuous-section .stereo-format-select { width: min(100%, 236px); justify-self: end; }
+  .report-continuous-section .is-preference-list .scoring-duration-field { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .report-continuous-section .is-preference-list .scoring-duration-field > div { width: 128px; justify-self: end; }
+}
 
 @media (max-width: 650px) {
   .report-directory-row { grid-template-columns: 36px minmax(0, 1fr) 18px; gap: 10px; }

@@ -72,7 +72,6 @@ export function EmployeesSettings({ notify }) {
     setDisplay(next);
   };
   const filterCount = Object.values(filters).filter(Boolean).length;
-  const [departmentQuery, setDepartmentQuery] = useState('');
   const [departments, setDepartments] = useState(() => {
     try { return readDepartments(localStorage.getItem(DEPARTMENT_STORAGE_KEY)); } catch { return readDepartments(null); }
   });
@@ -82,7 +81,6 @@ export function EmployeesSettings({ notify }) {
   const [deleteError, setDeleteError] = useState('');
   const [activeDepartment, setActiveDepartment] = useState(null);
   const [selected, setSelected] = useState([]);
-  const visibleDepartments = departments.filter(({ name }) => name.toLocaleLowerCase('ru').includes(departmentQuery.trim().toLocaleLowerCase('ru')));
   const visibleEmployees = filterEmployees(employees, { ...filters, query, department: activeDepartment });
   const persistDepartments = (next) => {
     try { localStorage.setItem(DEPARTMENT_STORAGE_KEY, JSON.stringify(next)); }
@@ -133,24 +131,10 @@ export function EmployeesSettings({ notify }) {
         <h2 id="employee-directory-title">Сотрудники</h2>
         <p className="employee-directory-note" role="note"><IconId size={20} stroke={1.6} aria-hidden="true" /><span>Добавление и удаление сотрудников — в <span className="employee-directory-note-accent">личном кабинете</span></span></p>
       </div>
-      <div className="employee-directory-actions">
-        <button type="button" className="employee-directory-button" onClick={() => notify('Дубли не найдены')}>
-          <IconUsers size={17} aria-hidden="true" />Поиск дублей
-        </button>
-        <button type="button" className="employee-directory-button is-primary" onClick={() => setCreatingDepartment(true)}>
-          <IconPlus size={18} aria-hidden="true" />Создать отдел
-        </button>
-      </div>
     </header>
     <div className="employee-directory-layout">
       <aside className="employee-departments" aria-labelledby="employee-departments-title">
-        <div className="employee-departments-header">
-          <h3 id="employee-departments-title">Отделы</h3>
-          <label className="employee-directory-search">
-            <IconSearch size={16} aria-hidden="true" />
-            <input type="search" aria-label="Поиск по отделам" placeholder="Поиск" value={departmentQuery} onChange={(event) => setDepartmentQuery(event.target.value)} />
-          </label>
-        </div>
+        <h3 id="employee-departments-title">Отделы</h3>
         <div className="employee-all-filter">
           <button type="button" className={`employee-department employee-all-button${activeDepartment === null ? ' is-active' : ''}`}
             aria-pressed={activeDepartment === null} onClick={() => setActiveDepartment(null)}>
@@ -158,11 +142,11 @@ export function EmployeesSettings({ notify }) {
           </button>
         </div>
         <DepartmentList activeId={activeDepartment}>
-          {visibleDepartments.map((department) => <DepartmentRow key={department.id} department={department}
+          {departments.map((department) => <DepartmentRow key={department.id} department={department}
             active={activeDepartment === department.id} onSelect={() => setActiveDepartment(department.id)}
             count={employees.filter((employee) => employee.department === department.id).length}
             onEdit={() => setEditingDepartment(department)} onDelete={() => { setDeleteError(''); setDeletingDepartment(department); }} />)}
-          {!visibleDepartments.length && <p className="employee-directory-muted">Отделы не найдены</p>}
+          {!departments.length && <p className="employee-directory-muted">Отделы не найдены</p>}
         </DepartmentList>
       </aside>
       <div className="employee-directory-results" role="region" aria-labelledby="employee-results-title">
@@ -178,6 +162,14 @@ export function EmployeesSettings({ notify }) {
             <IconSearch size={17} aria-hidden="true" />
             <input type="search" aria-label="Поиск сотрудников" placeholder="Поиск" value={query} onChange={(event) => setQuery(event.target.value)} />
           </label>
+          </div>
+          <div className="employee-directory-actions">
+            <button type="button" className="employee-directory-button" onClick={() => notify('Дубли не найдены')}>
+              <IconUsers size={17} aria-hidden="true" />Поиск дублей
+            </button>
+            <button type="button" className="employee-directory-button is-primary" onClick={() => setCreatingDepartment(true)}>
+              <IconPlus size={18} aria-hidden="true" />Создать отдел
+            </button>
           </div>
         </div>
         <div className="employee-view-bar">

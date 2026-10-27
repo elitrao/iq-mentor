@@ -35,7 +35,7 @@
 .cr-table { table-layout: fixed; border-collapse: separate; border-spacing: 0; min-width: 100%; color: #858585; font-size: 16px; font-weight: 500; line-height: 24px; }
 .cr-table th, .cr-table td { overflow: hidden; padding: 0 10px; border: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
 .cr-table th { height: 72px; position: sticky; top: 0; z-index: 2; background: #fff; border-bottom: 1px solid #ebebeb; color: #4a4a46; font-weight: 600; }
-.cr-table th:not(:last-child):not(.cr-check-cell) { border-right: 1px solid #e4e4e1; }
+.cr-table th:not(:last-child):not(.cr-check-cell) { border-right: 1px solid #ddddda; }
 .cr-table th > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .cr-column-label { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .cr-column-label > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

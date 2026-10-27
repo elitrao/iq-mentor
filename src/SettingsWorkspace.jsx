@@ -4,6 +4,7 @@ import {
   IconHeadphones, IconPhone, IconPlugConnected, IconReportAnalytics, IconUsers,
 } from '@tabler/icons-react';
 import { SETTINGS_GROUPS, resolveSettingsSection } from './settings/schema.js';
+import { SettingsHint } from './SettingsHint.jsx';
 import analystIcon from './assets/notification-analyst.png';
 import trainerIcon from './assets/notification-trainer.png';
 import './settings-workspace.css';
@@ -20,6 +21,15 @@ const REPORT_TYPE_ICONS = {
   summary: IconChartBar,
   categories: IconCategory,
   training: IconBarbell,
+};
+
+const SECTION_HELP = {
+  'analyst-reports-summary': 'Собирает результаты анализа звонков в общий отчёт, чтобы сравнивать работу сотрудников и видеть, где нужна помощь.',
+  'analyst-reports-categories': 'Показывает результаты по отдельным категориям оценки звонков: например, вежливости или работе с возражениями. Помогает увидеть сильные стороны и точки роста команды.',
+  'trainer-reports-training': 'Собирает результаты пройденных тренировок: как сотрудники справляются с заданиями и какие навыки стоит отработать.',
+  'trainer-reports-summary': 'Объединяет результаты тренировок в общий отчёт по сотрудникам, чтобы оценивать подготовку команды.',
+  stereo: 'Определяет, в каком канале стереозаписи говорит оператор, а в каком — клиент. L — левый канал, R — правый. Выбранный формат по умолчанию применяется при отправке звонков на анализ.',
+  'analyst-reports-calls': 'Автоматически отправляет новые звонки из подключённых интеграций на анализ, если они достигают минимальной длительности. При выключенном переключателе поле длительности недоступно.',
 };
 
 function SettingsGroupProductIcon({ product, src }) {
@@ -56,7 +66,14 @@ function ReportOverview({ group, item, renderSection }) {
       {item.children.map((child) => {
         const ChildIcon = REPORT_TYPE_ICONS[child.reportType] || IconHeadphones;
         return <section key={child.id} className="report-continuous-section" aria-labelledby={`${id}-section-${child.id}`}>
-          <h3 className="report-continuous-heading" id={`${id}-section-${child.id}`}><ChildIcon size={18} stroke={1.45} aria-hidden="true" /><span>{child.label}</span></h3>
+          <div className="settings-heading-with-hint">
+            <h3 className="report-continuous-heading" id={`${id}-section-${child.id}`}><ChildIcon size={18} stroke={1.45} aria-hidden="true" /><span>{child.label}</span></h3>
+            <SettingsHint label={child.label}>
+              <p>{SECTION_HELP[child.id]}</p>
+              {child.reportType && child.reportType !== 'calls' && <p>Включите периоды, за которые нужно автоматически создавать отчёты: прошедший день, неделю или месяц. Можно выбрать несколько периодов.</p>}
+              {child.reportType === 'calls' && <p>При ручной загрузке звонок отправляется на анализ независимо от этой настройки и длительности.</p>}
+            </SettingsHint>
+          </div>
           <div className="report-continuous-content">{renderSection(child.id)}</div>
         </section>;
       })}

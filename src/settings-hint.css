@@ -1,0 +1,9 @@
+.settings-heading-with-hint { display: flex; align-items: center; gap: 6px; }
+.settings-heading-with-hint > h3 { min-width: 0; }
+.settings-hint { display: inline-flex; flex: 0 0 auto; vertical-align: middle; }
+.settings-hint-trigger { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #96938c; cursor: pointer; }
+.settings-hint-trigger:hover, .settings-hint-trigger[aria-expanded="true"] { background: #f3f3f0; color: #57534c; }
+.settings-hint-trigger:focus-visible { outline: 2px solid #ffb576; outline-offset: 2px; }
+.settings-hint-bubble { position: fixed; inset: auto; width: 320px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); box-sizing: border-box; margin: 0; padding: 14px 16px; border: 1px solid #e7e6e2; border-radius: 10px; background: #fff; color: #57534c; box-shadow: 0 6px 24px #25231e1a; font: 400 13px/20px Inter, sans-serif; text-align: left; overflow-y: auto; }
+.settings-hint-bubble p { margin: 0; }
+.settings-hint-bubble p + p { margin-top: 8px; color: #77736c; }
