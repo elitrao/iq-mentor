@@ -40,7 +40,7 @@ export function IntegrationCatalog({ value, onSelect }) {
     </section>
 
     <section id="integration-catalog-results" className="integration-catalog-results" aria-labelledby="integration-results-title">
-      <div className="integration-catalog-results-head"><h3 id="integration-results-title">Неактивные</h3><span role="status" aria-label={`Неактивных интеграций: ${visibleServices.length}`}>{visibleServices.length}</span></div>
+      <div className="integration-catalog-results-head"><h3 id="integration-results-title">Неактивные</h3><span className="integration-count-badge" role="status" aria-label={`Неактивных интеграций: ${visibleServices.length}`}>{visibleServices.length}</span></div>
       {visibleServices.length ? <div className="integration-catalog-grid">{visibleServices.map((service) => {
         return <button className="integration-catalog-service" type="button" key={service.key} id={`integration-catalog-${service.key}`}
           onClick={(event) => onSelect(service.key, event.currentTarget.id)} aria-label={`Открыть интеграцию «${service.name}», настроить подключение`}
