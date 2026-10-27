@@ -40,6 +40,9 @@ import { NOTIFICATION_EVENTS, notificationPreference } from "./settings/notifica
 import { StereoFormatSelect } from "./StereoFormatSelect.jsx";
 import { getStereoFormat, setStereoFormat } from "./settings/stereo.js";
 import { CallsReportPage } from "./CallsReportPage.jsx";
+import { ClientsPage } from "./ClientsPage.jsx";
+import { SummaryReportPage } from "./SummaryReportPage.jsx";
+import { CategoryReportPage } from "./CategoryReportPage.jsx";
 import { BILLING_STORAGE_KEY, billingReducer, formatRubles, hydrateBillingState } from "./billing/engine.js";
 import {
   IconAdjustmentsHorizontal, IconArrowDown, IconArrowLeft, IconArrowUp, IconBell, IconBook2, IconBuilding, IconCheck, IconClock,
@@ -50,7 +53,14 @@ import {
   IconUser, IconUsers, IconWallet, IconX,
 } from "@tabler/icons-react";
 
-const PAGE_LABELS = { home: "Главная", analytics: "Аналитик", templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", 'settings-4': "Настройки 4", feedback: "Предложить идею" };
+const ANALYST_PAGES = [
+  { id: 'clients', label: 'Клиенты' },
+  { id: 'analytics', label: 'Отчет по звонкам' },
+  { id: 'summary-report', label: 'Сводный отчет' },
+  { id: 'category-report', label: 'Отчет по категориям' },
+];
+const isAnalystPage = (page) => ANALYST_PAGES.some(item => item.id === page);
+const PAGE_LABELS = { home: "Главная", ...Object.fromEntries(ANALYST_PAGES.map(item => [item.id, item.label])), templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", 'settings-4': "Настройки", feedback: "Предложить идею" };
 // Enable both daily bonus banners for prototype review.
 const DAILY_BONUS_PROMOTION_ENABLED = true;
 const NAV_ITEMS = [
@@ -319,6 +329,8 @@ export function App() {
   const [settings, setSettings] = useState(loadSettings);
   const [navOrder, setNavOrder] = useState(loadNavOrder);
   const [toast, setToast] = useState("");
+  const [summaryEmployee, setSummaryEmployee] = useState('');
+  useEffect(() => { if (page === 'summary-report') setSummaryEmployee(''); }, [page]);
   const [settingSection, setSettingSection] = useState("employees");
   const [billing, dispatchBilling] = useReducer(billingReducer, undefined, () => hydrateBillingState(localStorage.getItem(BILLING_STORAGE_KEY)));
   const [billingAutoplay, setBillingAutoplay] = useState(false);
@@ -434,7 +446,7 @@ export function App() {
   };
 
   const workspaceProps = { active: settingSection, setActive: setSettingSection, settings, update, notify, renderSection: (id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} /> };
-  const settingsModal = navigation.settingsModal && <SettingsModal {...workspaceProps} close={closeModal} toast={toast} openPills={() => setPage('settings-4')} />;
+  const settingsModal = navigation.settingsModal && <SettingsModal {...workspaceProps} close={closeModal} toast={toast} />;
   const helpCustomer = { ...settings.profile, company: settings.company.name };
   const feedbackModal = navigation.feedbackModal && <KnowledgeBaseModal close={closeModal} notify={notify} customer={helpCustomer} initialSection="Предложить идею" />;
   const welcomeModal = dailyBonusWelcomeOpen && !knowledgeOpen && !activeNavigationModal && <DailyBonusWelcome variant={dailyBonusVariant} onClose={closeDailyBonusWelcome} onStart={() => { closeDailyBonusWelcome(); setPage(dailyBonusVariant === 'exhausted' ? 'account-tariff' : 'home'); }} />;
@@ -463,17 +475,20 @@ export function App() {
     {feedbackModal}
   </>;
 
-  return <div className={collapsed && !sidebarPreviewOpen ? "app-shell sidebar-collapsed" : "app-shell"}>
+  return <div className={`app-shell${collapsed && !sidebarPreviewOpen ? ' sidebar-collapsed' : ''}${isAnalystPage(page) ? ' analyst-shell' : ''}`}>
     <Sidebar page={activeNavigationModal || page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
         {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />}
-        {page === "analytics" && <CallsReportPage />}
+        {page === 'clients' && <ClientsPage notify={notify} />}
+        {page === 'summary-report' && <SummaryReportPage initialEmployee={summaryEmployee} notify={notify} manageTeam={() => { setSettingSection('employees'); setPage('settings'); }} openTrainer={() => setPage('trainer')} />}
+        {page === 'category-report' && <CategoryReportPage notify={notify} openEmployee={employee => { setSummaryEmployee(employee); setPage('summary-report'); }} />}
+        {page === "analytics" && <CallsReportPage scoring={settings.scoring} saveScoring={(value) => update((draft) => { draft.scoring = { ...draft.scoring, ...value }; })} notify={notify} manageTeam={() => { setSettingSection('employees'); setPage('settings'); }} openTrainer={() => { setPage('trainer'); notify('Открыт раздел тренировок'); }} />}
         {page === "templates" && <TemplatesPage settings={settings} update={update} notify={notify} />}
         {page === "documents" && <DocumentsWorkspace notify={notify} />}
         {page === "trainer" && <TrainerPage />}
-        {page === 'settings-4' && <SettingsPills {...workspaceProps} openModal={() => setPage('settings')} />}
+        {page === 'settings-4' && <SettingsPills {...workspaceProps} />}
         {page === "billing" && <BillingSimulator state={billing} dispatch={dispatchBilling} autoplay={billingAutoplay} setAutoplay={setBillingAutoplay} onConsultation={() => notify("Заявка на консультацию отправлена")} />}
       </main>
     </div>
@@ -499,7 +514,10 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   const previewOpenTimer = useRef(null);
   const [drag, setDrag] = useState(null);
   const [reorderAnnouncement, setReorderAnnouncement] = useState('');
-  const [analyticsOpen, setAnalyticsOpen] = useState(page === "analytics");
+  const [analyticsOpen, setAnalyticsOpen] = useState(isAnalystPage(page));
+  const [analyticsFlyout, setAnalyticsFlyout] = useState(false);
+  const [narrowMenu, setNarrowMenu] = useState(() => window.matchMedia('(max-width: 1200px)').matches);
+  const analystFlyoutRef = useRef(null);
   const orderedItems = navOrder.map((id) => NAV_ITEMS.find((item) => item.id === id)).filter((item) => item && !HIDDEN_NAV_ITEMS.has(item.id));
   const navGroups = [
     { id: 'primary', label: 'Основные разделы' },
@@ -507,8 +525,30 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   ].map((group) => ({ ...group, items: orderedItems.filter((item) => sidebarGroup(item.id) === group.id) }));
 
   useEffect(() => {
-    setAnalyticsOpen(page === "analytics");
+    setAnalyticsOpen(isAnalystPage(page));
+    setAnalyticsFlyout(false);
   }, [page]);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 1200px)');
+    const update = () => setNarrowMenu(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!analyticsFlyout) return;
+    const close = (event) => {
+      if (event.type === 'keydown' && event.key !== 'Escape') return;
+      if (event.type === 'pointerdown' && (analystFlyoutRef.current?.contains(event.target) || event.target.closest('[data-analyst-trigger]'))) return;
+      setAnalyticsFlyout(false);
+      if (event.type === 'keydown') navRef.current?.querySelector('[data-analyst-trigger]')?.focus();
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    window.addEventListener('resize', close);
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); window.removeEventListener('resize', close); };
+  }, [analyticsFlyout]);
 
   useEffect(() => {
     const desktopPointer = window.matchMedia("(min-width: 1201px) and (hover: hover) and (pointer: fine)");
@@ -628,8 +668,9 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     setReorderAnnouncement(`Раздел «${item.label}»: позиция ${target + 1} из ${groupLength} в группе`);
   };
   const openPage = (id) => {
-    if (id === "analytics" && !collapsed && !window.matchMedia("(max-width: 1200px)").matches) {
-      setAnalyticsOpen((current) => !current);
+    if (id === "analytics") {
+      if (collapsed || window.matchMedia("(max-width: 1200px)").matches) setAnalyticsFlyout(current => !current);
+      else setAnalyticsOpen((current) => !current);
       return;
     }
     setPage(id);
@@ -643,21 +684,19 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
     </div>
     <nav ref={navRef} className={drag?.active ? "sidebar-nav is-reordering" : "sidebar-nav"} aria-label="Основная навигация">
       {navGroups.map((group) => <div key={group.id} className={`sidebar-nav-group sidebar-nav-group-${group.id}`} role="group" aria-label={group.label}>
-        {group.id === 'materials' && <div className="sidebar-group-heading" aria-hidden="true"><span>Материалы</span></div>}
+        {group.id === 'materials' && <div className="sidebar-group-heading" aria-hidden="true" />}
         {group.items.map((item, index) => {
         const shift = !dragLayout || drag.group !== group.id || index === drag.sourceIndex ? 0 : dragLayout.offsets[index];
         const isAnalytics = item.id === "analytics";
-        const isExpanded = isAnalytics && analyticsOpen && !collapsed;
+        const isExpanded = isAnalytics && analyticsOpen && !collapsed && !narrowMenu;
         return <div className={`${drag?.active && item.id === drag.id ? "nav-row drag-origin" : "nav-row"}${isExpanded ? " nav-row-expanded" : ""}`} style={{ transform: `translateY(${shift}px)` }} key={item.id}>
-          <button className={page === item.id || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} onClick={() => openPage(item.id)} aria-expanded={isAnalytics ? isExpanded : undefined}>
+          <button className={page === item.id || (isAnalytics && isAnalystPage(page)) || isExpanded ? "nav-item active" : "nav-item"} aria-label={item.label} data-analyst-trigger={isAnalytics ? '' : undefined} onClick={() => openPage(item.id)} aria-expanded={isAnalytics ? isExpanded || analyticsFlyout : undefined}>
             <SidebarIcon item={item} />
             <span>{item.label}</span>
             {item.arrow && <IconChevronDown className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={20} stroke={1.25} />}
           </button>
           {isAnalytics && <div className={isExpanded ? "nav-submenu open" : "nav-submenu"} aria-hidden={!isExpanded}>
-            <button className={page === "analytics" ? "nav-subitem active" : "nav-subitem"} type="button" tabIndex={isExpanded ? 0 : -1} onClick={() => setPage("analytics")}>
-              <span>Список звонков</span>
-            </button>
+            {ANALYST_PAGES.map(link => <button key={link.id} className={page === link.id ? "nav-subitem active" : "nav-subitem"} type="button" tabIndex={isExpanded ? 0 : -1} aria-current={page === link.id ? 'page' : undefined} onClick={() => setPage(link.id)}><span>{link.label}</span></button>)}
           </div>}
           <button type="button" className="nav-drag-handle" aria-label={`Переместить раздел «${item.label}»`} aria-describedby={`nav-drag-hint-${item.id} nav-reorder-keyboard-help`} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} onLostPointerCapture={(event) => finishDrag(event, true)} onKeyDown={(event) => moveWithKeyboard(event, item, index)} onClick={(event) => event.preventDefault()}>
             <IconGripVertical size={16} stroke={1.6} aria-hidden="true" />
@@ -667,14 +706,14 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
         })}
       </div>)}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
-      {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
-      <button className={`nav-item mobile-settings-shortcut${page === 'settings' ? ' active' : ''}`} aria-label="Настройки" aria-haspopup="dialog" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
+      {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id || (draggedItem.id === 'analytics' && isAnalystPage(page))} page={page} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
+      <button className={`nav-item mobile-settings-shortcut${page === 'settings' || page === 'settings-4' ? ' active' : ''}`} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
     </nav>
+    {analyticsFlyout && <nav ref={analystFlyoutRef} className="analyst-nav-flyout" aria-label="Разделы Аналитика"><strong>Аналитик</strong>{ANALYST_PAGES.map(link => <button key={link.id} className={page === link.id ? 'active' : ''} aria-current={page === link.id ? 'page' : undefined} onClick={() => { setAnalyticsFlyout(false); setPage(link.id); }}>{link.label}</button>)}</nav>}
     <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов внутри группы. Escape отменяет перетаскивание.</span>
     <span className="nav-reorder-sr-only" role="status" aria-live="polite">{reorderAnnouncement}</span>
     <div className="sidebar-bottom">
-      <button className={page === "settings" ? "nav-item muted-item active" : "nav-item muted-item"} aria-label="Настройки" aria-haspopup="dialog" onClick={() => setPage("settings")}><IconSettingsFilled size={18} /><span>Настройки</span></button>
-      <button className={page === 'settings-4' ? 'nav-item muted-item active' : 'nav-item muted-item'} aria-label="Настройки 4" onClick={() => setPage('settings-4')}><IconSettingsFilled size={18} /><span>Настройки 4</span></button>
+      <button className={page === 'settings' || page === 'settings-4' ? 'nav-item muted-item active' : 'nav-item muted-item'} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /><span>Настройки</span></button>
       <button className="nav-item sidebar-help-item" onClick={openKnowledge} aria-haspopup="dialog" aria-label="Помощь"><IconLifebuoyFilled size={18} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
       <button className="lk-button" aria-label="Перейти в ЛК" title="Перейти в ЛК" onClick={() => setPage("account")}><span className="lk-button-label">Перейти в ЛК</span><img className="lk-button-icon" src={sidebarAccountIcon} alt="" /></button>
@@ -682,14 +721,14 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   </aside>;
 }
 
-function NavDragOverlay({ item, active, expanded, top, width }) {
+function NavDragOverlay({ item, active, page, expanded, top, width }) {
   return <div className="nav-drag-overlay" style={{ top: `${top}px`, width: `${width}px` }} aria-hidden="true">
     <div className={active ? "nav-item active" : "nav-item"}>
       <SidebarIcon item={item} />
       <span>{item.label}</span>
       {item.arrow && <IconChevronDown className={expanded ? "nav-arrow expanded" : "nav-arrow"} size={20} stroke={1.25} />}
     </div>
-    {expanded && <div className="nav-submenu open"><div className={active ? "nav-subitem active" : "nav-subitem"}>Список звонков</div></div>}
+    {expanded && <div className="nav-submenu open">{ANALYST_PAGES.map(link => <div key={link.id} className={page === link.id ? "nav-subitem active" : "nav-subitem"}>{link.label}</div>)}</div>}
     <span className="nav-drag-handle" aria-hidden="true"><IconGripVertical size={16} stroke={1.6} /></span>
   </div>;
 }
@@ -716,7 +755,7 @@ function Topbar({ page, setPage, balanceCents, bonusBalanceCents, bonusNotice })
   if (page === "home") return null;
   return <header className="topbar">
     <span className="topbar-page">{PAGE_LABELS[page]}</span>
-    <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>Ментор</em></button>
+    <button className="mentor-brand" onClick={() => setPage("home")}><img src="/iq-logo.svg" alt="IQ" /><span></span><em>{isAnalystPage(page) ? 'Аналитик' : 'Ментор'}</em></button>
     <div className="topbar-actions"><HeaderBalance setPage={setPage} balanceCents={balanceCents} bonusBalanceCents={bonusBalanceCents} bonusNotice={bonusNotice} /><HeaderShortcuts setPage={setPage} /></div>
   </header>;
 }

@@ -1,10 +1,9 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import {
-  IconUsers, IconPlugConnected, IconBell, IconReportAnalytics,
-  IconHeadphones, IconChevronDown,
+  IconBarbell, IconBell, IconCategory, IconChartBar, IconChevronDown,
+  IconHeadphones, IconPhone, IconPlugConnected, IconReportAnalytics, IconUsers,
 } from '@tabler/icons-react';
 import { SETTINGS_GROUPS, resolveSettingsSection } from './settings/schema.js';
-import { ReportTypeTabs } from './ReportTypeTabs.jsx';
 import analystIcon from './assets/notification-analyst.png';
 import trainerIcon from './assets/notification-trainer.png';
 import './settings-workspace.css';
@@ -14,6 +13,13 @@ import './stereo-settings.css';
 const ICONS = {
   users: IconUsers, plug: IconPlugConnected, bell: IconBell, report: IconReportAnalytics,
   headphones: IconHeadphones,
+};
+
+const REPORT_TYPE_ICONS = {
+  calls: IconPhone,
+  summary: IconChartBar,
+  categories: IconCategory,
+  training: IconBarbell,
 };
 
 function SettingsGroupProductIcon({ product, src }) {
@@ -42,18 +48,18 @@ export function SettingsGroupIcon({ groupId }) {
   return icon ? <SettingsGroupProductIcon product={groupId} src={icon} /> : null;
 }
 
-function ReportOverview({ group, item, active, onSelect, renderSection }) {
+function ReportOverview({ group, item, renderSection }) {
   const id = useId();
-  const selected = item.children.some((child) => child.id === active) ? active : item.children[0].id;
   return <section className={`report-directory tone-${group.id}`} aria-labelledby={`${id}-title`}>
     <h2 id={`${id}-title`}>{item.label}</h2>
-    <ReportTypeTabs items={item.children} active={selected} tone={group.id} id={id} onChange={onSelect} label={item.id === 'call-assessment' ? 'Настройки оценки звонков' : 'Тип отчёта'} />
-    <div className="notification-product-panels report-type-panels">
-      {item.children.map((child) => <div key={child.id} className={`notification-product-panel${selected === child.id ? ' is-active' : ''}`}
-        role="tabpanel" id={`${id}-panel-${child.id}`} aria-labelledby={`${id}-tab-${child.id}`}
-        aria-hidden={selected !== child.id} inert={selected !== child.id}>
-        {renderSection(child.id)}
-      </div>)}
+    <div className="report-continuous-list">
+      {item.children.map((child) => {
+        const ChildIcon = REPORT_TYPE_ICONS[child.reportType] || IconHeadphones;
+        return <section key={child.id} className="report-continuous-section" aria-labelledby={`${id}-section-${child.id}`}>
+          <h3 className="report-continuous-heading" id={`${id}-section-${child.id}`}><ChildIcon size={18} stroke={1.45} aria-hidden="true" /><span>{child.label}</span></h3>
+          <div className="report-continuous-content">{renderSection(child.id)}</div>
+        </section>;
+      })}
     </div>
   </section>;
 }
@@ -104,7 +110,7 @@ export function SettingsSectionContent({ active, setActive, renderSection }) {
   const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
   return <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}`}>
     {!reportParent && !['employees', 'integrations', 'notifications', 'stereo'].includes(item.id) && header}
-    <div key={reportParent?.id || item.id} className="settings-section-body">{reportParent ? <ReportOverview group={group} item={reportParent} active={item.id} onSelect={setActive} renderSection={renderSection} /> : renderSection(item.id)}</div>
+    <div key={reportParent?.id || item.id} className="settings-section-body">{reportParent ? <ReportOverview group={group} item={reportParent} renderSection={renderSection} /> : renderSection(item.id)}</div>
   </section>;
 }
 

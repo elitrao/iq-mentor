@@ -12,14 +12,14 @@ test('all settings links open the single modal with safe direct-entry return', (
 });
 
 test('ordinary direct links stay unchanged', () => {
-  for (const page of ['home', 'analytics', 'trainer', 'documents', 'templates', 'account', 'settings-4']) {
+  for (const page of ['home', 'clients', 'analytics', 'summary-report', 'category-report', 'trainer', 'documents', 'templates', 'account', 'settings-4']) {
     assert.deepEqual(initialNavigation('#' + page), { page });
   }
   assert.deepEqual(initialNavigation(''), { page: 'home' });
 });
 
 test('opening and reopening preserve the origin without mutation', () => {
-  for (const page of ['home', 'analytics', 'trainer', 'templates', 'documents', 'settings-4']) {
+  for (const page of ['home', 'clients', 'analytics', 'summary-report', 'category-report', 'trainer', 'templates', 'documents', 'settings-4']) {
     const current = Object.freeze({ page });
     const opened = navigatePrototype(current, 'settings');
     assert.deepEqual(opened, { page, settingsModal: true });

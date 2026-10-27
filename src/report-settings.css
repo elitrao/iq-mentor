@@ -26,10 +26,14 @@
   margin-top: 26px;
 }
 
-.report-type-tabs-scroll { max-width: 100%; overflow-x: auto; padding: 3px; margin: 19px -3px 0; }
-.report-type-tabs-scroll .settings-product-tabs { margin-top: 0; white-space: nowrap; }
-.report-type-tabs-scroll .settings-product-tabs button { flex-shrink: 0; }
-.report-type-panels { margin-top: 18px; }
+.report-continuous-list { display: grid; gap: 28px; margin-top: 22px; }
+.report-continuous-section {
+  min-width: 0;
+}
+.report-continuous-heading { display: flex; align-items: center; gap: 9px; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 0; border-radius: 10px; background: #f8f8f6; padding: 9px 12px; color: #45413c; font-size: 15px; font-weight: 500; line-height: 22px; }
+.report-continuous-heading > svg { flex: 0 0 auto; color: #a76028; }
+.report-directory.tone-trainer .report-continuous-heading > svg { color: #6757a6; }
+.report-continuous-content { margin-top: 13px; }
 
 .report-directory-row {
   display: grid;
@@ -78,6 +82,8 @@
 .report-settings-page .report-period-list { gap: 0; margin-top: 8px; border-top: 0; }
 .report-settings-page .report-period { justify-content: space-between; min-height: 48px; border: 0; border-bottom: 1px solid #eeede9; border-radius: 0; background: transparent; padding: 0 4px; color: #37352f; font-size: 14px; }
 .report-settings-page .report-period:hover { background: #faf9f7; }
+.report-continuous-section .report-period { border-bottom: 0; border-radius: 8px; padding-inline: 0; }
+.report-continuous-section .report-period:hover { background: #f0f0ed; }
 .report-settings-page .report-period > span { order: -1; }
 .report-settings-page .report-period i { width: 36px; height: 22px; border: 1px solid #dadad8; background: #e8e8e6; box-sizing: border-box; }
 .report-settings-page .report-period i::after { width: 14px; height: 14px; top: 3px; left: 3px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.12); }

@@ -1,0 +1,9 @@
+/* Captured production Inter, shared by all four Analyst pages. */
+@font-face { font-family: 'IQ Report Inter'; src: url('./assets/analyst-fonts/Inter-Regular-400.ttf') format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IQ Report Inter'; src: url('./assets/analyst-fonts/Inter-Medium-500.ttf') format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IQ Report Inter'; src: url('./assets/analyst-fonts/Inter-SemiBold-600.ttf') format('truetype'); font-weight: 600; font-style: normal; font-display: swap; }
+/* Use the captured production font only in Analyst content, including its dialogs. */
+.analyst-shell .page-area,
+.analyst-shell .page-area * {
+  font-family: 'IQ Report Inter', Inter, sans-serif;
+}

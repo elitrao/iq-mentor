@@ -1,0 +1,38 @@
+/* Header cells keep their existing sticky position. No permanent column rules. */
+.rrt-table .rrt-column-handle {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: block;
+  width: 10px;
+  min-width: 10px;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  z-index: 4;
+}
+.rrt-table .rrt-column-handle::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  right: 1px;
+  width: 2px;
+  border-radius: 1px;
+  background: #ff9025;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+.rrt-table .rrt-resizable-header:hover > .rrt-column-handle::after,
+.rrt-table .rrt-column-handle:hover::after,
+.rrt-table .rrt-column-handle:focus-visible::after,
+.rrt-table .rrt-column-handle.is-dragging::after { opacity: 1; }
+.rrt-table .rrt-column-handle:focus-visible { outline: none; background: rgb(255 144 37 / 12%); }
+.rrt-table.is-resizing, .rrt-table.is-resizing * { cursor: col-resize !important; user-select: none !important; }
+@media (pointer: coarse) { .rrt-table .rrt-column-handle { width: 16px; } }
+@media (prefers-reduced-motion: reduce) { .rrt-table .rrt-column-handle::after { transition: none; } }

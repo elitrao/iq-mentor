@@ -4,6 +4,7 @@ import { App } from "./App.jsx";
 import { resetLocalEmployeeDirectory } from "./settings/local-directory-reset.js";
 import "./styles.css";
 import "./billing.css";
+import "./analyst-fonts.css";
 
 try {
   resetLocalEmployeeDirectory(window.localStorage, window.location);

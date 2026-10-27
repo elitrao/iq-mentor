@@ -1,143 +1,139 @@
-# Design QA — перенос сотрудников в отдел
+# Design QA — Settings card directory
 
-- Референс: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-f981d443-e53d-4f90-82e2-cf26d1dd0a6b.png` (567×270).
-- Скриншот реализации: `artifacts/employee-move-dialog-screen.png`.
-- Экран проверен в десктопном viewport 1440×900; отдельно проверена мобильная ширина 360 px.
-- Состояние: окно открыто для одного выбранного сотрудника; отдел ещё не выбран.
-- Полноэкранное сравнение с референсом выполнено. В реализации виден затемнённый экран приложения за модальным окном; само окно соответствует референсу по структуре, размерам (567×271), заголовку, полю выбора, бейджу сотрудника и кнопкам.
-- Отдельное сравнение изолированного окна недоступно: референс — обрезанное изображение, скриншот реализации сохраняет контекст приложения. Геометрия окна проверена в DOM.
-- Проверены открытие списка, выбор отдела, отключённая/включённая кнопка подтверждения, закрытие списка клавишей Escape и отмена без потери выбора сотрудника. Перенос не подтверждался.
-- Проверки: сборка успешна; 45 тестов настроек и 10 тестов отделов пройдены; ошибок браузера нет.
+- Source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-1d216191-3d08-42d5-988a-22c90147e265.png`
+- Implementation screenshot: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-artifacts\settings-card-directory.jpg`
+- Combined comparison: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-artifacts\settings-reference-comparison.png`
+- Browser viewport: 1280 × 720 CSS px, device scale 1.
+- Source pixels: 974 × 291. Implementation pixels: 1280 × 720. No density normalization was required; the comparison preserves each image at native density and evaluates the settings-directory region rather than the surrounding product shell.
+- State: expanded desktop sidebar, Settings overview.
 
-Итог: passed.
+## Full-view comparison
 
-## Безопасное перетаскивание основного меню — 22.10.2026
+The implementation keeps the reference's quickly scannable icon-card directory while adapting it to the IQ Mentor shell, content and warm accent palette. The source's left category rail was intentionally replaced by visible text group headings after product feedback. Card density, alignment and label hierarchy are consistent across the six available sections.
 
-- За название/иконку раздел больше не перетаскивается; отдельная ручка из шести точек появляется при наведении или фокусе.
-- Проверено в браузере: движение по названию не меняет порядок; движение ручки на 5px не начинает перенос; полноценный перенос сохраняется после обновления; отпускание вне меню отменяет его.
-- Проверены стрелки клавиатуры, обычный переход после переноса, перемещение раскрытого «Аналитика» с подпунктом. Исходный порядок восстановлен после проверки.
-- Ручки скрыты в свернутом меню и при ширине 1000px. Desktop-проверка — 1440px. Временный размер браузера сброшен.
-- 8 тестов геометрии проходят; сборка успешна, ошибок в консоли браузера нет. Escape, потеря захвата/фокуса и resize отменяют перенос через общий обработчик.
-- Скриншот: `artifacts/sidebar-drag-handle.png`.
+## Focused region comparison
 
-## Три варианта настроек и референсы — 22.10.2026
+The full-width comparison is sufficient because the source contains only a category rail and small icon cards, and the implementation card labels/icons are legible at native size. The settings card grid was also inspected directly in the browser after its entry animation.
 
-### Источники и сравнение
+## Required fidelity surfaces
 
-- Структурный референс третьего варианта: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-ec1b3c54-8d0b-4ec3-ae0c-bf0082b8988a.png`, 1841×619. Это принцип отдельного пространства Google Account, а не задача копирования его тёмной темы или персональных данных.
-- Второй вариант сохраняет текущие IQ Mentor settings, адаптированные в окно. Пользовательский GIF `public/references/discord-settings.gif` (1920×911) добавлен только как открываемый референс; байты совпадают с исходным вложением.
-- Референс последней правки кнопки: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-25434b6e-1a4e-4a9e-945a-ae6dfebc17ca.png` (162×31); просьба — сделать эту кнопку и Google заметнее.
-- Финальные desktop captures: `artifacts/settings-2-modal.png`, `artifacts/settings-3-page.png`, по 1440×1000 при CSS viewport 1440×1000 (1:1). Источники и оба финальных скриншота открыты вместе в одном comparison input. Масштабирование источников не использовалось для заявлений о pixel-perfect: тема, контент и viewport намеренно различаются.
-- Дополнительные состояния: `artifacts/settings-2-discord-reference.png` — открытый GIF; `artifacts/settings-2-mobile.png`, `artifacts/settings-3-mobile.png` — финальные мобильные 390×844. Временный viewport после проверки сброшен.
-- Отдельного увеличения финальных кнопок не потребовалось: их логотипы, подписи, обводки и цвет читаются в 1:1 captures; source кнопки предоставлен отдельно крупным фрагментом.
+- Fonts and typography: Inter is used consistently with the product. Card labels are 14px/20px at medium weight; group headings are quieter 13px labels. No clipping or awkward wrapping remains.
+- Spacing and layout rhythm: cards are compact (about 180 × 108px), use 10px grid gaps and align by category. The old category rail and redundant total row are absent.
+- Colors and visual tokens: neutral cards and restrained IQ Mentor orange accents replace the reference's gray-blue administration palette. Grouping is communicated by text, not color alone.
+- Image and icon quality: all visible UI icons use the installed Tabler icon set with a consistent 1.4–1.45px stroke. No raster placeholders, emoji or handcrafted icon approximations are used.
+- Copy and content: all six real settings destinations are present. «Автоотчёты» is concise and disambiguated by the surrounding «Аналитик» or «Тренер» heading.
 
-### Проверка оформления
+## Interaction and accessibility checks
 
-- Шрифт: сохранён Inter, размеры и веса существующего продукта. Однострочные названия меню, на узком экране длинный контент переносится; роли при ограничении ширины имеют ellipsis и полное доступное имя.
-- Компоновка: у варианта 3 одна навигация, собственная верхняя строка и возврат; у варианта 2 фиксированная рамка с независимым внутренним скроллом. На мобильном меню переходит в горизонтально прокручиваемую полосу, основные действия не перекрываются. Горизонтального overflow всей страницы нет.
-- Цвета: сохранена светлая тема IQ и оранжевые/фиолетовые акценты модулей. После замечания пользователя слабый нейтральный Discord trigger заменён на #5865F2/white, Google получил #E3EEFF/#9EC3FF/#185ABC. Повторные финальные captures подтверждают правку.
-- Изображения: официальный Google SVG загружается в исходных пропорциях, без перерисовки; Discord GIF вписан полностью без обрезания, в том числе на 390px. Иконки берутся из существующей библиотеки.
-- Текст: исходный вариант явно назван «Настройки 1» в меню, заголовке и верхней строке; второй и третий пронумерованы. Референсы отделены от настоящих настроек продукта.
+- Opened «Интеграции», «Автоотчёты» and «Оценка звонков» from their cards.
+- Returned through the Settings breadcrumb and verified focus returns to the originating card.
+- Verified Analyst/Trainer report options and call-assessment options render consecutively on one page without tab roles or hidden panels.
+- Verified the old duplicate Settings sidebar entry and visible «Материалы» heading are absent.
+- Checked a fresh browser tab: no console errors or warnings.
 
-### Поведение и проверки
+## Comparison history
 
-- Проверены открытие/закрытие обоих вариантов, browser Back/возврат после reload, возврат фокуса на запускающую кнопку на desktop и mobile.
-- Переключатель автоанализа изменён в варианте 3: значение совпало в 1 и 2; исходное выключенное значение восстановлено. Поле длительности снова неактивно.
-- Проверены сотрудники, интеграции и экран API, уведомления Аналитик/Тренер, оба типа отчётов Аналитика и раздел Тренера, оценка звонков.
-- Nested API dialog и Discord reference закрываются Escape, не закрывая Settings 2. Ролевой dropdown виден внутри native dialog; employee filter Escape также сохраняет родительское окно.
-- Google anchor содержит точный URL https://myaccount.google.com/, target=_blank и noopener noreferrer. Логотип успешно загружен (naturalWidth 74). Личный Google аккаунт не открывался для проверки ссылки.
-- 84 теста из 13 файлов пройдены. Production build успешен (только предупреждение о JS chunk >500 kB); diff-check без ошибок. Консоль браузера: ошибок нет.
+- P2: the first pass used a large left category rail and oversized robot cards. Fixed by removing the rail and switching to a compact flat icon-card grid.
+- P2: category meaning depended on card color and duplicate report labels were ambiguous. Fixed with visible «Общие», «Аналитик» and «Тренер» headings plus matching heading icons.
+- P2: report options used horizontal tabs and hid sibling settings. Fixed by rendering every fixed option as a continuous titled section.
+- Post-fix evidence: `design-qa-artifacts/settings-card-directory.jpg` and browser checks listed above.
 
-### Итог
+## Findings
 
-- Исправлены: отсутствовавший standalone import, dropdown роли за native dialog, возврат фокуса после remount, слабая заметность кнопок референсов.
-- Открытых P0/P1/P2 нет. Намеренные отличия от Google: светлая тема IQ, существующие настройки вместо аккаунта и аватара.
-- Follow-up P3: при дальнейшей разработке можно разделить JS bundle; это не блокирует сравнение прототипов.
+No actionable P0, P1 or P2 issues remain.
+
+## Follow-up polish
+
+No blocking polish items. A narrow-screen screenshot remains optional because this desktop browser does not expose viewport emulation; responsive CSS retains two cards per row and then one below 390px.
 
 final result: passed
 
-## Настройки 4 — плашки вместо вложенного меню, 23.10.2026
+# Design QA — Call report (October 26)
 
-### Референс и визуальное сравнение
+- Source: authenticated `https://mentor.iqgroup.ai/detailed-report?page=1&pageSize=25`, inspected without submitting changes.
+- Source capture: `C:\Users\samoilenko.d\AppData\Local\Temp\iq-calls-report-source.jpg` (kept outside the repository because it contains live records).
+- Implementation: `http://localhost:4170/#analytics`.
+- Desktop evidence: `design-qa-artifacts/calls-report-desktop.jpg`, 1261 × 884 CSS px at device scale 1; both source and implementation captured with the sidebar collapsed, 25 rows per page, no selection or filters, and table scrolled to the top-left.
+- Full comparison: `C:\Users\samoilenko.d\AppData\Local\Temp\iq-calls-report-comparison.jpg`; both screenshots at native density, no normalization required.
+- Focused comparison: `C:\Users\samoilenko.d\AppData\Local\Temp\iq-calls-report-focus.jpg`; matched 1173 × 390 crops of heading, toolbar, column headers and first rows.
+- Responsive evidence: `design-qa-artifacts/calls-report-tablet.jpg` (970 × 884) and `design-qa-artifacts/calls-report-mobile.jpg` (390 × 844).
 
-- Источник: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-b6941873-658b-4065-99a3-9efae3c9273f.png`, 461×45. Это образец плашек, не полноэкранный макет и не текст для копирования.
-- Итоговый desktop capture: `artifacts/settings-4-pills.png`, 1280×720 при CSS viewport 1280×720. Референс и финальный экран открыты вместе в одном comparison input без масштабирования для заявления о pixel-perfect.
-- Сохранены тонкая нейтральная обводка, белая поверхность, полное скругление, высота 34px и компактная типографика Inter 12/18. Отдельной левой навигации внутри настроек нет; шесть разделов находятся на одном уровне. Контент использует доступную ширину без лишней внешней карточки.
-- Намеренные адаптации: существующие иконки Tabler 15px, подписи реальных разделов, выделение активной плашки, оранжевый и фиолетовый акценты модулей. Новые растровые изображения не требуются. Исходные иллюстрации и данные не заменялись.
-- Проверены 820×1000 и 390×844: плашки переносятся, не обрезаются и не создают горизонтальную прокрутку страницы. На телефоне высота целей нажатия 44px. Итоговый mobile capture: `artifacts/settings-4-mobile.png`; viewport после проверки сброшен. Существующие внутренние табы оценки звонков сохраняют локальную горизонтальную прокрутку.
+## Visual comparison
 
-### Взаимодействия и доступность
+The full-view and focused comparisons were inspected side by side. The report content begins at x=72, y=80 on desktop; toolbar, table and pagination share the source's alignment. The table uses a 72px sticky header, 64px striped rows, matching fixed column widths, 12px surfaces and the captured source action icons. Table cells have no left or right borders (also verified through computed styles).
 
-- В браузере открыты все шесть разделов. Проверены типы отчётов Аналитика и Тренера, возврат к ранее выбранному типу, стереоформат и автоматический анализ.
-- Проверены ArrowRight и Home, перенос фокуса на выбранную плашку, семантика tablist/tab/tabpanel и видимый focus-visible. CSS учитывает reduced-motion.
-- Вариант 4 и модальное окно используют общие настройки: переключатель автоанализа изменён в варианте 4, значение подтверждено в модалке, затем исходное выключенное значение восстановлено. Поле длительности снова неактивно. Проверены переходы между вариантами в обе стороны.
-- Сотрудники и отделы не изменялись. Текущее тестовое состояние — один сотрудник без отдела.
-- Улучшения после QA: более контрастные подписи плашек (#75726C; активные #AC5208 и #575BD1), увеличенная мобильная область нажатия. Повторный capture сделан после изменений. Размеры, переносы, отступы и набор иконок согласованы с существующим интерфейсом.
-- 53 теста настроек пройдены, production build успешен, git diff --check без ошибок; ошибок в консоли браузера нет. Сохраняется ранее известное предупреждение о JS chunk >500kB (P3, не блокирует прототип).
+- Typography: Inter, 32px medium heading, 16px medium table labels and values, 14px source badges and counters. Longer names truncate; full names remain available through titles and the local detail dialog. The local Inter title is slightly wider than the source rendering; this does not change layout or hierarchy.
+- Spacing and surfaces: 16px page margins, 10px table-card padding, 8px toolbar gap, restrained neutral backgrounds, no KPI cards or extra decorative panels.
+- Color: orange call links/actions, blue Bitrix badge, pale orange IQ Mentor badge, neutral call-type and funnel badges. Selected calls expose the dark action footer.
+- Assets: six toolbar/sort icons are exact source SVG assets stored locally. Supplementary controls use the existing Tabler set. No raster approximations or hotlinked assets.
+- Responsive behavior: no document-level horizontal overflow at desktop, tablet or mobile sizes. The table scrolls within its own region. Mobile action controls wrap and the existing bottom navigation remains usable.
+- Accessibility: labelled buttons and inputs, native modal dialogs with Escape/backdrop dismissal, visible focus treatment inherited from the prototype, table headers and sorting semantics, mixed selection checkboxes, live result count. No new animation is introduced.
 
-Открытых P0/P1/P2 в добавленном варианте не найдено.
+## Interaction checks
 
-final result: passed
+- Search returned the expected five matching demo calls; selecting them and clearing the search preserved all five selected records and their combined duration.
+- Source filter applied to the same dataset. Resetting the draft and closing the filter left the applied filter intact; Reset followed by Apply cleared it.
+- Hiding the Client column survived a reload. Show All restored exactly ten basic fields, without system or user category columns.
+- Changed page size to 10, navigated to page 2, and restored 25 rows/page 1. Sorting cycled ascending, descending and off with the appropriate header state.
+- An unmatched search showed an explanatory empty state and a reset action.
+- Generation dialog disabled minimum duration when automatic analysis was off; enabling it unlocked the input. Cancel did not save the draft.
+- Import dialog allowed employee selection and kept upload disabled until files were chosen. No files were uploaded during verification.
+- Local browser console: no errors or warnings in the final check.
+- `node tests/calls-report.test.mjs`: 4 tests passed (combined filters, numeric/date sorting, invalid duration bounds, visible-field CSV export and spreadsheet-formula escaping).
+- Production build passed. The existing large-bundle advisory remains unrelated to this screen. `git diff --check` passed.
 
-## Настройки 4 — кнопки и робот, 23.10.2026
+## Intentional differences and limits
 
-### Сравнение и результат
+- Vertical separators and system/user category columns are omitted at the user's explicit request.
+- All 75 rows are fictional demo data; real production records and account balances are not copied into the repository.
+- The existing prototype shell and shared scoring settings are retained. Narrow-screen controls wrap instead of reproducing the source's clipping.
+- Import, analysis and deletion operate only on local demo rows; no production API, analysis billing or server upload is connected. Call titles open a basic local metadata dialog; the separate detailed-call experience is outside this table implementation.
 
-- Подтверждённый пользователем экран: «Настройки 4». Изменены только его навигация/оформление и название ссылки на него; общая модалка и формы сохранены.
-- Визуальный источник робота: `C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-9948eba5-5458-40c7-9cb9-e7142d91ba98.png`, 724×626, прозрачный PNG. `src/assets/robots/settings-companion.png` побайтно совпадает с ним (SHA-256 проверен). Новая иллюстрация не генерировалась, персонаж не перерисовывался.
-- Финальный desktop capture: `artifacts/settings-4-buttons-robot.png`, 1265×712; CSS viewport 1280×720. IAB выдаёт слегка масштабированный screenshot; сравнение не является pixel-perfect. Mobile capture: `artifacts/settings-4-buttons-mobile.png`, 375×812 при CSS viewport 390×844. Источник — отдельный персонаж, а не полноэкранный макет; его масштаб намеренно уменьшен до компактного спутника заголовка.
-- Исходник и финальный экран открыты вместе в одном comparison input. Лицо, цвет и силуэт различимы в общем виде; дополнительный crop не требуется, точность оригинального ассета дополнительно подтверждена хешем. Нижний край исходного изображения уже обрезан: сохранено размещение выглядывающего персонажа без дорисовки тела.
+## Findings
 
-### Обязательные поверхности
-
-- Типографика: Inter, прежний заголовок 28px / 24px на мобильном; подписи кнопок 13px / 12px и вторичные названия модулей 10px. Текст без наложений, кнопки отчётов различаются подписями модулей.
-- Компоновка: шесть равноправных кнопок-плиток; 6 колонок на desktop, 3 на средней ширине, 2 на телефоне. Робот справа от заголовка, текст и формы не анимируются. Внутренние переключатели отчётов и уведомлений получили кнопочные углы/обводки только внутри варианта 4.
-- Цвета: нейтральные поверхности, оранжевое выделение Аналитика и фиолетовое Тренера; контрастные подписи и явный focus-visible. Новых декоративных градиентов/фонов нет.
-- Изображение: исходная прозрачность сохранена; нет чёрного прямоугольника, растяжения или подмены персонажа. Используются существующие Tabler-иконки.
-- Текст: короткие подписи робота отражают текущий раздел, без ложных заявлений об успешном сохранении или работе ИИ. Содержимое настроек не переписывалось.
-
-### Проверки
-
-- В браузере открыты все шесть разделов; проверены клавиатурная стрелка, внутренние типы отчётов, переход в обычную модалку и закрытие с возвратом. Настройки не изменялись.
-- Подтверждены загрузка PNG (naturalWidth 724), idle-анимация, разные классы реакции при клике и выборе «Интеграции»/«Уведомления». Пауза убирает обе анимации (computed animation-name: none), повторное включение возвращает движение. Hover-наклон ограничен устройствами с hover. Таймеры очищаются при смене состояния и размонтировании.
-- Reduced motion предусмотрен в JS через matchMedia и CSS; системный режим в браузере отдельно не эмулировался. Ручная остановка проверена непосредственно в интерфейсе.
-- Ширины 390px, 820px и 1280px: горизонтального overflow страницы нет, робот и кнопки не перекрывают форму. Исходный viewport восстановлен.
-- 53 теста настроек и production build успешны; git diff --check без ошибок, browser console errors: []. Прежнее предупреждение о размере JS bundle остаётся P3.
-- P0/P1/P2 по текущему сравнению не выявлено. Не требуется новая дизайн-итерация; возможная будущая доработка — покадровая мимика персонажа вместо трансформации цельного исходного PNG.
+The first comparison used an expanded prototype sidebar against the collapsed source; this was corrected and both full and focused comparisons were repeated at the same width. No actionable P0, P1 or P2 visual or functional issues remain within the implemented report scope.
 
 final result: passed
 
-## Настройки 4 — роботы внутри кнопок и тематические позы, 23.10.2026
 
-Этот результат заменяет предыдущую итерацию со светлыми плитками и отдельным роботом у заголовка. По уточнению пользователя возвращена анатомия старых тёмных кнопок из commit 64d336b: текст слева, робот справа, тонкая цветная рамка, приглушённый растровый узор и компактное действие.
+# Design QA — Analyst pages and report refinements (October 26)
 
-- Встроенным image_gen созданы шесть отдельных PNG: приветствие с бейджем для сотрудников, кабели для интеграций, колокольчик для уведомлений, планшет с графиком для отчётов Аналитика, гарнитура для оценки звонков, фиолетовый преподаватель с книгой для Тренера. Прозрачность проверена (alpha в углу 0 у всех шести); исходные референсы сохранены. Иллюстрации и полные промпты находятся в `src/assets/robots/settings-poses/`.
-- Просмотрены все результаты генерации и их применение в интерфейсе. Сохранены узнаваемые мониторная голова, светящиеся глаза, камеры-антенны и материалы; у Тренера — фиолетовый корпус и академическая шапочка. Это новые позы персонажа, не точные копии исходных пикселей.
-- Desktop: `artifacts/settings-4-robot-poses.png`, CSS viewport 1280×720. Mobile: `artifacts/settings-4-robot-poses-mobile.png`, CSS viewport 390×844. Также визуально проверена ширина 820px. IAB немного масштабирует снимки; pixel-perfect соответствие не заявляется.
-- Шесть карточек расположены в 3 колонки на широком экране и в 2 на средних/узких. Изображения помещены в ограниченную область с object-fit: contain; на телефоне находятся ниже названия. Тематические предметы видны, текст не перекрыт, горизонтальной прокрутки страницы нет. Подписи и формы не анимируются.
-- В браузере открыты все шесть разделов; ArrowRight переключает раздел и фокус. Проверена ручная пауза: computed animation-name у всех шести изображений становится none; включение возвращает движение. Reduced-motion сохранён в JS/CSS, отдельно системный режим не эмулировался. Viewport восстановлен, настройки и записи не менялись.
-- 53 теста настроек пройдены, production build успешен, ошибок браузера нет. Сохраняется предупреждение о JS chunk >500kB. Исходные PNG суммарно около 10 MB: допустимо для локального визуального прототипа, перед публикацией стоит подготовить облегчённые версии.
+## Source and scope
 
-Открытых P0/P1/P2 для этой локальной итерации нет.
+- Inspected all four production Analyst destinations through the authenticated browser: Clients, call report, Summary and Category reports. Production records remained outside the repository; all prototype rows and generated reports are local fictional data.
+- Source captures and native-density comparisons are in the user's temporary folder. Inspected full comparisons for Clients, Summary and Categories and focused comparisons `iq-clients-focus.jpg`, `iq-summary-focus.jpg`, `iq-category-generation-comparison.jpg`.
+- Initial desktop comparison used 1280 × 720 at scale 1; responsive checks used 390 × 844. The final width refinement was checked at 1920 × 900 and then restored to the default browser size.
+- Latest user decisions intentionally supersede the source table layout: no vertical cell separators in any Analyst table; no explanation column in Summary or Categories; these two tables use 52px rows and 14px text, retaining the full available page width. Explanations remain in detail drawers. The proposed 1040px width cap was reverted at the user's request.
 
-final result: passed
+## Visual and functional review
 
-## Настройки 4 — компактные кнопки и вход в раздел, 23.10.2026
+- Captured production Inter weights and source toolbar SVGs are stored locally. Heading sizes, toolbar hierarchy, pale report surfaces, striped rows, badges, dialogs and right-side panels were compared with the source. Supplementary icons use the existing Tabler set.
+- All four routes are connected to the Analyst menu, including compact/mobile navigation. Client search, filters, visibility controls, sorting, pagination and client/call details work against local data.
+- Summary and Category history, filtering, generation forms, period selection, schedule persistence, pagination, export and detail panels were exercised. Category employee links open the matching Summary detail.
+- The generation date fields now accept both input and change events; the chosen period was verified in the generated report heading. Filter cancellation preserves the applied values.
+- Mobile tables scroll within their own region, actions fit, and document width/height remain 390 × 844. Drawers and forms fit the viewport without copying production's narrow-screen clipping.
+- The settings stylesheet race was fixed and file watching now waits for completed Windows saves. The modal is 1232px wide at a 1280px viewport, with 16px corners and a 280px navigation rail; screenshot `design-qa-artifacts/settings-modal-restored.jpg`.
+- Summary/Category hover and keyboard-focus affordances show a small side-panel icon and «Открыть». Enter opens the existing details. The indicators reserve space and remain available on touch screens.
+- Desktop evidence includes `clients-desktop.jpg`, `summary-report-desktop.png`, `category-desktop.jpg`, and the later `summary-report-compact-no-dividers.jpg`, `category-full-width-open.jpg` in `design-qa-artifacts/`. Earlier captures document intermediate iterations; final width remains unrestricted.
 
-- По новым уточнениям пользователя большие карточки заменены компактными кнопками: не более 228×84px на desktop, сетка 3×2 ограничена 704px. На телефоне — две колонки вместо длинных полос; ниже 360px одна компактная колонка. Роботы уменьшены до 58–74px, повторяющиеся «Открыть» убраны. Короткая подпись «Автоотчёты» сохраняет название модуля; полные заголовки разделов не менялись.
-- Обзор и форма теперь разные состояния: нажатие скрывает все кнопки и показывает содержимое с крошками «Настройки → Раздел». Первый пункт возвращает к обзору. При входе фокус переводится на возврат, при выходе — на исходную кнопку. Обычные кнопки доступны по Tab/Enter; прежняя семантика tablist удалена, поскольку это больше не постоянно видимые табы.
-- Проверены вход и возврат для всех шести разделов. В каждом случае обзор скрыт, форма видима и крошка соответствует выбранному разделу. У Тренера выбран «Сводный отчёт», после возврата и повторного входа через Enter он сохраняется. Данные настроек не менялись.
-- Desktop capture: `artifacts/settings-4-compact-short.png`, 1280×720. Detail: `artifacts/settings-4-compact-detail.png`. Mobile: `artifacts/settings-4-compact-short-mobile.png`, 390×844. Предыдущий крупный вариант и новый desktop открыты вместе: сохранены стиль, персонажи и палитра, намеренно изменены плотность и навигационная структура. На мобильном нет горизонтального overflow; подписи не выходят за свои области. Viewport восстановлен.
-- 53 теста настроек и финальная production-сборка успешны; console errors пуст, diff --check без ошибок. Ранее известные крупные PNG и JS chunk >500kB остаются ограничением локального прототипа. Новая графика не генерировалась.
+## Comparison history and intentional differences
 
-final result: passed
+- Fixed the unstyled/narrow settings dialog, font-width mismatch, source-icon differences, category form spacing, inline history filter, mobile action overflow and period input events.
+- User-requested table simplifications are intentional; original four-column captures are retained only as comparison history.
+- Existing prototype shell, local account and demo balances are retained. No production API, paid analysis, real customer data or server-side submission is connected.
+- Existing report/model/navigation checks passed (25 tests). Final column-resize verification and build results are recorded below.
 
-## Настройки 4 — горизонтальные категории и плоские кнопки, 23.10.2026
 
-- По последовательным уточнениям пользователя категории «Общие», «Аналитик», «Тренер» вынесены из кнопок и расположены тремя соседними колонками на desktop. Внутри только название настройки и робот. Используются те же иконки групп, что в обычных настройках. На узких экранах категории переносятся; на телефоне кнопки внутри категории остаются в две колонки.
-- Удалены «Выберите раздел», линии возле названий категорий и тёмные circuit-подложки. Финальные кнопки плоские: сплошные тёплые/сиреневые заливки, без обводки, градиентов, теней, внутренних бликов и подъёма при наведении. Дополнительная тень у изображения убрана; сами ранее созданные 3D-иллюстрации сохранены. Hover меняет только заливку кнопки, а движения роботов и управление анимацией остаются.
-- В браузере подтверждены три группы и шесть кнопок, отсутствие повторяющихся категорий в видимых подписях, `border-width: 0px`, `box-shadow: none`, `background-image: none` у всех шести кнопок, `content: none` у разделителей заголовков. Вход в Тренера и возврат по крошкам работают.
-- Снимки: `artifacts/settings-4-flat-categories.png` (1280×720), `artifacts/settings-4-flat-categories-mobile.png` (390×844). На телефоне все подписи и роботы различимы, горизонтального overflow нет. Viewport восстановлен; ошибок в консоли нет.
-- 53 теста настроек пройдены после группировки; итоговая сборка после плоского оформления успешна. diff --check без ошибок. Известное предупреждение о размере JS chunk сохраняется. Данные и настройки пользователей не менялись; публикация/отправка в Git не выполнялась.
+## Final column-resize and presentation checks
+
+- Shared native-table resizing is integrated in Clients, Calls, Summary and Categories. Actual pointer dragging changed only the chosen Category column from 434.69px to 354.69px; adjacent columns stayed 318.77px and 212.55px. The same widths survived a reload; double-click restored the initial responsive layout.
+- Keyboard resizing changed Summary's first column by exactly 16px. In Calls, the first data column changed from 205px to 221px while the checkbox column stayed 35px. Home reset the original layout.
+- Client column visibility was toggled off and on after resizing. Widths stayed associated with stable IDs, including the restored Source column. Test changes were reset after verification.
+- Resize handles do not trigger sorting or open detail panels. Existing header sticky positioning is retained. Pointer capture, cancel/Escape handling, keyboard labels, bounds and storage failure fallbacks were reviewed. Five additional model tests passed; total scoped checks: 30 passing tests.
+- Final user changes: departments in Calls and Summary use the neutral pipeline-style pill; Calls and Summary have subtle 1px #EEEEEC horizontal body-row rules. Calls alone now uses white resting rows instead of alternating gray. Hover and selected states remain.
+- Experimental thematic header icons were removed as requested; all ten call-report headings are plain text with sorting and resizing controls. Final browser inspection confirmed zero decorative header icons and ten resize handles.
+- Final browser check after reload reported no console warnings/errors. Production build passed; only the existing bundle-size advisory remains. The final CSS-only removal of striped call rows was checked in the browser: first five resting rows all have rgb(255,255,255) backgrounds and the requested horizontal rules.
+- Final visible evidence: `design-qa-artifacts/calls-report-final.jpg`; settings fix: `settings-modal-restored.jpg`. Earlier `*-icons.jpg` and capped-width captures are intermediate history, not the final design.
+- No unresolved P0, P1 or P2 issue remains within the local prototype scope. No production changes, submissions or GitHub publishing were performed.
 
 final result: passed

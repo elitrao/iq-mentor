@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { SUMMARY_ROWS, filterSummaryRows, summaryCsv, validateSummaryGeneration } from '../src/summary-report-model.js';
+test('department and employee filters are combined and sorting does not mutate fixtures', () => { const before = SUMMARY_ROWS.map(row => row.id); const result = filterSummaryRows(SUMMARY_ROWS, { departments: ['Отдел продаж'], employees: [SUMMARY_ROWS[0].id, SUMMARY_ROWS[1].id] }, { key: 'score', direction: -1 }); assert.deepEqual(result.map(row => row.id), [SUMMARY_ROWS[0].id]); assert.deepEqual(SUMMARY_ROWS.map(row => row.id), before); });
+test('generation validates employees, dates, and duration boundaries', () => { const value = { employees: ['x'], from: '2026-10-01', to: '2026-10-26', min: '00:00:30', max: '00:05:00' }; assert.equal(validateSummaryGeneration(value), ''); for (const change of [{ employees: [] }, { to: '2026-09-30' }, { min: '00:75:00' }, { max: '00:00:10' }]) assert.notEqual(validateSummaryGeneration({ ...value, ...change }), ''); });
+test('CSV preserves quoted names and semicolons in explanations', () => { const csv = summaryCsv([{ name: 'Анна "Тест"', department: 'Продажи', score: 61, explanation: 'Ответ; пояснение' }]); assert.match(csv, /"Анна ""Тест"""/); assert.match(csv, /"Ответ; пояснение"/); });
