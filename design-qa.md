@@ -48,6 +48,24 @@ No blocking polish items. A narrow-screen screenshot remains optional because th
 
 final result: passed
 
+## October 27 notification header refinement
+
+- Joined each module title, icon and info tooltip with the Display/Sound column labels in one header row. Removed the separate divider between modules; the groups are separated by 32px of whitespace.
+- Browser check at 1280px: both modules are 560px wide, all three header cells share the same vertical center, and neither section overflows. At 380px the title spans the header before the channel labels, with no horizontal overflow. Restored the default viewport after checking.
+- Native viewport screenshot: `design-qa-artifacts/notifications-joined-headings.jpg`. Desktop screenshot rendering was blurred by the in-app browser, so alignment was additionally verified from element bounds.
+- Production build passed, with only the existing bundle-size advisory. No browser console errors. Saved notification values and channel availability remain unchanged.
+
+### Notification group boundaries
+
+- Replaced whitespace-only grouping with two white outlined panels: 1px #E5E4E0 border, 14px corners, compact padding and 16px gap. Kept the shared title/channel header and existing switch logic.
+- Verified the panel boundary and channel alignment in the live browser. Both groups fit the available width without horizontal overflow. Evidence: `design-qa-artifacts/notifications-separated-panels.jpg`.
+
+### Shared settings panels
+
+- Applied the approved notification panel styles through shared CSS to all six sections in Analyst/Trainer autogeneration and Call Assessment. Removed the former separators between open sections; all panels use the same outline, corners, padding and 16px gap.
+- Verified all three pages in the live browser: identical panel styles, no horizontal overflow and a 560px desktop width. The stereo selector, automatic-analysis switch and duration input share exactly the same right edge (884px at the checked viewport). At narrow widths, field rows stack to prevent collisions after the added inner padding.
+- Screenshot: `design-qa-artifacts/settings-shared-panels.jpg`. Browser console has no errors. This pass changes only CSS; setting values and behavior are untouched.
+
 # Design QA — Discord settings pattern adaptation (October 27)
 
 - Source visual truth: `design-qa-artifacts/discord-settings-reference.png`, official Discord support capture, 1255 × 924 px.

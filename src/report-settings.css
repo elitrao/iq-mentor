@@ -26,16 +26,9 @@
   margin-top: 26px;
 }
 
-.report-continuous-list { display: grid; gap: 0; margin-top: 24px; }
 .report-continuous-section {
   container: report-preferences / inline-size;
-  min-width: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
 }
-.report-continuous-section + .report-continuous-section { margin-top: 24px; border-top: 1px solid #e7e6e2; padding-top: 24px; }
 .report-continuous-heading { display: flex; align-items: center; gap: 10px; width: fit-content; max-width: 100%; box-sizing: border-box; margin: 0; color: #2f2c28; font-size: 20px; font-weight: 600; line-height: 28px; letter-spacing: -.2px; }
 .report-continuous-heading > svg { width: 20px; height: 20px; flex: 0 0 auto; color: #a76028; }
 .report-directory.tone-trainer .report-continuous-heading > svg { color: #6757a6; }
@@ -140,7 +133,7 @@
 .report-continuous-section .stereo-format-form .stereo-format-field { line-height: 20px; }
 .report-continuous-section .stereo-format-select { width: 100%; }
 .report-continuous-section .stereo-format-scope { max-width: none; margin-top: 10px; padding: 0; border-radius: 0; background: transparent; font-size: 13px; line-height: 20px; }
-@container report-preferences (max-width: 300px) {
+@container report-preferences (max-width: 400px) {
   .report-continuous-section .stereo-format-form .stereo-format-section { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .report-continuous-section .stereo-format-select { width: min(100%, 236px); justify-self: end; }
   .report-continuous-section .is-preference-list .scoring-duration-field { grid-template-columns: minmax(0, 1fr); gap: 8px; }

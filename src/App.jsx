@@ -1329,19 +1329,16 @@ function GeneralNotificationSettings({ settings, update }) {
     <h2 id="notification-settings-title">Уведомления</h2>
     <div className="notification-continuous-list">
       {products.map(([key, label, icon]) => <section key={key} className={`notification-continuous-section tone-${key}`} aria-labelledby={`settings-notification-section-${key}`}>
-        <div className="settings-heading-with-hint">
+        <NotificationSettings kind={key} value={settings.notifications[key]} update={update} heading={<div className="settings-heading-with-hint">
           <h3 className="notification-continuous-heading" id={`settings-notification-section-${key}`}><NotificationProductIcon product={key} src={icon} /><span>{label}</span></h3>
           <SettingsHint label={`Уведомления — ${label}`}><p>{key === 'analyst' ? 'Уведомления о ходе анализа звонков и подготовке отчётов.' : 'Уведомления о создании, назначении и анализе тренировок, а также подготовке отчётов.'}</p><p>«Отображение» включает сообщение в интерфейсе, «Звук» — звуковой сигнал. Их можно настроить отдельно для каждого события. Если переключателя нет, этот способ уведомления для события недоступен.</p></SettingsHint>
-        </div>
-        <div className="notification-continuous-content">
-        <NotificationSettings kind={key} value={settings.notifications[key]} update={update} />
-        </div>
+        </div>} />
       </section>)}
     </div>
   </section>;
 }
 
-function NotificationSettings({ kind, value, update }) {
+function NotificationSettings({ kind, value, update, heading }) {
   const events = NOTIFICATION_EVENTS[kind];
   const defaults = Object.fromEntries(events.map(([key, , hasDisplay]) => [key, { display: hasDisplay, sound: true }]));
   const checked = (event, channel) => notificationPreference(kind, value, event, channel);
@@ -1351,7 +1348,7 @@ function NotificationSettings({ kind, value, update }) {
     next.notifications[kind].events ??= {};
     next.notifications[kind].events[event] = { ...defaults[event], ...next.notifications[kind].events[event], [channel]: enabled };
   });
-  return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head"><span /><span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
+  return <div className={`notification-settings notification-${kind}`}><div className="notification-table"><div className="notification-row notification-head">{heading ? <div className="notification-head-title">{heading}</div> : <span />}<span>Отображение</span><span>Звук</span></div>{events.map(([key, title, hasDisplay]) => <div className="notification-row" key={key}><span>{title}</span><span>{hasDisplay && <NotificationSwitch label={`Отображение: ${title}`} checked={checked(key, "display")} onChange={(enabled) => change(key, "display", enabled)} />}</span><span><NotificationSwitch label={`Звук: ${title}`} checked={checked(key, "sound")} onChange={(enabled) => change(key, "sound", enabled)} /></span></div>)}</div></div>;
 }
 
 function NotificationSwitch({ label, checked, onChange, role, describedBy }) {
