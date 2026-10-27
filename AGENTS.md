@@ -10,6 +10,8 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- October 27 integration catalog labels: use «Активные» for connected services and «Неактивные» for services available to connect; replace the old «Все интеграции» heading without changing filtering or connection behavior.
+
 - October 27 unified settings groups: apply the approved notification-panel treatment to Analyst and Trainer autogeneration and both Call Assessment sections. All these groups share the same white surface, 1px #E5E4E0 outline, 14px corners, 12px/16px/8px padding and 16px gap. Remove the former rules between open report/call sections. Keep headings, tooltip help, period rows and existing values; align call controls to the inner right edge, stacking fields at content widths up to 400px to prevent narrow labels from colliding with the controls.
 
 - October 27 clearer notification separation: each Analyst/Trainer notification group gets a light white panel with a 1px neutral #E5E4E0 outline, 14px corners and compact 12px/16px/8px padding. Separate panels by 16px. Keep the combined module/Display/Sound header, aligned channel columns and 48px event rows. This replaces whitespace-only separation for Notifications; report and call-assessment sections keep their current open layout.
