@@ -1,4 +1,17 @@
-# Design QA — Settings card directory
+# Design QA — Bonus integration lock and top-up notice, October 27
+
+- Source visual truth: user screenshots `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-8013c540-65b8-4953-b81d-8aee049beb93.png` (257 × 143) and `codex-clipboard-5d83b3af-f8a5-4767-8f15-8e9a5e7bad95.png`, plus the user's final instructions to keep the item closed, shake on activation, and show a compact top-up notice directly below it. The supplied production URL currently redirects to login; this iteration uses the explicitly supplied images rather than claiming a live-source clone.
+- Implementation: `design-qa-artifacts/bonus-integration-topup-notice.jpg` (1280 × 720), focused comparison `design-qa-artifacts/bonus-integration-topup-detail.png` (270 × 208). Desktop viewport 1280 × 720 CSS px at native density; compact/mobile behavior also checked at 390 × 844. No rescaling; the focused image crops the native screenshot, retaining Documents, the locked item and the complete notice.
+- Compared the source and implementation images together. The integration row preserves the source's gray arrow icon, pale rounded surface, gray chevron and text alignment; the additional lock is intentional. User-supplied raster icons remain transparent and sharp at 16px. Existing Inter typography is retained; notice text is intentionally reduced to 11px/16px with a semibold lead-in. The notice sits 7px below the entry with a warm neutral surface and a compact orange action.
+- Final copy: «Пополните баланс, чтобы открыть интеграции.» No expanded integration submenu remains. Clicking the item leaves the current route unchanged; native Enter produced a measured nonzero horizontal translation during the shake. Reduced-motion users get the explanatory feedback without shaking.
+- Tested mouse activation, keyboard activation, collapsed navigation, mobile navigation, repeated activation, close-button focus return, and the CTA. The CTA opens `/bonus#account-tariff`, whose heading is «Расчет и оплата»; no payment was submitted. Hover/focus pauses dismissal so keyboard users can use the CTA. Ordinary `/` has no bonus sidebar entry or notice.
+- Comparison history: the first implementation had the user-reported wrapped chevron; explicit non-wrapping flex layout keeps all four elements centered in one row. An initial notice could be clipped by a short sidebar; the final implementation reveals it inside the sidebar's scroll region. Final browser measurement: notice bottom 440px, navigation bottom 452px, leaving 12px clearance. The focused screenshot documents the fix. The visible CTA focus ring is intentional keyboard feedback.
+- Console errors: none. Existing navigation and reorder checks: 21 passed. Production build passed (existing bundle-size advisory only). Scope is a local UI preview on `codex/bonus-integrations-preview`; main and remote publication are unchanged.
+- No remaining P0/P1/P2 findings within this scoped change. No new permission or real integration/payment backend is implied by this demo.
+
+final result: passed
+
+# Earlier QA — Settings card directory
 
 - Source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-1d216191-3d08-42d5-988a-22c90147e265.png`
 - Implementation screenshot: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-artifacts\settings-card-directory.jpg`

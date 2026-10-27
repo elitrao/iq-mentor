@@ -711,7 +711,7 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
           <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Потяните за точки, чтобы переместить</span>
         </div>;
         })}
-        {bonusPreview && group.id === 'primary' && <BonusIntegrationNav active={page === 'integrations'} onOpen={() => setPage('integrations')} />}
+        {bonusPreview && group.id === 'materials' && <BonusIntegrationNav active={page === 'integrations'} compact={collapsed || narrowMenu} onTopUp={() => setPage('account-tariff')} />}
       </div>)}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id || (draggedItem.id === 'analytics' && isAnalystPage(page))} page={page} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
