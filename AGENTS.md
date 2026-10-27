@@ -10,7 +10,9 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
-- October 27 integration catalog labels: use «Активные» for connected services and «Неактивные» for services available to connect; replace the old «Все интеграции» heading without changing filtering or connection behavior.
+- October 27 bonus-program experiment lives only at `/bonus` (also `/bonus/`) on branch `codex/bonus-integrations-preview`; keep `main` unchanged. The experiment restores a fixed Integrations sidebar entry with a lock and a quiet bonus-period indicator. It opens an explanatory locked screen, never the integration catalog or connection forms. Apply the same restriction inside Settings and its alternate directory; offer navigation to manual call uploads. Ordinary `/` routes retain their current integration access and sidebar. This is an explicit UI preview of an active bonus period, not a backend permission system; do not infer access from the demo wallet balance.
+
+- October 27 integration catalog labels: use «Активные» for connected services and «Неактивные» for services available to connect; replace the old «Все интеграции» heading without changing filtering or connection behavior. Place the inactive count in a compact neutral pill beside its heading: 20px height/min-width, pale gray #F0F0EE surface, 12px semibold number and 8px heading gap, centered vertically.
 
 - October 27 unified settings groups: apply the approved notification-panel treatment to Analyst and Trainer autogeneration and both Call Assessment sections. All these groups share the same white surface, 1px #E5E4E0 outline, 14px corners, 12px/16px/8px padding and 16px gap. Remove the former rules between open report/call sections. Keep headings, tooltip help, period rows and existing values; align call controls to the inner right edge, stacking fields at content widths up to 400px to prevent narrow labels from colliding with the controls.
 

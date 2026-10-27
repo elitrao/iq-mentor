@@ -66,6 +66,13 @@ final result: passed
 - Verified all three pages in the live browser: identical panel styles, no horizontal overflow and a 560px desktop width. The stereo selector, automatic-analysis switch and duration input share exactly the same right edge (884px at the checked viewport). At narrow widths, field rows stack to prevent collisions after the added inner padding.
 - Screenshot: `design-qa-artifacts/settings-shared-panels.jpg`. Browser console has no errors. This pass changes only CSS; setting values and behavior are untouched.
 
+## Bonus-program preview — October 27
+
+- Isolated experiment at `/bonus` and `/bonus/`, on `codex/bonus-integrations-preview`. The ordinary root remains unchanged. The landing screen explains why integrations are unavailable; the restored sidebar item displays a lock and is intentionally outside the reorderable rows.
+- Verified manual-upload navigation to the existing call report, navigation back to the locked entry, reloading the direct URL, and the same restriction inside the Settings modal. The bonus Settings view renders no integration catalog or connection forms. On `/`, the integration catalog remains accessible and no bonus lock is present.
+- Checked desktop and 375px mobile layouts: no document overflow; the lock remains visible in the compact navigation, and all seven navigation entries fit. The preview does not alter actual integration connections or wallet balances and implements no backend authorization.
+- Evidence: `design-qa-artifacts/bonus-integrations-preview.jpg`. Production build passed with the existing bundle-size advisory.
+
 # Design QA — Discord settings pattern adaptation (October 27)
 
 - Source visual truth: `design-qa-artifacts/discord-settings-reference.png`, official Discord support capture, 1255 × 924 px.
