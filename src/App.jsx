@@ -1279,8 +1279,8 @@ function SettingsPage({ active, setActive, settings, update, notify }) {
 
 function SettingsSection({ id, settings, update, notify }) {
   const save = () => notify("Настройки сохранены");
-  if (id === "notifications") return <GeneralNotificationSettings settings={settings} update={update} />;
   const section = resolveSettingsSection(id);
+  if (section.item.id === "analyst-notifications" || section.item.id === "trainer-notifications") return <ProductNotificationSettings kind={section.group.id} settings={settings} update={update} />;
   if (section.item.reportType) return <ReportSettings kind={section.group.id} reportType={section.item.reportType} value={settings.reports[section.group.id]} scoringValue={section.item.id === 'analyst-reports-calls' ? settings.scoring : undefined} update={update} save={save} notify={notify} />;
   if (id === "documents") return <DocumentsPage notify={notify} embedded />;
   if (id === "employees") return <EmployeesSettings notify={notify} />;
@@ -1288,7 +1288,6 @@ function SettingsSection({ id, settings, update, notify }) {
   if (id === "company") return <CompanySettings value={settings.company} onChange={(key, value) => update((next) => { next.company[key] = value; })} save={save} />;
   if (id === "security") return <SecuritySettings value={settings.security} onChange={(key, value) => update((next) => { next.security[key] = value; })} save={save} notify={notify} />;
   if (id === "access") return <AccessSettings value={settings.access} update={update} save={save} />;
-  if (id === "analyst-notifications" || id === "trainer-notifications") { const kind = id.startsWith("analyst") ? "analyst" : "trainer"; return <NotificationSettings kind={kind} value={settings.notifications[kind]} update={update} save={save} />; }
   if (id === "integrations") return <IntegrationsSettings value={settings.integrations} update={update} notify={notify} />;
   if (id === "analyst-reports" || id === "trainer-reports") { const kind = id.startsWith("analyst") ? "analyst" : "trainer"; return <ReportSettings kind={kind} value={settings.reports[kind]} update={update} save={save} notify={notify} />; }
   if (id === "stereo") return <StereoSettings value={settings.stereo} update={update} embedded />;
@@ -1323,17 +1322,18 @@ function NotificationProductIcon({ product, src }) {
   </svg>;
 }
 
-function GeneralNotificationSettings({ settings, update }) {
-  const products = [["analyst", "Аналитик", notificationAnalystIcon], ["trainer", "Тренер", notificationTrainerIcon]];
-  return <section className="settings-general-notifications" aria-labelledby="notification-settings-title">
-    <h2 id="notification-settings-title">Уведомления</h2>
+function ProductNotificationSettings({ kind, settings, update }) {
+  const label = kind === 'analyst' ? 'Аналитик' : 'Тренер';
+  const icon = kind === 'analyst' ? notificationAnalystIcon : notificationTrainerIcon;
+  return <section className="settings-general-notifications" aria-labelledby={`notification-settings-title-${kind}`}>
+    <h2 id={`notification-settings-title-${kind}`}>Уведомления</h2>
     <div className="notification-continuous-list">
-      {products.map(([key, label, icon]) => <section key={key} className={`notification-continuous-section tone-${key}`} aria-labelledby={`settings-notification-section-${key}`}>
-        <NotificationSettings kind={key} value={settings.notifications[key]} update={update} heading={<div className="settings-heading-with-hint">
-          <h3 className="notification-continuous-heading" id={`settings-notification-section-${key}`}><NotificationProductIcon product={key} src={icon} /><span>{label}</span></h3>
-          <SettingsHint label={`Уведомления — ${label}`}><p>{key === 'analyst' ? 'Уведомления о ходе анализа звонков и подготовке отчётов.' : 'Уведомления о создании, назначении и анализе тренировок, а также подготовке отчётов.'}</p><p>«Отображение» включает сообщение в интерфейсе, «Звук» — звуковой сигнал. Их можно настроить отдельно для каждого события. Если переключателя нет, этот способ уведомления для события недоступен.</p></SettingsHint>
+      <section className={`notification-continuous-section tone-${kind}`} aria-labelledby={`settings-notification-section-${kind}`}>
+        <NotificationSettings kind={kind} value={settings.notifications?.[kind]} update={update} heading={<div className="settings-heading-with-hint">
+          <h3 className="notification-continuous-heading" id={`settings-notification-section-${kind}`}><NotificationProductIcon product={kind} src={icon} /><span>{label}</span></h3>
+          <SettingsHint label={`Уведомления — ${label}`}><p>{kind === 'analyst' ? 'Уведомления о ходе анализа звонков и подготовке отчётов.' : 'Уведомления о создании, назначении и анализе тренировок, а также подготовке отчётов.'}</p><p>«Отображение» включает сообщение в интерфейсе, «Звук» — звуковой сигнал. Их можно настроить отдельно для каждого события. Если переключателя нет, этот способ уведомления для события недоступен.</p></SettingsHint>
         </div>} />
-      </section>)}
+      </section>
     </div>
   </section>;
 }

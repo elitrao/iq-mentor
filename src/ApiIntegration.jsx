@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconArrowUpRight, IconPencil, IconPlus, IconSearch, IconTrash, IconUsers } from '@tabler/icons-react';
 import { IntegrationScreen } from './IntegrationDetailScreens.jsx';
-import { API_INTEGRATION_LIMIT, API_PAGE_SIZE, addApiEntry, filterApiEntries, getApiEntries, paginateApiRows, updateApiEntry, withApiEntries } from './settings/api-integrations.js';
+import { API_INTEGRATION_LIMIT, API_PAGE_SIZE, addApiEntry, filterApiEntries, getApiEntries, paginateApiRows, sortApiRowsByCreatedAt, updateApiEntry, withApiEntries } from './settings/api-integrations.js';
 import { ApiPagination } from './ApiPagination.jsx';
+import { ApiCreatedAtHeader } from './ApiCreatedAtHeader.jsx';
 import { ApiDialog, ApiUsersDialog } from './ApiDialog.jsx';
 import { ApiKeysScreen } from './ApiKeysScreen.jsx';
 import './api-integrations.css';
@@ -10,6 +11,7 @@ import './api-integrations.css';
 export function ApiIntegration({ value, onChange, notify, back, backRef }) {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const [createdSort, setCreatedSort] = useState('desc');
   const [modal, setModal] = useState(null);
   const [name, setName] = useState('');
   const [badgeBackground, setBadgeBackground] = useState('#f5f5f5');
@@ -22,7 +24,7 @@ export function ApiIntegration({ value, onChange, notify, back, backRef }) {
   const returnRowRef = useRef(null);
   useEffect(() => { if (!activeId && returnRowRef.current) document.getElementById(returnRowRef.current)?.focus(); }, [activeId]);
   const entries = getApiEntries(value);
-  const visible = filterApiEntries(entries, query);
+  const visible = sortApiRowsByCreatedAt(filterApiEntries(entries, query), createdSort);
   const pagination = paginateApiRows(visible, page);
   useEffect(() => { setPage(pagination.page); }, [pagination.page]);
   const selected = entries.find((item) => item.id === targetId);
@@ -35,9 +37,10 @@ export function ApiIntegration({ value, onChange, notify, back, backRef }) {
       const badge = { background: badgeBackground, color: badgeColor };
       if (modal === 'edit') saveEntries(updateApiEntry(entries, selected.id, name, badge));
       else {
-        const next = addApiEntry(entries, name, { id: crypto.randomUUID(), createdAt: new Date().toISOString(), keys: [], users: [], badge });
+        const id = crypto.randomUUID();
+        const next = addApiEntry(entries, name, { id, createdAt: new Date().toISOString(), keys: [], users: [], badge });
         saveEntries(next);
-        setPage(Math.ceil(next.length / API_PAGE_SIZE));
+        setPage(Math.floor(sortApiRowsByCreatedAt(next, createdSort).findIndex((item) => item.id === id) / API_PAGE_SIZE) + 1);
       }
       setQuery(''); setModal(null); setError('');
       notify(modal === 'edit' ? 'API-интеграция обновлена' : 'Демонстрационная API-интеграция создана');
@@ -62,7 +65,7 @@ export function ApiIntegration({ value, onChange, notify, back, backRef }) {
         <label className="api-reference-search"><IconSearch size={19} aria-hidden="true" /><input type="search" placeholder="Поиск" aria-label="Поиск API-интеграций" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); }} /></label>
         <div className="api-reference-counts"><span>На странице по: <b>{API_PAGE_SIZE}</b></span><span role="status">Всего интеграций: {entries.length}/{API_INTEGRATION_LIMIT}</span></div>
       </div>
-      <div className="api-reference-table-surface"><table className="api-reference-table"><thead><tr><th scope="col">Название</th><th scope="col">Создана</th></tr></thead><tbody>
+      <div className="api-reference-table-surface"><table className="api-reference-table"><thead><tr><th scope="col">Название</th><ApiCreatedAtHeader label="Создана" direction={createdSort} onChange={(direction) => { setCreatedSort(direction); setPage(1); }} /></tr></thead><tbody>
         {pagination.items.map((item) => <tr className="api-entry-row" key={item.id} onClick={() => openEntry(item)}><td><button id={`api-entry-${item.id}`} type="button" onClick={(event) => { event.stopPropagation(); openEntry(item); }}><span className="api-integration-badge" style={{ background: item.badge?.background || '#f5f5f5', color: item.badge?.color || '#5c5c5c' }}>{item.name}</span></button></td><td><div className="api-row-end"><time dateTime={item.createdAt || undefined}>{formatDate(item.createdAt)}</time><div className="api-row-actions" onClick={(event) => event.stopPropagation()}>
           <button type="button" aria-label={`Редактировать интеграцию «${item.name}»`} onClick={() => editEntry(item)}><IconPencil size={17} /></button>
           <button type="button" aria-label={`Пользователи интеграции «${item.name}»`} onClick={() => { setTargetId(item.id); setModal('users'); }}><IconUsers size={17} /></button>

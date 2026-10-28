@@ -122,7 +122,7 @@ export function SettingsSectionContent({ active, setActive, renderSection }) {
   const ActiveIcon = ICONS[item.icon || parent?.icon];
   const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
   return <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}${item.id === 'employees' ? ' settings-wide-directory' : ''}`}>
-    {!reportParent && !['employees', 'integrations', 'notifications', 'stereo'].includes(item.id) && header}
+    {!reportParent && !['employees', 'integrations', 'analyst-notifications', 'trainer-notifications', 'stereo'].includes(item.id) && header}
     <div key={reportParent?.id || item.id} className="settings-section-body">{reportParent ? <ReportOverview group={group} item={reportParent} renderSection={renderSection} /> : renderSection(item.id)}</div>
   </section>;
 }

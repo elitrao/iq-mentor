@@ -4,16 +4,18 @@ import { SETTINGS_GROUPS, resolveSettingsSection, getReportPeriods, setReportPer
 
 test('settings groups and report hierarchy match the supplied structure', () => {
   assert.deepEqual(SETTINGS_GROUPS.map((group) => group.title), ['Общие', 'Аналитик', 'Тренер']);
-  assert.deepEqual(SETTINGS_GROUPS[0].items.map((item) => item.id), ['employees', 'integrations', 'notifications']);
-  assert.equal(SETTINGS_GROUPS[0].items[2].label, 'Уведомления');
-  assert.equal(SETTINGS_GROUPS[1].items[0].label, 'Автогенерация отчётов');
-  assert.equal(SETTINGS_GROUPS[2].items[0].label, 'Автогенерация отчётов');
-  assert.deepEqual(SETTINGS_GROUPS[1].items.map((item) => item.id), ['analyst-reports', 'call-assessment']);
-  assert.deepEqual(SETTINGS_GROUPS[1].items[0].children.map((item) => item.label), ['Сводный отчёт', 'Отчёт по категориям']);
-  assert.deepEqual(SETTINGS_GROUPS[1].items[1].children.map((item) => item.id), ['stereo', 'analyst-reports-calls']);
+  assert.deepEqual(SETTINGS_GROUPS[0].items.map((item) => item.id), ['employees', 'integrations']);
+  assert.equal(SETTINGS_GROUPS[1].items[0].label, 'Уведомления');
+  assert.equal(SETTINGS_GROUPS[2].items[0].label, 'Уведомления');
+  assert.equal(SETTINGS_GROUPS[1].items[1].label, 'Автогенерация отчётов');
+  assert.equal(SETTINGS_GROUPS[2].items[1].label, 'Автогенерация отчётов');
+  assert.deepEqual(SETTINGS_GROUPS[1].items.map((item) => item.id), ['analyst-notifications', 'analyst-reports', 'call-assessment']);
+  assert.deepEqual(SETTINGS_GROUPS[2].items.map((item) => item.id), ['trainer-notifications', 'trainer-reports']);
+  assert.deepEqual(SETTINGS_GROUPS[1].items[1].children.map((item) => item.label), ['Сводный отчёт', 'Отчёт по категориям']);
+  assert.deepEqual(SETTINGS_GROUPS[1].items[2].children.map((item) => item.id), ['stereo', 'analyst-reports-calls']);
   assert.equal(resolveSettingsSection('stereo').parent.id, 'call-assessment');
   assert.equal(resolveSettingsSection('analyst-reports-calls').parent.id, 'call-assessment');
-  assert.deepEqual(SETTINGS_GROUPS[2].items[0].children.map((item) => item.label), ['Сводный отчёт']);
+  assert.deepEqual(SETTINGS_GROUPS[2].items[1].children.map((item) => item.label), ['Сводный отчёт']);
 });
 
 test('primary sections have semantic icons; nested rows share a marker and have unique ids', () => {
@@ -33,6 +35,9 @@ test('legacy unknown section resolves to employees; report parents resolve to ov
   assert.equal(resolveSettingsSection('documents').item.id, 'employees');
   assert.equal(resolveSettingsSection('criteria').item.id, 'employees');
   assert.equal(resolveSettingsSection('scoring').item.id, 'analyst-reports-calls');
+  assert.equal(resolveSettingsSection('notifications').item.id, 'analyst-notifications');
+  assert.equal(resolveSettingsSection('analyst-notifications').group.id, 'analyst');
+  assert.equal(resolveSettingsSection('trainer-notifications').group.id, 'trainer');
 });
 
 test('report types have independent schedules and preserve legacy schedules without spreading them', () => {

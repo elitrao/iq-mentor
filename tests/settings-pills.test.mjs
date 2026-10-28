@@ -5,8 +5,8 @@ import { SETTINGS_GROUPS, SETTINGS_PILL_SECTIONS, resolveSettingsSection } from 
 test('pills expose every top-level setting once in a single level', () => {
   const expected = SETTINGS_GROUPS.flatMap((group) => group.items.map((item) => item.id));
   assert.deepEqual(SETTINGS_PILL_SECTIONS.map((item) => item.id), expected);
-  assert.equal(SETTINGS_PILL_SECTIONS.length, 6);
-  assert.equal(new Set(SETTINGS_PILL_SECTIONS.map((item) => item.label)).size, 6);
+  assert.equal(SETTINGS_PILL_SECTIONS.length, 7);
+  assert.equal(new Set(SETTINGS_PILL_SECTIONS.map((item) => item.label)).size, 7);
 });
 
 test('every existing report type resolves to a visible parent pill', () => {

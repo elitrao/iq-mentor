@@ -15,6 +15,10 @@
 .api-reference-table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; }
 .api-reference-table th { height: 64px; border-bottom: 1px solid #e9e9e9; padding: 12px; color: #858585; font-size: 15px; font-weight: 400; }
 .api-reference-table th:first-child { width: 54%; border-right: 1px solid #e9e9e9; }
+.api-created-sort { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 36px; border: 0; border-radius: 6px; padding: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.api-created-sort > svg { flex-shrink: 0; color: #666; }
+.api-created-sort:hover { color: #37352f; }
+.api-created-sort:focus-visible { outline: 2px solid #df6f39; outline-offset: 3px; }
 .api-reference-table td { height: 58px; border-bottom: 1px solid #f0f0f0; padding: 12px; color: #666; font-size: 13px; overflow-wrap: anywhere; }
 .api-reference-table td button { border: 0; background: transparent; padding: 6px 0; color: #333; font: inherit; font-size: 14px; text-align: left; overflow-wrap: anywhere; cursor: pointer; }
 .api-reference-table td button:hover { text-decoration: underline; text-underline-offset: 3px; }

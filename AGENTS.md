@@ -10,6 +10,10 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- October 28 notification navigation: remove the combined Notifications entry from General. Place separate «Уведомления» entries first under both Analyst and Trainer, before autogeneration; each page renders only that module's events with the existing compact panel, heading, help, display/sound columns and module accent. Keep saved per-module choices and autosave unchanged. Legacy `notifications` selections resolve to Analyst notifications.
+
+- October 28 API date sorting: both API integrations and integration keys have a clickable creation-date header with a direction arrow and accessible sort state. Default to newest first; clicking toggles oldest/newest and returns to page 1. Sort the full filtered list before pagination without changing saved records; unknown dates stay last. After creating a record, show the page containing it under the current order.
+
 - October 28 branch separation: publish approved settings changes to `main`. Keep the `/bonus` experiment, its locked integrations and sidebar notice exclusively on `codex/bonus-integrations-preview`; do not merge that experiment into `main`.
 
 - October 28 Trainer autogeneration: remove «Отчёт по тренировкам» and its period controls. Keep only «Сводный отчёт» inside Trainer autogeneration; old selections of the removed section return to that overview. Do not repurpose saved training-report periods as summary-report periods.

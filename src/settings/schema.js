@@ -2,9 +2,9 @@ export const SETTINGS_GROUPS = [
   { id: 'general', title: 'Общие', items: [
     { id: 'employees', label: 'Сотрудники', icon: 'users' },
     { id: 'integrations', label: 'Интеграции', icon: 'plug' },
-    { id: 'notifications', label: 'Уведомления', icon: 'bell' },
   ] },
   { id: 'analyst', title: 'Аналитик', items: [
+    { id: 'analyst-notifications', label: 'Уведомления', icon: 'bell' },
     { id: 'analyst-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
       { id: 'analyst-reports-summary', label: 'Сводный отчёт', reportType: 'summary' },
       { id: 'analyst-reports-categories', label: 'Отчёт по категориям', reportType: 'categories' },
@@ -15,6 +15,7 @@ export const SETTINGS_GROUPS = [
     ] },
   ] },
   { id: 'trainer', title: 'Тренер', items: [
+    { id: 'trainer-notifications', label: 'Уведомления', icon: 'bell' },
     { id: 'trainer-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
       { id: 'trainer-reports-summary', label: 'Сводный отчёт', reportType: 'summary' },
     ] },
@@ -27,10 +28,13 @@ export const SETTINGS_PILL_SECTIONS = SETTINGS_GROUPS.flatMap((group) => group.i
   icon: item.icon,
   group: group.id,
   label: item.id === 'analyst-reports' ? 'Отчёты · Аналитик'
-    : item.id === 'trainer-reports' ? 'Отчёты · Тренер' : item.label,
+    : item.id === 'trainer-reports' ? 'Отчёты · Тренер'
+    : item.id === 'analyst-notifications' ? 'Уведомления · Аналитик'
+    : item.id === 'trainer-notifications' ? 'Уведомления · Тренер' : item.label,
 })));
 
 export function resolveSettingsSection(id) {
+  if (id === 'notifications') id = 'analyst-notifications';
   if (id === 'scoring') id = 'analyst-reports-calls';
   if (id === 'trainer-reports-training') id = 'trainer-reports';
   for (const group of SETTINGS_GROUPS) {

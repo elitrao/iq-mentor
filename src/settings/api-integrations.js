@@ -1,6 +1,18 @@
 export const API_INTEGRATION_LIMIT = 15;
 export const API_PAGE_SIZE = 6;
 
+export function sortApiRowsByCreatedAt(rows, direction = 'desc') {
+  const sign = direction === 'asc' ? 1 : -1;
+  return [...rows].sort((left, right) => {
+    const leftDate = left.createdAt ? Date.parse(left.createdAt) : NaN;
+    const rightDate = right.createdAt ? Date.parse(right.createdAt) : NaN;
+    const leftValid = Number.isFinite(leftDate);
+    const rightValid = Number.isFinite(rightDate);
+    if (!leftValid || !rightValid) return leftValid ? -1 : rightValid ? 1 : 0;
+    return sign * (leftDate - rightDate);
+  });
+}
+
 export function paginateApiRows(rows, requestedPage = 1) {
   const pageCount = Math.max(1, Math.ceil(rows.length / API_PAGE_SIZE));
   const page = Math.min(pageCount, Math.max(1, Math.trunc(requestedPage) || 1));

@@ -2,18 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { IconCopy, IconFile, IconPlus, IconTrash, IconUsers } from '@tabler/icons-react';
 import { IntegrationScreen } from './IntegrationDetailScreens.jsx';
 import { ApiDialog, ApiUsersDialog } from './ApiDialog.jsx';
-import { API_PAGE_SIZE, addApiKey, getApiKeys, paginateApiRows } from './settings/api-integrations.js';
+import { API_PAGE_SIZE, addApiKey, getApiKeys, paginateApiRows, sortApiRowsByCreatedAt } from './settings/api-integrations.js';
 import { ApiPagination } from './ApiPagination.jsx';
+import { ApiCreatedAtHeader } from './ApiCreatedAtHeader.jsx';
 
 export function ApiKeysScreen({ entry, onChange, back, backToCatalog, notify }) {
   const backRef = useRef(null);
   const [modal, setModal] = useState(null);
   const [name, setName] = useState('');
   const [page, setPage] = useState(1);
+  const [createdSort, setCreatedSort] = useState('desc');
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const keys = getApiKeys(entry);
-  const pagination = paginateApiRows(keys, page);
+  const pagination = paginateApiRows(sortApiRowsByCreatedAt(keys, createdSort), page);
   useEffect(() => { setPage(pagination.page); }, [pagination.page]);
   const selected = keys.find((key) => key.id === modal);
   useEffect(() => { backRef.current?.focus(); }, []);
@@ -25,7 +27,7 @@ export function ApiKeysScreen({ entry, onChange, back, backToCatalog, notify }) 
     try {
       const id = crypto.randomUUID();
       const next = addApiKey(keys, name, { id, token: newToken(), createdAt: new Date().toISOString() });
-      save(next); setPage(Math.ceil(next.length / API_PAGE_SIZE));
+      save(next); setPage(Math.floor(sortApiRowsByCreatedAt(next, createdSort).findIndex((key) => key.id === id) / API_PAGE_SIZE) + 1);
       setModal(id); setError(''); notify('Демонстрационный ключ создан');
     } catch (cause) { setError(cause.message); }
   };
@@ -42,7 +44,7 @@ export function ApiKeysScreen({ entry, onChange, back, backToCatalog, notify }) 
   </>}>
     <div className="api-reference-table-panel">
       <div className="api-reference-toolbar api-keys-toolbar"><div className="api-reference-counts"><span>На странице по: <b>{API_PAGE_SIZE}</b></span><span role="status">Всего строк: {keys.length}</span></div></div>
-      <div className="api-reference-table-surface"><table className="api-reference-table"><thead><tr><th scope="col">Название</th><th scope="col">Создан</th></tr></thead><tbody>
+      <div className="api-reference-table-surface"><table className="api-reference-table"><thead><tr><th scope="col">Название</th><ApiCreatedAtHeader label="Создан" direction={createdSort} onChange={(direction) => { setCreatedSort(direction); setPage(1); }} /></tr></thead><tbody>
         {pagination.items.map((key) => <tr key={key.id}><td><button type="button" onClick={() => setModal(key.id)}>{key.name}</button></td><td><div className="api-row-end"><time dateTime={key.createdAt || undefined}>{formatDate(key.createdAt)}</time><div className="api-row-actions"><button type="button" aria-label={`Удалить ключ «${key.name}»`} onClick={() => { setModal(key.id); setConfirmDelete(true); }}><IconTrash size={17} /></button></div></div></td></tr>)}
         {!keys.length && <tr><td colSpan={2} className="api-reference-empty">Ключей пока нет</td></tr>}
       </tbody></table></div>
