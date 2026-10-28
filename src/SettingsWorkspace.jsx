@@ -1,6 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import {
-  IconBarbell, IconBell, IconCategory, IconChartBar, IconChevronDown,
+  IconBell, IconCategory, IconChartBar, IconChevronDown,
   IconHeadphones, IconPhone, IconPlugConnected, IconReportAnalytics, IconUsers, IconLock,
 } from '@tabler/icons-react';
 import { SETTINGS_GROUPS, resolveSettingsSection } from './settings/schema.js';
@@ -20,16 +20,13 @@ const REPORT_TYPE_ICONS = {
   calls: IconPhone,
   summary: IconChartBar,
   categories: IconCategory,
-  training: IconBarbell,
 };
 
 const SECTION_HELP = {
   'analyst-reports-summary': 'Собирает результаты анализа звонков в общий отчёт, чтобы сравнивать работу сотрудников и видеть, где нужна помощь.',
   'analyst-reports-categories': 'Показывает результаты по отдельным категориям оценки звонков: например, вежливости или работе с возражениями. Помогает увидеть сильные стороны и точки роста команды.',
-  'trainer-reports-training': 'Собирает результаты пройденных тренировок: как сотрудники справляются с заданиями и какие навыки стоит отработать.',
   'trainer-reports-summary': 'Объединяет результаты тренировок в общий отчёт по сотрудникам, чтобы оценивать подготовку команды.',
-  stereo: 'Определяет, в каком канале стереозаписи говорит оператор, а в каком — клиент. L — левый канал, R — правый. Выбранный формат по умолчанию применяется при отправке звонков на анализ.',
-  'analyst-reports-calls': 'Автоматически отправляет новые звонки из подключённых интеграций на анализ, если они достигают минимальной длительности. При выключенном переключателе поле длительности недоступно.',
+  stereo: 'Определяет, в каком канале стереозаписи говорит оператор, а в каком — клиент. L — левый канал, R — правый.',
 };
 
 function SettingsGroupProductIcon({ product, src }) {
@@ -68,11 +65,10 @@ function ReportOverview({ group, item, renderSection }) {
         return <section key={child.id} className="report-continuous-section" aria-labelledby={`${id}-section-${child.id}`}>
           <div className="settings-heading-with-hint">
             <h3 className="report-continuous-heading" id={`${id}-section-${child.id}`}><ChildIcon size={18} stroke={1.45} aria-hidden="true" /><span>{child.label}</span></h3>
-            <SettingsHint label={child.label}>
+            {SECTION_HELP[child.id] && <SettingsHint label={child.label}>
               <p>{SECTION_HELP[child.id]}</p>
               {child.reportType && child.reportType !== 'calls' && <p>Включите периоды, за которые нужно автоматически создавать отчёты: прошедший день, неделю или месяц. Можно выбрать несколько периодов.</p>}
-              {child.reportType === 'calls' && <p>При ручной загрузке звонок отправляется на анализ независимо от этой настройки и длительности.</p>}
-            </SettingsHint>
+            </SettingsHint>}
           </div>
           <div className="report-continuous-content">{renderSection(child.id)}</div>
         </section>;
@@ -126,7 +122,7 @@ export function SettingsSectionContent({ active, setActive, renderSection }) {
   const reportParent = item.children ? item : parent;
   const ActiveIcon = ICONS[item.icon || parent?.icon];
   const header = <header className="settings-content-head"><div className="settings-title-icon"><ActiveIcon size={23} stroke={1.7} /></div><div><span className="settings-kicker">{group.title}{parent && ` / ${parent.label}`}</span><h2>{item.label}</h2></div></header>;
-  return <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}`}>
+  return <section className={`settings-content settings-structure-content tone-${group.id}${reportParent ? ' report-settings-page' : ''}${item.id === 'employees' ? ' settings-wide-directory' : ''}`}>
     {!reportParent && !['employees', 'integrations', 'notifications', 'stereo'].includes(item.id) && header}
     <div key={reportParent?.id || item.id} className="settings-section-body">{reportParent ? <ReportOverview group={group} item={reportParent} renderSection={renderSection} /> : renderSection(item.id)}</div>
   </section>;

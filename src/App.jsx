@@ -1413,7 +1413,7 @@ function TokenIntegration({ service, connected, token, regenerate, copy, toggle 
   return <div className="integration-detail-body"><div className="token-integration-copy"><span>{isBitrix ? "Интеграция с Битрикс24" : "Интеграция с amoCRM"}</span><h4>{isBitrix ? "Интеграция позволяет связать сервис Б24 с IQ Mentor" : "Свяжите amoCRM с IQ Mentor"}</h4><p>{isBitrix ? "После настройки новые звонки автоматически подтягиваются в CRM: фиксируются входящие и исходящие вызовы, номера, длительность и запись разговора." : "После подключения звонки, сделки и контакты синхронизируются с IQ Mentor. Записи разговоров автоматически передаются в Аналитик."}</p><p>{isBitrix ? "Звонки можно привязывать к сделкам, лидам и контактам. Структура сотрудников из Битрикс24 помогает корректно распределять записи по менеджерам." : "Система связывает звонки со сделками и ответственными менеджерами, сохраняя актуальную структуру команды."}</p><p>Подключение выполняется один раз через ключ-токен, после чего интеграция работает автоматически.</p></div><div className="integration-token-row"><div className="integration-token"><IconKey size={20} /><input value={token.replace(/./g, "•")} readOnly aria-label={`Ключ-токен ${isBitrix ? "Bitrix24" : "amoCRM"}`} /></div><button className="token-copy-button" aria-label="Скопировать ключ-токен" onClick={() => copy(token)}><IconCopy size={19} /></button><button className="orange-button" onClick={regenerate}><IconSwitchHorizontal size={18} />{connected ? "Перегенерировать" : "Создать токен"}</button></div>{connected && <button className="integration-disconnect" onClick={toggle}>Отключить интеграцию</button>}</div>;
 }
 
-function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" : "training", value, scoringValue, update }) {
+function ReportSettings({ kind, reportType = kind === "analyst" ? "categories" : "summary", value, scoringValue, update }) {
   const periods = getReportPeriods(value, kind, reportType);
   const withScoring = kind === "analyst" && reportType === "calls" && scoringValue !== undefined;
   const scoring = { minDuration: scoringValue?.minDuration ?? "00:00:30", autoAnalyze: scoringValue?.autoAnalyze ?? false };
@@ -1447,21 +1447,21 @@ function StereoSettings({ value, update, embedded = false }) {
           {channelHelpOpen && <div id="stereo-channel-hint" className="stereo-channel-help-text">L — левый канал записи.<br />R — правый канал записи.</div>}
         </div>}
       </div>
-      <StereoFormatSelect value={current} onChange={change} labelledBy="stereo-channel-label" describedBy={embedded ? undefined : 'stereo-format-scope'} />
+      <StereoFormatSelect value={current} onChange={change} labelledBy="stereo-channel-label" describedBy="stereo-format-scope" />
     </div>
-    {!embedded && <div id="stereo-format-scope" className="stereo-format-scope" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>По умолчанию все звонки отправляются на анализ в выбранном формате.</p></div>}
+    <aside id="stereo-format-scope" className="stereo-format-scope" role="note"><p>Выбранный формат по умолчанию применяется при отправке звонков на анализ.</p></aside>
   </section>;
 }
 
 function ScoringFields({ draft, setDraft, preferenceList = false }) {
-  const scopeText = 'Только для интеграций. Ручные загрузки анализируются независимо от длительности.';
+  const scopeText = 'Ограничение действует только для интеграционных звонков. Загруженные вручную звонки анализируются независимо от длительности.';
   return <div className={`scoring-settings-content${preferenceList ? ' is-preference-list' : ''}`}>
     <div className="scoring-auto-toggle tone-analyst">
       <span>Автоматически отправлять звонок на анализ</span>
       <NotificationSwitch role="switch" label="Автоматически отправлять звонок на анализ" checked={draft.autoAnalyze} onChange={(checked) => setDraft({ ...draft, autoAnalyze: checked })} />
     </div>
-    <label className={`scoring-duration-field${draft.autoAnalyze ? '' : ' is-disabled'}`}><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input disabled={!draft.autoAnalyze} value={draft.minDuration} onChange={(e) => { if (draft.autoAnalyze) setDraft({ ...draft, minDuration: e.target.value }); }} aria-label="Минимальная длительность звонка" /></div></label>
-    {!preferenceList && <div className="scoring-scope-note" role="note"><IconInfoCircle size={16} aria-hidden="true" /><p>{scopeText}</p></div>}
+    <label className={`scoring-duration-field${draft.autoAnalyze ? '' : ' is-disabled'}`}><span>Минимальная длительность звонка</span><div><IconClock size={19} /><input disabled={!draft.autoAnalyze} value={draft.minDuration} onChange={(e) => { if (draft.autoAnalyze) setDraft({ ...draft, minDuration: e.target.value }); }} aria-label="Минимальная длительность звонка" aria-describedby="scoring-scope-note" /></div></label>
+    <aside id="scoring-scope-note" className="scoring-scope-note" role="note"><p>{scopeText}</p></aside>
   </div>;
 }
 

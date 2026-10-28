@@ -24,6 +24,10 @@
 .settings-modal .settings-structure-layout .settings-structure-content { width: min(100%, 1240px); min-height: 100%; box-sizing: border-box; border: 0; border-radius: 0; padding: 40px 84px 64px 48px; background: #fff; }
 .settings-modal .settings-structure-content .settings-content-head { padding-right: 0; }
 .settings-modal .employee-directory-header { padding-right: 0; }
+.settings-modal .settings-structure-layout .settings-wide-directory,
+.settings-modal .settings-structure-content:has(.service-reference-page, .integration-detail-standalone) { width: 100%; padding-right: 32px; }
+.settings-modal .settings-wide-directory .employee-directory-header,
+.settings-modal .service-reference-page > .integration-breadcrumbs { padding-right: 50px; }
 .settings-modal .employee-directory-heading { flex-wrap: wrap; gap: 12px 16px; }
 .settings-modal .employee-directory-header h2,
 .settings-modal .integration-catalog h2,
@@ -47,6 +51,10 @@
   .settings-modal .settings-structure-group { flex: 0 0 254px; }
   .settings-modal .settings-structure-group + .settings-structure-group { margin: 0; padding: 0 0 0 16px; border-top: 0; border-left: 1px solid #e7e7e4; }
   .settings-modal .settings-structure-layout .settings-structure-content { padding: 24px 18px 32px; }
+  .settings-modal .settings-structure-layout .settings-wide-directory,
+  .settings-modal .settings-structure-content:has(.service-reference-page, .integration-detail-standalone) { padding-right: 18px; }
+  .settings-modal .settings-wide-directory .employee-directory-header,
+  .settings-modal .service-reference-page > .integration-breadcrumbs { padding-right: 0; }
   .settings-modal .employee-directory-header { padding-right: 0; }
   .settings-modal .employee-directory-header h2,
   .settings-modal .integration-catalog h2,
