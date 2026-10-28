@@ -14,9 +14,16 @@
 .sr-table tbody tr:not(:last-child) > td { border-bottom: 1px solid #eeeeec; }
 .sr-department { display: inline-block; vertical-align: middle; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 1px 7px; border: 1px solid #ededed; border-radius: 20px; background: #f5f5f5; color: #626262; font-size: 16px; font-weight: 400; line-height: 24px; white-space: nowrap; }
 .sr-employee, .sr-score-cell { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 34px; border: 0; padding: 0; color: inherit; background: transparent; font: inherit; text-align: left; }
-.sr-employee-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #555550; text-decoration: underline solid #a0a09a; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.sr-employee-name { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #555550; text-decoration: underline dotted #a0a09a; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 .sr-employee:hover .sr-employee-name, .sr-employee:focus-visible .sr-employee-name { text-decoration-color: #777772; }
 .sr-cell-open { margin-left: auto; }
+.sr-employee { container: employee-cell / inline-size; }
+.sr-employee .sr-cell-open { margin-left: 0; width: auto; padding: 0 11px; }
+.sr-employee .sr-cell-open > span { display: inline; }
+@container employee-cell (max-width: 360px) {
+  .sr-employee .sr-cell-open { width: 30px; padding: 0; }
+  .sr-employee .sr-cell-open > span { display: none; }
+}
 .sr-table td:hover .sr-cell-open, .sr-employee:focus-visible .sr-cell-open, .sr-score-cell:focus-visible .sr-cell-open { opacity: 1; }
 .sr-cell-open:hover { background: #f2f2ef; color: #42423f; }
 @media (max-width: 900px) { .sr-cell-open > span { display: none; } }

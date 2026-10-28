@@ -65,7 +65,7 @@
 .catr-table tbody tr:hover { background: #fff8f2; }
 .catr-table td > button { position: relative; display: flex; align-items: center; width: 100%; border: 0; padding: 0 108px 0 0; color: inherit; background: none; text-align: left; min-height: 30px; }
 .catr-category-name { justify-content: flex-start; gap: 6px; }
-.catr-category-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #555550; text-decoration: underline solid #a0a09a; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.catr-category-label { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #555550; text-decoration: underline dotted #a0a09a; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 .catr-category-name:hover .catr-category-label, .catr-category-name:focus-visible .catr-category-label { text-decoration-color: #777772; }
 .catr-category-name i { flex: 0 0 auto; font-size: 14px; line-height: 20px; color: #2d8bff; background: #eaf4ff; border: 1px solid #deecff; border-radius: 4px; padding: 0 3px; font-style: normal; }
 .catr-category-name i.boolean { color: #929292; background: #f4f4f4; border-color: #e5e5e5; }

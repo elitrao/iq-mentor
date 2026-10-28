@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import filterIcon from './assets/calls-report/filter.svg';
 import './report-common.css';
 
-export function ReportTableToolbar({ filtered, onFilter, pageSize, onPageSize, count }) {
+export function ReportTableToolbar({ filtered, onFilter, pageSize, onPageSize, count, children }) {
   const [open, setOpen] = useState(false);
   const root = useRef(null), trigger = useRef(null), menuId = useId();
   useEffect(() => {
@@ -11,10 +11,13 @@ export function ReportTableToolbar({ filtered, onFilter, pageSize, onPageSize, c
     document.addEventListener('pointerdown', dismiss);
     return () => document.removeEventListener('pointerdown', dismiss);
   }, [open]);
-  return <div className="report-table-toolbar">
+  return <div className={`report-table-toolbar${children ? ' report-table-toolbar--with-controls' : ''}`}>
+    <div className="report-table-controls">
     <button type="button" className={`report-filter-button${filtered ? ' is-active' : ''}`} aria-label="Фильтр" title="Фильтр" onClick={onFilter}>
       <span className="report-action-icon" style={{ '--report-icon': `url("${filterIcon}")` }} aria-hidden="true" />
     </button>
+      {children}
+    </div>
     <div className="report-table-counts">
       <div className="report-page-size" ref={root} onKeyDown={event => { if (open && event.key === 'Escape') { event.stopPropagation(); setOpen(false); trigger.current?.focus(); } }}>
         На странице по: <button ref={trigger} type="button" aria-label="Количество строк на странице" aria-expanded={open} aria-haspopup="menu" aria-controls={menuId} onClick={() => setOpen(!open)}>{pageSize}</button>

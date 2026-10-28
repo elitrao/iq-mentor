@@ -1,32 +1,35 @@
 .report-score {
   --score-text: #333332;
-  --score-surface: #f0f2f5;
   --score-fill: #bac1cc;
   --score-end: #c9cfd8;
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  flex: 1 1 240px;
+  --score-surface: #f0f1f3;
+  display: block;
+  flex: 1 1 360px;
+  width: 360px;
   min-width: 0;
-  max-width: 240px;
+  max-width: 360px;
 }
-.report-score--green { --score-surface: #e9f8ee; --score-fill: #50c88a; --score-end: #78d7a3; }
-.report-score--amber { --score-surface: #fff7dc; --score-fill: #ffbd27; --score-end: #ffd04d; }
-.report-score--red { --score-surface: #fff0ef; --score-fill: #ee8581; --score-end: #f3a09a; }
+.report-score--green { --score-fill: #49c58d; --score-end: #98dfb6; --score-surface: #e8f7ee; }
+.report-score--amber { --score-fill: #ffbb32; --score-end: #ffe18a; --score-surface: #fff6db; }
+.report-score--red { --score-fill: #ec8288; --score-end: #f6b3a5; --score-surface: #fff0f1; }
 .report-score-value {
-  flex: 0 0 44px;
-  padding: 2px 4px;
-  border-radius: 7px;
-  background: var(--score-surface);
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 0 10px;
   color: var(--score-text);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 20px;
   text-align: center;
 }
-.report-score-track { flex: 1 1 auto; min-width: 12px; height: 8px; overflow: hidden; border-radius: 99px; background: #edf0f5; }
-.report-score-fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--score-fill), var(--score-end)); }
+.report-score-track { position: relative; display: block; width: 100%; min-width: 44px; height: 20px; overflow: hidden; border-radius: 99px; background: #edf0f5; }
+.report-score-fill { position: absolute; inset: 0 auto 0 0; display: block; height: 100%; border-radius: inherit; background: linear-gradient(105deg, var(--score-fill) 0%, var(--score-end) 100%); }
+
+.report-score--outside { display: flex; align-items: center; gap: 12px; }
+.report-score--outside > .report-score-value { flex: 0 0 44px; padding: 0 6px; border-radius: 6px; background: var(--score-surface); }
+.report-score--outside .report-score-track { flex: 1; min-width: 0; height: 8px; }
 
 /* Keep the detail action beside the meter without covering its fill. */
 .sr-score-cell .sr-cell-open, .catr-score-cell .catr-open-hint { flex: 0 0 30px; width: 30px; padding: 0; justify-content: center; }

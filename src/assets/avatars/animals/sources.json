@@ -1,0 +1,103 @@
+{
+  "collection": "Microsoft Fluent Emoji",
+  "repository": "https://github.com/microsoft/fluentui-emoji",
+  "revision": "1ffb34c752ecf5d402f04cfb4b392c77f57c54bc",
+  "license": "MIT",
+  "assets": [
+    {
+      "file": "bear.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Bear/3D/bear_3d.png",
+      "bytes": 41872
+    },
+    {
+      "file": "cat.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Cat/3D/cat_3d.png",
+      "bytes": 33603
+    },
+    {
+      "file": "deer.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Deer/3D/deer_3d.png",
+      "bytes": 34272
+    },
+    {
+      "file": "dog.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Dog/3D/dog_3d.png",
+      "bytes": 33878
+    },
+    {
+      "file": "duck.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Duck/3D/duck_3d.png",
+      "bytes": 32162
+    },
+    {
+      "file": "fox.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Fox/3D/fox_3d.png",
+      "bytes": 41966
+    },
+    {
+      "file": "frog.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Frog/3D/frog_3d.png",
+      "bytes": 38651
+    },
+    {
+      "file": "hedgehog.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Hedgehog/3D/hedgehog_3d.png",
+      "bytes": 32095
+    },
+    {
+      "file": "horse.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Horse/3D/horse_3d.png",
+      "bytes": 36890
+    },
+    {
+      "file": "koala.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Koala/3D/koala_3d.png",
+      "bytes": 36244
+    },
+    {
+      "file": "lion.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Lion/3D/lion_3d.png",
+      "bytes": 50059
+    },
+    {
+      "file": "otter.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Otter/3D/otter_3d.png",
+      "bytes": 33767
+    },
+    {
+      "file": "owl.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Owl/3D/owl_3d.png",
+      "bytes": 38126
+    },
+    {
+      "file": "panda.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Panda/3D/panda_3d.png",
+      "bytes": 43603
+    },
+    {
+      "file": "penguin.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Penguin/3D/penguin_3d.png",
+      "bytes": 32955
+    },
+    {
+      "file": "rabbit.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Rabbit/3D/rabbit_3d.png",
+      "bytes": 30732
+    },
+    {
+      "file": "raccoon.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Raccoon/3D/raccoon_3d.png",
+      "bytes": 38434
+    },
+    {
+      "file": "tiger.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Tiger/3D/tiger_3d.png",
+      "bytes": 32743
+    },
+    {
+      "file": "tropical-fish.png",
+      "source": "https://raw.githubusercontent.com/microsoft/fluentui-emoji/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/Tropical%20fish/3D/tropical_fish_3d.png",
+      "bytes": 27051
+    }
+  ]
+}

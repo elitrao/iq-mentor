@@ -1,3 +1,73 @@
+# Follow-up QA — Table variants and adjacent Open hint
+
+final result: passed
+
+- Summary has three saved options: Table 1 with a centered percentage inside the 20px meter, Table 2 with a dark percentage pill alongside an 8px meter, and Cards. Reload restores Table 2; switching views preserves the sorted employees and current data.
+- The employee Open capsule sits 8px after the name. Resizing the employee column from 362px to 353px of content hides its label and reduces the capsule from 95px to 30px; restoring the column restores the label.
+- Verified desktop rendering, compact controls at 390px, zero-score labels, cards and an error-free browser console. All 15 existing report/model/column/custdev tests passed. Production build passed.
+- Proof: `design-qa-artifacts/summary-table-1.png`, `design-qa-artifacts/summary-table-2.png`, `design-qa-artifacts/summary-open-adjacent.png`, `design-qa-artifacts/summary-open-narrow.png`.
+
+---
+
+# Follow-up QA — Compact meters and dotted detail links
+
+final result: passed
+
+- Reduced the shared score track from 24px to 20px and the centered percentage from 12px to 11px, retaining widths and soft gradients.
+- Changed Summary employee-name and Category-name underlines to dotted while preserving their contrast and offset.
+- Browser verified 20px tracks and dotted text decoration in both reports; visually checked Summary at 1280×720.
+- Proof: `design-qa-artifacts/compact-score-dotted-links.png`.
+
+---
+
+# Follow-up QA — Soft score gradients
+
+final result: passed
+
+- Gently increased the color transition of the shared score fills: green to mint, amber to pale yellow and red to soft peach at 105 degrees. Kept track geometry, percentage contrast, thresholds and proportional filling unchanged.
+- Visually checked Category report and verified computed gradients for all three tones across Category and Summary. Dark percentage text remains #333332.
+- Proof: `design-qa-artifacts/score-soft-gradients.png`.
+
+---
+
+# Follow-up QA — Percentage inside wider score meters
+
+final result: passed
+
+- Replaced the separate score badge and thin line with one 24px rounded track containing a centered dark percentage. Table meters target 360px and shrink with the available column; Summary cards use their available card width.
+- Checked Summary table, Summary cards and Category table in the browser. At 1280px the Summary meter is 247px wide (previous actual track approximately 182px); Category meter is 228px. Label remains visible at 0%, and 100% fills the full track. Existing green/amber/red thresholds are unchanged.
+- Production build passed; browser console has no errors.
+- Proof: `design-qa-artifacts/score-label-inside-table.png`, `design-qa-artifacts/score-label-inside-cards.png`.
+
+---
+
+# Follow-up QA — Animal avatars and simpler cards
+
+final result: passed
+
+- Removed the visible Open capsule and its icon from Summary cards; the whole card still opens the existing detail drawer, including keyboard activation.
+- Added 19 different local 3D animal PNGs from Microsoft Fluent Emoji for the 19 fictional employees without photos. Existing six portraits remain. Source URLs, pinned upstream revision and MIT license are stored alongside the assets under `src/assets/avatars/animals/`.
+- Browser verified 19 unique animal images loaded successfully and six original portraits. After sorting by name and switching to Table, every employee retained the same image; table avatars remain 24px. Opening an animal card displays the corresponding employee details.
+- Visual check at 1280×720: neutral circular backdrops, no clipped animals, stable card dimensions and no Open labels. Production build passed; browser console has no errors.
+- Proof: `design-qa-artifacts/summary-animal-avatars.png`.
+
+---
+
+# Follow-up QA — Summary table and cards
+
+final result: passed
+
+- Target: the user's employee-card screenshot (`codex-clipboard-bc12987f-5345-43e4-803b-5692386d9893.png`), adapted to the existing IQ Mentor Summary report rather than replacing its shell. Compared reference and final screenshot together at 1280×720. Retained the reference's three-column card anatomy, portrait/name hierarchy, thin colored progress track and compact footer. Existing report data, neutral rounded surfaces, Inter typography and orange navigation remain authoritative; dashboards, quotas and employee status switches were not requested.
+- Final cards are 182px high on desktop with 40px portraits, department pills, average score and calls for the selected report period. Table portraits and table dimensions remain unchanged. Three columns at 1280 and 1920, two at 1024, one at 390; no document horizontal overflow.
+- Table is the first-use default. The selected view survives reload. At 10 rows per page, switching from cards page 2 to the table preserves the same ten employee names. Score sorting from the table carries over to cards; card sorting exposes the same name/score choices and directions.
+- A department filter shows the same five Support employees in both views. Combining Support with an employee from Sales shows the existing empty state; reset restores the 25 employees. A card opens the existing detail drawer with the matching employee, score and calls.
+- Fixed an issue found during this check: an expanded filter menu could obscure the Apply button and collapse before its click completed. Filter menus now participate in dialog layout; outside dismissal runs on click, and Escape dismisses the menu without also cancelling the dialog. Retested direct Apply with the department and employee menus expanded.
+- `/reportcustdev#summary-report` reuses the views and retains its restricted navigation. Category report remains table-only. Browser console: no errors. Production build passed; 15 existing report/model/column-width/route tests passed. The existing bundle-size warning remains.
+- Desktop proof: `design-qa-artifacts/summary-cards-desktop.png`.
+- Mobile proof: `design-qa-artifacts/summary-cards-mobile.png`.
+
+---
+
 # Follow-up QA — Pagination and matching table surfaces
 
 final result: passed

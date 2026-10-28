@@ -10,6 +10,22 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- October 28 employee detail hint: in both Summary table variants, place the Open capsule immediately after the employee name with the existing 8px gap, not at the far right of the cell. Adapt to the actual employee-cell width during column resizing: at 360px content width or less, hide only the Open label and use a 30px icon-only capsule. Keep the name, truncation, hover/focus reveal and accessible detail action.
+
+- October 28 Summary view comparison: keep three saved view options: «Таблица 1» with the percentage inside the 20px score track, «Таблица 2» with a compact percentage pill to the left of an 8px track, and «Карточки». Both tables share rows, filters, sorting, pagination, column widths and detail actions; switching must not reset these states. Preserve soft gradients and dark percentages. Existing saved `table` maps to Table 1; cards keep their current inside-label treatment.
+
+- October 28 compact score correction: reduce shared score tracks from 24px to 20px high, with 11px centered percentage labels. Preserve widths, soft gradients, proportional filling and rounded corners in both reports and Summary cards.
+
+- October 28 dotted detail links: change the solid underlines on Summary employee names and Category names to dotted, retaining their visible 1px #A0A09A treatment, 4px offset and hover/focus colors. Page-title accents and table separators remain unchanged. This supersedes the earlier solid underline direction.
+
+- October 28 score color polish: use a gentle 105-degree saturated-to-pastel gradient for score fills: green #49C58D → #98DFB6, amber #FFBB32 → #FFE18A, red #EC8288 → #F6B3A5. Keep the neutral track, dark centered percentage, geometry and thresholds unchanged across both reports and Summary cards.
+
+- October 28 score-meter refinement: make Summary and Category score tracks wider (360px target in tables, shrinking to fit the column), 24px high, with the dark percentage centered inside the track. Remove the separate percentage badge. Fill remains proportional, including 0 and 100, without an artificial minimum width; the number stays readable over the neutral track for low scores. Use this same inside-label treatment in Summary cards at their available width. This supersedes the previous 240px / 8px compact meter direction.
+
+- October 28 employee cards refinement: remove the visible Open capsule from Summary cards; keep the entire card clickable and keyboard accessible. Replace missing employee portraits with distinct local Microsoft Fluent Emoji 3D animal illustrations on neutral circular backdrops. Preserve existing employee photos. Assign animals consistently by employee identity across sorting, filtering, cards, tables and details; all 19 current employees without portraits receive different animals.
+
+- October 28 Summary views: add a saved Table / Cards switch to Summary, including `/reportcustdev`. Both views share the same filtered and sorted employees, current page, page size and detail drawer. Compact employee cards use existing portraits, name, department, average score with a slim colored progress bar, and calls for the period. Keep sorting available in Cards. Use three responsive columns on wide screens, two on medium and one on phones. Preserve the current table and keep upper metric dashboards hidden.
+
 - October 28 Analyst pagination: use one shared pagination control in Clients, Calls, Summary and Category reports, including `/reportcustdev`. Always show page 1 even for a single page or empty results; keep both arrow buttons visible but disable them at the boundaries. Use a uniform #F5F5F5 surface around all four tables and their pagination; use identical 32px controls inside the existing 50px footer, orange current page and ellipses for long ranges. Preserve filtering, sorting, page-size resets, table scroll resets and call-selection actions.
 
 - October 28 report consistency: Summary and Category share identical heading actions, 44px button geometry, notification dots, page-size controls and count typography, so navigation does not shift the interface. Use near-black #252525 scroll thumbs on both axes. Place the score sort icon next to its label, not at the far edge. Detail hints use a 30px rounded capsule, 16px icon and 12px medium Inter text; preserve hover/focus behavior and compact icon-only score/narrow-screen hints.

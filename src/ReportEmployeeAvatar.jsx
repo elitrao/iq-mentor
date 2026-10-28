@@ -5,6 +5,7 @@ import elena from './assets/avatars/employee-3.webp';
 import alexey from './assets/avatars/employee-4.webp';
 import maria from './assets/avatars/employee-5.webp';
 import ivan from './assets/avatars/employee-6.webp';
+import { animalAvatarFor } from './report-animal-avatars.js';
 import './report-employee-avatar.css';
 
 // Existing demo portraits, assigned consistently across the fictional report fixtures.
@@ -18,11 +19,13 @@ const demoPortraits = {
 };
 
 export function ReportEmployeeAvatar({ name = '', src = demoPortraits[name] }) {
-  const [failedSrc, setFailedSrc] = useState(null);
+  const [failedSources, setFailedSources] = useState([]);
+  const animal = animalAvatarFor(name);
+  const picture = [src, animal].find(source => source && !failedSources.includes(source));
   const initials = name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toLocaleUpperCase('ru') || '—';
-  return <span className="report-employee-avatar" aria-hidden="true">
-    {src && src !== failedSrc
-      ? <img src={src} alt="" width={24} height={24} decoding="async" onError={() => setFailedSrc(src)} />
+  return <span className={`report-employee-avatar${picture === animal && picture ? ' is-animal' : ''}`} aria-hidden="true">
+    {picture
+      ? <img src={picture} alt="" width={24} height={24} decoding="async" onError={() => setFailedSources(current => current.includes(picture) ? current : [...current, picture])} />
       : initials}
   </span>;
 }

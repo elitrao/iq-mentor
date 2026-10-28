@@ -19,3 +19,7 @@
   height: 100%;
   object-fit: cover;
 }
+
+.report-employee-avatar.is-animal { background: #f4f4f1; }
+.report-employee-avatar.is-animal img { box-sizing: border-box; padding: 2px; object-fit: contain; }
+.sr-report-card .report-employee-avatar.is-animal img { padding: 4px; }
