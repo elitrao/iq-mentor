@@ -508,7 +508,8 @@ function SidebarIcon({ item }) {
     : <Icon size={16} stroke={1.7} />;
 }
 
-function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge }) {
+export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge, reportOnly = false }) {
+  const analystPages = reportOnly ? ANALYST_PAGES.filter(item => ['summary-report', 'category-report'].includes(item.id)) : ANALYST_PAGES;
   const navRef = useRef(null);
   const dragRef = useRef(null);
   const previewCloseTimer = useRef(null);
@@ -523,7 +524,7 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
   const navGroups = [
     { id: 'primary', label: 'Основные разделы' },
     { id: 'materials', label: 'Материалы' },
-  ].map((group) => ({ ...group, items: orderedItems.filter((item) => sidebarGroup(item.id) === group.id) }));
+  ].map((group) => ({ ...group, items: orderedItems.filter((item) => sidebarGroup(item.id) === group.id) })).filter(group => group.items.length);
 
   useEffect(() => {
     setAnalyticsOpen(isAnalystPage(page));
@@ -697,28 +698,28 @@ function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCo
             {item.arrow && <IconChevronDown className={isExpanded ? "nav-arrow expanded" : "nav-arrow"} size={20} stroke={1.25} />}
           </button>
           {isAnalytics && <div className={isExpanded ? "nav-submenu open" : "nav-submenu"} aria-hidden={!isExpanded}>
-            {ANALYST_PAGES.map(link => <button key={link.id} className={page === link.id ? "nav-subitem active" : "nav-subitem"} type="button" tabIndex={isExpanded ? 0 : -1} aria-current={page === link.id ? 'page' : undefined} onClick={() => setPage(link.id)}><span>{link.label}</span></button>)}
+            {analystPages.map(link => <button key={link.id} className={page === link.id ? "nav-subitem active" : "nav-subitem"} type="button" tabIndex={isExpanded ? 0 : -1} aria-current={page === link.id ? 'page' : undefined} onClick={() => setPage(link.id)}><span>{link.label}</span></button>)}
           </div>}
-          <button type="button" className="nav-drag-handle" aria-label={`Переместить раздел «${item.label}»`} aria-describedby={`nav-drag-hint-${item.id} nav-reorder-keyboard-help`} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} onLostPointerCapture={(event) => finishDrag(event, true)} onKeyDown={(event) => moveWithKeyboard(event, item, index)} onClick={(event) => event.preventDefault()}>
+          {!reportOnly && <><button type="button" className="nav-drag-handle" aria-label={`Переместить раздел «${item.label}»`} aria-describedby={`nav-drag-hint-${item.id} nav-reorder-keyboard-help`} onPointerDown={(event) => startDrag(event, item, index)} onPointerMove={continueDrag} onPointerUp={finishDrag} onPointerCancel={(event) => finishDrag(event, true)} onLostPointerCapture={(event) => finishDrag(event, true)} onKeyDown={(event) => moveWithKeyboard(event, item, index)} onClick={(event) => event.preventDefault()}>
             <IconGripVertical size={16} stroke={1.6} aria-hidden="true" />
           </button>
-          <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Потяните за точки, чтобы переместить</span>
+          <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Потяните за точки, чтобы переместить</span></>}
         </div>;
         })}
       </div>)}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id || (draggedItem.id === 'analytics' && isAnalystPage(page))} page={page} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
-      <button className={`nav-item mobile-settings-shortcut${page === 'settings' || page === 'settings-4' ? ' active' : ''}`} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>
+      {!reportOnly && <button className={`nav-item mobile-settings-shortcut${page === 'settings' || page === 'settings-4' ? ' active' : ''}`} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>}
     </nav>
-    {analyticsFlyout && <nav ref={analystFlyoutRef} className="analyst-nav-flyout" aria-label="Разделы Аналитика"><strong>Аналитик</strong>{ANALYST_PAGES.map(link => <button key={link.id} className={page === link.id ? 'active' : ''} aria-current={page === link.id ? 'page' : undefined} onClick={() => { setAnalyticsFlyout(false); setPage(link.id); }}>{link.label}</button>)}</nav>}
+    {analyticsFlyout && <nav ref={analystFlyoutRef} className="analyst-nav-flyout" aria-label="Разделы Аналитика"><strong>Аналитик</strong>{analystPages.map(link => <button key={link.id} className={page === link.id ? 'active' : ''} aria-current={page === link.id ? 'page' : undefined} onClick={() => { setAnalyticsFlyout(false); setPage(link.id); }}>{link.label}</button>)}</nav>}
     <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов внутри группы. Escape отменяет перетаскивание.</span>
     <span className="nav-reorder-sr-only" role="status" aria-live="polite">{reorderAnnouncement}</span>
-    <div className="sidebar-bottom">
+    {!reportOnly && <div className="sidebar-bottom">
       <button className={page === 'settings' || page === 'settings-4' ? 'nav-item muted-item active' : 'nav-item muted-item'} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /><span>Настройки</span></button>
       <button className="nav-item sidebar-help-item" onClick={openKnowledge} aria-haspopup="dialog" aria-label="Помощь"><IconLifebuoyFilled size={18} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
       <button className="lk-button" aria-label="Перейти в ЛК" title="Перейти в ЛК" onClick={() => setPage("account")}><span className="lk-button-label">Перейти в ЛК</span><img className="lk-button-icon" src={sidebarAccountIcon} alt="" /></button>
-    </div>
+    </div>}
   </aside>;
 }
 

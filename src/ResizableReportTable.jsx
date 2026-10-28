@@ -8,7 +8,7 @@ function sameWidths(a, b) { const keys = Object.keys(b); return keys.length === 
 
 /** A native table with optional persisted, ID-based column widths. Keep the existing
  * colgroup and a single header row; callers retain ownership of sticky-header CSS. */
-export function ResizableReportTable({ columnIds, storageKey, minWidths = {}, maxWidths = {}, disabledColumns = [], className = '', style, children, ...tableProps }) {
+export function ResizableReportTable({ columnIds, storageKey, minWidths = {}, maxWidths = {}, disabledColumns = [], fillContainer = false, className = '', style, children, ...tableProps }) {
   const tableRef = useRef(null), dragRef = useRef(null);
   const [stored, setStored] = useState(() => ({ key: storageKey, widths: readColumnWidths(storageKey) }));
   const committed = stored.key === storageKey ? stored.widths : {};
@@ -135,5 +135,7 @@ export function ResizableReportTable({ columnIds, storageKey, minWidths = {}, ma
     if (child.type === 'thead') return cloneElement(child, {}, flattened(child.props.children).map(row => isValidElement(row) && row.type === 'tr' ? headerRow(row) : row));
     return child;
   });
-  return <table {...tableProps} ref={tableRef} className={`${className} rrt-table${dragging ? ' is-resizing' : ''}`.trim()} style={frozen ? { ...style, width: totalWidth, minWidth: 0, maxWidth: 'none', tableLayout: 'fixed' } : style} data-column-widths={frozen ? 'custom' : 'default'}>{tableChildren}</table>;
+  // A removed column or a wider viewport must not leave a blank area beside
+  // these reports. Native table layout shares the spare width between columns.
+  return <table {...tableProps} ref={tableRef} className={`${className} rrt-table${dragging ? ' is-resizing' : ''}`.trim()} style={frozen ? { ...style, width: totalWidth, minWidth: fillContainer ? '100%' : 0, maxWidth: 'none', tableLayout: 'fixed' } : style} data-column-widths={frozen ? 'custom' : 'default'}>{tableChildren}</table>;
 }

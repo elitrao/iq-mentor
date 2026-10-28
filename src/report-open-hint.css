@@ -1,0 +1,30 @@
+.report-open-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid #e6e6e3;
+  border-radius: 999px;
+  color: #51514d;
+  background: #f7f7f5;
+  font-family: 'IQ Report Inter', Inter, sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity .12s ease, background .12s ease;
+}
+.report-open-hint > svg { flex: 0 0 16px; }
+button:hover > .report-open-hint, button:focus-visible > .report-open-hint { opacity: 1; }
+.report-open-hint:hover { color: #333330; background: #eeeeeb; }
+@media (max-width: 900px) {
+  .report-open-hint { width: 30px; padding: 0; }
+  .report-open-hint > span { display: none; }
+}
+@media (hover: none) { .report-open-hint { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .report-open-hint { transition: none; } }

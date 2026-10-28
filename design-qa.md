@@ -1,222 +1,147 @@
-# Design QA — Settings card directory
+# Follow-up QA — Pagination and matching table surfaces
 
-- Source visual truth: `C:\Users\SAMOIL~1.D\AppData\Local\Temp\codex-clipboard-1d216191-3d08-42d5-988a-22c90147e265.png`
-- Implementation screenshot: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-artifacts\settings-card-directory.jpg`
-- Combined comparison: `C:\Users\samoilenko.d\Documents\IQ Group\iq-mentor\design-qa-artifacts\settings-reference-comparison.png`
-- Browser viewport: 1280 × 720 CSS px, device scale 1.
-- Source pixels: 974 × 291. Implementation pixels: 1280 × 720. No density normalization was required; the comparison preserves each image at native density and evaluates the settings-directory region rather than the surrounding product shell.
-- State: expanded desktop sidebar, Settings overview.
+final result: passed
 
-## Full-view comparison
+- All four Analyst tables use the shared pagination control. Summary shows page 1 with both arrows disabled for its default 25-row/single-page result.
+- Summary with 10 rows per page: page 2 shows 10 rows, page 3 shows 5; Next is disabled on the last page. Category page 2 shows the remaining 8 rows. Clients and Calls page 2 each show 25 rows.
+- An empty client search keeps page 1 visible with both arrows disabled.
+- All table surroundings now use #F5F5F5, including Category; controls are identical 32px buttons inside a 50px footer.
+- Build passed; 31 existing report, route, resizing, metric and hosting tests passed. Browser console has no errors.
+- Evidence: `design-qa-artifacts/report-pagination-final.png` (1280×720).
 
-The implementation keeps the reference's quickly scannable icon-card directory while adapting it to the IQ Mentor shell, content and warm accent palette. The source's left category rail was intentionally replaced by visible text group headings after product feedback. Card density, alignment and label hierarchy are consistent across the six available sections.
+# Follow-up QA — Shared report chrome and /reportcustdev
 
-## Focused region comparison
+final result: passed
 
-The full-width comparison is sufficient because the source contains only a category rail and small icon cards, and the implementation card labels/icons are legible at native size. The settings card grid was also inspected directly in the browser after its entry animation.
+- `/reportcustdev` reuses the existing 250px desktop sidebar with only Analyst → Summary / Category. Collapse, mobile flyout and employee-to-Summary detail navigation verified; other navigation remains available in the normal app.
+- Both pages share title, mode badge, period pill, rename action, heading actions and table toolbar. At 1920×1080 all four action bounds match exactly between pages: 200×44 history, 180×44 generation, two 44×44 icon buttons; same positions and 600-weight 16px Inter. At 1280×720 headers/actions also match without overflow.
+- Both history indicators are 12px with the same white edge and offsets. Page-size/count typography matches; page size is orange in both. Category page-size change to 10 renders 10 rows.
+- Score sorting sits 8px after the label and successfully updates aria-sort. Both table scrollbars use #252525 on white, including the horizontal axis.
+- Shared detail hint: 30px capsule, 16px icon, 12px medium Inter. Keyboard focus reveals the hint; category employee opens the correct Summary drawer with no Trainer action in the custdev route.
+- Category rename trims whitespace, prevents empty save and updates the visible report. Original title restored after QA.
+- At 390×844 both action rows occupy x=12..378, y=165..203, with no document overflow. The existing mobile Analyst flyout offers exactly the two reports.
+- Existing report filters/models and route tests: 10 passed. Production build passed. Browser console: no errors. Main app sidebar remains intact.
+
+Evidence:
+- `design-qa-artifacts/reportcustdev-summary.png`
+- `design-qa-artifacts/reportcustdev-category.png`
+
+# Follow-up QA — Report simplification and detail links
+
+final result: passed
+
+Latest user direction: remove upper metrics for now, make employee/category detail links more apparent, restore compact avatars and shorten the Category heading underline.
+
+Evidence: design-qa-artifacts/category-clean-report.png and design-qa-artifacts/summary-clean-report.png at 1920×1080. The final Category view was visually inspected; both pages were measured in the browser.
+
+- Neither report renders metric cards or computes previous-period metrics. Both table surfaces now start at y=144, using the released height without a blank strip.
+- Category heading width and text width both measure 249.421875px: the orange underline ends at the title. Summary's existing short underline remains.
+- Employee names in Summary and category names in Category use a persistent solid 1px #A0A09A underline and #555550 text. The first pale dotted iteration was replaced following user feedback. Existing hover/focus and detail hints remain.
+- Both employee and category detail drawers were opened successfully via their names and dismissed with Escape during this iteration; no changes were made to their behavior afterward.
+- Both tables use 24px portraits again; 16px body text, 64px rows, score bars and dark score-label colors remain. User-saved column widths are preserved.
+- Production build passes. Browser console has no errors. Temporary viewport override was reset and QA tabs closed.
+
+No actionable P0/P1/P2 findings for this follow-up. Earlier sections describing visible metric strips or 32px avatars are superseded.
+
+---
+
+# Follow-up QA — Dark score labels
+
+final result: passed
+
+The user requested a more neutral, readable color for the percentage labels. All Summary and Category score badges now use #333332 text; existing tinted backgrounds, meter widths and thresholds are unchanged. Browser computed styles confirm rgb(51, 51, 50) for amber, red and green scores. The rendered result was visually checked in both reports. Evidence: design-qa-artifacts/score-dark-labels.png. This is a CSS color-only change; no new behavior tests or additional build were needed.
+
+---
+
+# Follow-up QA — Neutral metrics and larger table content
+
+final result: passed
+
+Sources: user reference codex-clipboard-c08471ef-6d36-40d9-b07f-e621eed35f8a.png (light metric card), codex-clipboard-2c77d92b-c5fa-4e89-88d0-d46b7915116c.png and the explicit correction to enlarge table text rather than score bars. Final correction codex-clipboard-80bcb9ad-b721-4fdd-ae85-bf09360d0203.png moves the orange accent to the bottom.
+
+Evidence: design-qa-artifacts/summary-neutral-metrics-larger-table.png and design-qa-artifacts/category-neutral-metrics-larger-table.png, both at 1920×1080. Reference and implementation captures were visually inspected. These are component-style adaptations to the existing report layout, not a new full-page design.
+
+- All four metrics have a #F8F8F8 surface, dark figures, muted captions, orange semantic icons and a 2px orange bottom border. Top border is 0px. Green/red deltas have soft rounded comparison badges; zero is neutral.
+- Four equal 402px cards occupy the full report width. At 1024px they become two equal 455px columns with no card-content overflow.
+- Summary and Category body text and employee/department pills are 16px; rows are 64px, table avatars 32px. Category extra-person counters remain round at 28px.
+- Score meters retain their 240px maximum width and 8px track height. Column widths, table headers, data, filters and calculations are unchanged. On a narrow viewport the table retains its existing internal horizontal scroll instead of shrinking text.
+- Navigation between reports and both rendered views checked; browser console contains no errors. Production build passed after the larger table change. The final bottom-border relocation was checked in the browser on both pages.
+
+No outstanding P0/P1/P2 findings. Earlier orange-gradient/top-accent and compact-table descriptions below are historical and superseded.
+
+---
+
+# Follow-up QA — Four full-width report metrics
+
+final result: passed
+
+Source: C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-f64db917-30a7-4e50-8fde-8aca3e0aa9e5.png, with the user's instruction to remove the empty right-hand region and add a fourth metric.
+
+Evidence: design-qa-artifacts/summary-four-metrics.png (1920×1080) and design-qa-artifacts/category-four-metrics.png (1280×720), native 1× desktop captures. The source strip and Summary capture were opened together for direct comparison of the top metric row. The surrounding report was preserved.
+
+- Four equal cards now fill the same 1638px width as the report surface at the 1920px viewport: each card is 402×90px, with 10px gaps.
+- Added the count of scores >=80, computed from every filtered result row. The fixture Category report shows 18; Summary shows 0. Existing comparison badges use the same metric from the previous demo snapshot.
+- At 1280px all four remain in one row without clipping. At 1024px the grid becomes 2×2, with equal 399.84px columns and no card overflow. The viewport override was reset.
+- Typography, palette, circular scope labels, portraits and score bars are unchanged from the accepted previous iteration. Only strip distribution and the additional data-driven metric changed.
+- Build and all five metric tests passed, including the inclusive 80 boundary, 79.9 exclusion, invalid/empty values and filtered aggregation. Console errors: none.
+
+No actionable P0/P1/P2 findings remain for this follow-up. The former 1000px cap and three-card descriptions below are historical and are superseded by this review.
+
+---
+
+## Previous iteration record
+
+# Design QA — Report dashboard refinement, 28 October 2026
+
+final result: passed
+
+## Scope and source
+
+Adapt the supplied dashboard-card composition to the existing Summary and Category reports. Subsequent user changes take priority: smaller cards, informative comparison capsules, explicit average scope, a fully rounded scope badge, no Dynamics table column, full-width tables, circular extra-employee counts, and a shorter Summary underline.
+
+Source visual truth:
+- C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-6302c8ab-948e-424e-8cdc-e766d48e9060.png (1203 × 141 px): dashboard card composition.
+- C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-d6347d20-6e5d-45ff-9001-f9e1bb5688f5.png: absolute and relative change treatment.
+- C:/Users/SAMOIL~1.D/AppData/Local/Temp/codex-clipboard-44f81d38-5d7c-4480-89f6-1b11036ac5a2.png (186 × 22 px): scope label, with user instruction to make it fully rounded.
+
+Implementation evidence:
+- C:/Users/samoilenko.d/Documents/IQ Group/iq-mentor/design-qa-artifacts/category-report-final.png (1280 × 720 px).
+- C:/Users/samoilenko.d/Documents/IQ Group/iq-mentor/design-qa-artifacts/summary-department-metrics.png (1280 × 720 px).
+- C:/Users/samoilenko.d/Documents/IQ Group/iq-mentor/design-qa-artifacts/summary-report-wide-final.png (1920 × 1080 px).
+
+## Comparison
+
+The source card strip, scope-label crop and final Category capture were opened together in one comparison input. Native pixels were retained at 1× density; the comparison concerns the card region rather than copying the source Home page or its four metrics. The reference cards are about 90px high, matching the final 90px cards. Three current report metrics are intentionally retained. Orange comes from the existing homepage Analyst KPI style; purple Trainer cards are outside this scope.
+
+The full capture verifies card-to-table spacing, avatar alignment, the three-column table and compact round counters. The label crop was compared directly with the final scope capsule: corners are now fully round, with extra horizontal padding and 10px text. The Summary desktop check measured the underline end and edit-button end at the same position. At 1920px the table and container both measured 1616px; the metric strip remained capped at 1000px.
 
 ## Required fidelity surfaces
 
-- Fonts and typography: Inter is used consistently with the product. Card labels are 14px/20px at medium weight; group headings are quieter 13px labels. No clipping or awkward wrapping remains.
-- Spacing and layout rhythm: cards are compact (about 180 × 108px), use 10px grid gaps and align by category. The old category rail and redundant total row are absent.
-- Colors and visual tokens: neutral cards and restrained IQ Mentor orange accents replace the reference's gray-blue administration palette. Grouping is communicated by text, not color alone.
-- Image and icon quality: all visible UI icons use the installed Tabler icon set with a consistent 1.4–1.45px stroke. No raster placeholders, emoji or handcrafted icon approximations are used.
-- Copy and content: all six real settings destinations are present. «Автоотчёты» is concise and disambiguated by the surrounding «Аналитик» or «Тренер» heading.
+- Typography: existing Inter throughout; 28px values, 11px captions, 10px capsule text. Values and percentage-point units remain distinct, without clipping at checked desktop widths.
+- Layout: equal cards, 10px gaps, 12px/14px padding, 90px height, 1000px strip cap. Tables fill their available width. Manual resizing and compact score bars are retained.
+- Colors: reuse the existing orange homepage surface. Comparison badges use white surfaces and semantic green/red text. A reduction in the low-score count is green. The scope badge uses warm dark text on white.
+- Assets: existing local 24px employee portraits, stable across the two reports; initials for employees without portraits. Existing Tabler icons remain crisp. No new decorative raster assets are required for this component.
+- Content: same three filtered metrics. Average scope reflects all employees, department(s), or a selected employee subset. Comparisons use fictional prior-period snapshots, described as demonstration data in their help text; score deltas are percentage points, relative changes are percentages. No comparison column remains in either table.
 
-## Interaction and accessibility checks
+## Verification and iteration history
 
-- Opened «Интеграции», «Автоотчёты» and «Оценка звонков» from their cards.
-- Returned through the Settings breadcrumb and verified focus returns to the originating card.
-- Verified Analyst/Trainer report options and call-assessment options render consecutively on one page without tab roles or hidden panels.
-- Verified the old duplicate Settings sidebar entry and visible «Материалы» heading are absent.
-- Checked a fresh browser tab: no console errors or warnings.
-
-## Comparison history
-
-- P2: the first pass used a large left category rail and oversized robot cards. Fixed by removing the rail and switching to a compact flat icon-card grid.
-- P2: category meaning depended on card color and duplicate report labels were ambiguous. Fixed with visible «Общие», «Аналитик» and «Тренер» headings plus matching heading icons.
-- P2: report options used horizontal tabs and hid sibling settings. Fixed by rendering every fixed option as a continuous titled section.
-- Post-fix evidence: `design-qa-artifacts/settings-card-directory.jpg` and browser checks listed above.
+- Avatar pass: portraits loaded in both tables and the linked-employee drawer; 25 Summary avatar slots, six portraits and 19 initial fallbacks.
+- Initial dashboard pass: wide orange cards adopted from the source. User requested additional comparison detail and a smaller footprint; applied the 90px/1000px layout and comparison capsules before final capture.
+- Scope pass: selected all 25 employees initially read as a subset. Corrected the scope predicate so a report containing every employee reads All employees. Filtering to Sales then displayed the department name, 35.1% average and 10 employees. The same filter is applied to the prior-period snapshot.
+- Final capsule pass: changed the small scope badge to 999px corners and 2px/8px padding; final Category capture shows the rounded result.
+- Build passed; five report-metric tests passed, covering missing/zero values, filtered aggregation, relative percentages and scope labels. Browser console errors: none.
+- Viewport override was reset after the 1920px check. Verification covered desktop 1280px and 1920px; an exhaustive mobile and assistive-technology audit was not performed.
 
 ## Findings
 
-No actionable P0, P1 or P2 issues remain.
+No remaining actionable P0/P1/P2 differences for the requested desktop component changes. The source Home content and Trainer palette are intentional exclusions, not fidelity defects.
 
-## Follow-up polish
+## Implementation checklist
 
-No blocking polish items. A narrow-screen screenshot remains optional because this desktop browser does not expose viewport emulation; responsive CSS retains two cards per row and then one below 390px.
-
-final result: passed
-
-## October 27 notification header refinement
-
-- Joined each module title, icon and info tooltip with the Display/Sound column labels in one header row. Removed the separate divider between modules; the groups are separated by 32px of whitespace.
-- Browser check at 1280px: both modules are 560px wide, all three header cells share the same vertical center, and neither section overflows. At 380px the title spans the header before the channel labels, with no horizontal overflow. Restored the default viewport after checking.
-- Native viewport screenshot: `design-qa-artifacts/notifications-joined-headings.jpg`. Desktop screenshot rendering was blurred by the in-app browser, so alignment was additionally verified from element bounds.
-- Production build passed, with only the existing bundle-size advisory. No browser console errors. Saved notification values and channel availability remain unchanged.
-
-### Notification group boundaries
-
-- Replaced whitespace-only grouping with two white outlined panels: 1px #E5E4E0 border, 14px corners, compact padding and 16px gap. Kept the shared title/channel header and existing switch logic.
-- Verified the panel boundary and channel alignment in the live browser. Both groups fit the available width without horizontal overflow. Evidence: `design-qa-artifacts/notifications-separated-panels.jpg`.
-
-### Shared settings panels
-
-- Applied the approved notification panel styles through shared CSS to all six sections in Analyst/Trainer autogeneration and Call Assessment. Removed the former separators between open sections; all panels use the same outline, corners, padding and 16px gap.
-- Verified all three pages in the live browser: identical panel styles, no horizontal overflow and a 560px desktop width. The stereo selector, automatic-analysis switch and duration input share exactly the same right edge (884px at the checked viewport). At narrow widths, field rows stack to prevent collisions after the added inner padding.
-- Screenshot: `design-qa-artifacts/settings-shared-panels.jpg`. Browser console has no errors. This pass changes only CSS; setting values and behavior are untouched.
-
-# Design QA — Discord settings pattern adaptation (October 27)
-
-- Source visual truth: `design-qa-artifacts/discord-settings-reference.png`, official Discord support capture, 1255 × 924 px.
-- Implementation screenshot: `design-qa-artifacts/settings-discord-pattern-compact.png`, 432 × 674 CSS px at device scale 1.
-- State: Settings modal, Employees selected, compact responsive layout.
-- Scope: adapt Discord's two-zone settings pattern to IQ Mentor rather than reproduce Discord's theme or copy.
-
-## Full-view comparison
-
-The source and implementation were inspected together. The implementation keeps the requested 280px desktop menu width, gives navigation its own neutral surface, reserves a readable content column, and moves close/ESC into a dedicated right-side control on desktop. At the captured compact width, navigation intentionally becomes a horizontal scrollable region and the ESC caption is hidden so content remains usable.
-
-## Focused comparison
-
-The navigation, active state, content heading and close control are legible in the full captures, so a separate crop was not needed. The implementation's employee controls and table semantics were additionally inspected through the browser accessibility tree.
-
-## Required fidelity surfaces
-
-- Fonts and typography: Inter remains consistent with IQ Mentor; navigation is 13px, modal title 24px semibold, and page headings keep the established 28px desktop hierarchy.
-- Spacing and layout rhythm: desktop uses the preserved 280px rail, 48px content inset and an independent scrolling content area; compact layout avoids overlap and document-level overflow.
-- Colors and visual tokens: Discord's dark palette is intentionally replaced by IQ Mentor neutral surfaces and orange accents. The active item gains a clearer neutral fill without color-only meaning.
-- Image and icon quality: existing Tabler icons and product assets are preserved; no placeholder or improvised graphics were introduced.
-- Copy and content: existing Russian labels, settings groups and employee actions remain unchanged.
-
-## Interaction and accessibility checks
-
-- Switched between Notifications and Employees after the shell update.
-- Verified active navigation state, independent content scrolling and the close button label.
-- Escape behavior and focus containment remain implemented by the existing native dialog.
-- Browser console returned no errors. Production build passed; only the existing bundle-size advisory remains.
-
-## Findings
-
-No actionable P0, P1 or P2 issue was found in the adapted pattern. The desktop Discord composition and the compact IQ Mentor capture are intentionally different responsive states, so no pixel-level fidelity claim is made.
-
-## Follow-up polish
-
-- P3: capture the updated desktop shell at a wide viewport if a strict side-by-side spacing review is needed later.
-
-final result: passed
-
-# Design QA — Call report (October 26)
-
-- Source: authenticated `https://mentor.iqgroup.ai/detailed-report?page=1&pageSize=25`, inspected without submitting changes.
-- Source capture: `C:\Users\samoilenko.d\AppData\Local\Temp\iq-calls-report-source.jpg` (kept outside the repository because it contains live records).
-- Implementation: `http://localhost:4170/#analytics`.
-- Desktop evidence: `design-qa-artifacts/calls-report-desktop.jpg`, 1261 × 884 CSS px at device scale 1; both source and implementation captured with the sidebar collapsed, 25 rows per page, no selection or filters, and table scrolled to the top-left.
-- Full comparison: `C:\Users\samoilenko.d\AppData\Local\Temp\iq-calls-report-comparison.jpg`; both screenshots at native density, no normalization required.
-- Focused comparison: `C:\Users\samoilenko.d\AppData\Local\Temp\iq-calls-report-focus.jpg`; matched 1173 × 390 crops of heading, toolbar, column headers and first rows.
-- Responsive evidence: `design-qa-artifacts/calls-report-tablet.jpg` (970 × 884) and `design-qa-artifacts/calls-report-mobile.jpg` (390 × 844).
-
-## Visual comparison
-
-The full-view and focused comparisons were inspected side by side. The report content begins at x=72, y=80 on desktop; toolbar, table and pagination share the source's alignment. The table uses a 72px sticky header, 64px striped rows, matching fixed column widths, 12px surfaces and the captured source action icons. Table cells have no left or right borders (also verified through computed styles).
-
-- Typography: Inter, 32px medium heading, 16px medium table labels and values, 14px source badges and counters. Longer names truncate; full names remain available through titles and the local detail dialog. The local Inter title is slightly wider than the source rendering; this does not change layout or hierarchy.
-- Spacing and surfaces: 16px page margins, 10px table-card padding, 8px toolbar gap, restrained neutral backgrounds, no KPI cards or extra decorative panels.
-- Color: orange call links/actions, blue Bitrix badge, pale orange IQ Mentor badge, neutral call-type and funnel badges. Selected calls expose the dark action footer.
-- Assets: six toolbar/sort icons are exact source SVG assets stored locally. Supplementary controls use the existing Tabler set. No raster approximations or hotlinked assets.
-- Responsive behavior: no document-level horizontal overflow at desktop, tablet or mobile sizes. The table scrolls within its own region. Mobile action controls wrap and the existing bottom navigation remains usable.
-- Accessibility: labelled buttons and inputs, native modal dialogs with Escape/backdrop dismissal, visible focus treatment inherited from the prototype, table headers and sorting semantics, mixed selection checkboxes, live result count. No new animation is introduced.
-
-## Interaction checks
-
-- Search returned the expected five matching demo calls; selecting them and clearing the search preserved all five selected records and their combined duration.
-- Source filter applied to the same dataset. Resetting the draft and closing the filter left the applied filter intact; Reset followed by Apply cleared it.
-- Hiding the Client column survived a reload. Show All restored exactly ten basic fields, without system or user category columns.
-- Changed page size to 10, navigated to page 2, and restored 25 rows/page 1. Sorting cycled ascending, descending and off with the appropriate header state.
-- An unmatched search showed an explanatory empty state and a reset action.
-- Generation dialog disabled minimum duration when automatic analysis was off; enabling it unlocked the input. Cancel did not save the draft.
-- Import dialog allowed employee selection and kept upload disabled until files were chosen. No files were uploaded during verification.
-- Local browser console: no errors or warnings in the final check.
-- `node tests/calls-report.test.mjs`: 4 tests passed (combined filters, numeric/date sorting, invalid duration bounds, visible-field CSV export and spreadsheet-formula escaping).
-- Production build passed. The existing large-bundle advisory remains unrelated to this screen. `git diff --check` passed.
-
-## Intentional differences and limits
-
-- Vertical separators and system/user category columns are omitted at the user's explicit request.
-- All 75 rows are fictional demo data; real production records and account balances are not copied into the repository.
-- The existing prototype shell and shared scoring settings are retained. Narrow-screen controls wrap instead of reproducing the source's clipping.
-- Import, analysis and deletion operate only on local demo rows; no production API, analysis billing or server upload is connected. Call titles open a basic local metadata dialog; the separate detailed-call experience is outside this table implementation.
-
-## Findings
-
-The first comparison used an expanded prototype sidebar against the collapsed source; this was corrected and both full and focused comparisons were repeated at the same width. No actionable P0, P1 or P2 visual or functional issues remain within the implemented report scope.
-
-final result: passed
-
-
-# Design QA — Settings content composition and density (October 27)
-
-## Contextual help follow-up
-
-- Section-edge alignment correction: removed the nested 440px control-group cap so every Call Assessment row fills its parent section (up to 560px). Dropdown, switch track, time field and section rule now end on one right edge. Checked the wide layout at 1280 × 900 and restored the browser viewport; its scaled capture remains soft but shows the common boundary (`settings-section-edge-desktop.jpg`). Native compact evidence is `settings-section-edge-final.jpg`. Final build and whitespace checks passed; control values and menu dimensions are unchanged.
-
-- Final row-unification correction: stereo now also uses a left label and right control in the same row. A shared 440px row width aligns its 236px selector, the analysis switch and the 128px duration field to one right edge. The switch's visual track aligns with the fields while retaining its hit area. Native narrow-screen check shows labels wrapping without horizontal overflow or clipped values; screenshot `design-qa-artifacts/settings-call-controls-aligned.jpg`. Build passed; this supersedes earlier stacked-stereo captures.
-
-- Latest consistency and duration refinement supersedes the indented field below: all labels share a left edge, while the automatic-analysis switch and 128px duration input share the right edge of a 440px control group. The duration label and input are on one row; stereo retains its 320px selector beneath the label. Both fields share 44px height, border, background, radius, typography and focus treatment. No internal rule or nested indent. Native narrow-screen screenshot `design-qa-artifacts/settings-duration-compact-right.jpg` confirms wrapping without clipping the time value and preserves the disabled field state. Production build and whitespace check passed.
-
-- Subsequent Call Assessment composition refinement: the 320px stereo selector now sits below its label. The automatic-analysis switch leads its label, and minimum duration is nested underneath with a 160px input. Removed the rule between these dependent controls. Other preference rows and menu width are unchanged. Browser check confirmed the narrow layout fits, the existing disabled duration state remains, and contextual help stays accessible. Evidence: `design-qa-artifacts/settings-call-controls-grouped.jpg`. Production build passed after this CSS change.
-
-- Replaced repeated schedule captions and embedded explanatory notes with info buttons next to section headings. Added plain-language descriptions for each report type, stereo channels, automatic analysis and notification delivery channels. Field labels and Display/Sound column headings remain visible.
-- Shared tooltips support pointer entry, focus and a pinned click state. Their native popover layer avoids modal scroll clipping, clamps position to viewport edges and follows scroll/resize; Escape dismisses the tooltip without closing Settings.
-- Browser checks verified click opening, keyboard focus reopening, Escape dismissal, route-change cleanup, compact field labels and no visible repeated periodicity caption. Call assessment retained its disabled duration field. Console had no errors. Production build passed with the existing bundle-size advisory.
-- Evidence: `design-qa-artifacts/settings-category-tooltip.jpg`, captured at the native compact viewport with the tooltip above its heading to fit the screen. Saved setting values were not changed. No Git push.
-
-- Source: the user's Discord Account Status, Friend Request Permissions and Sounds screenshots. Adaptation concerns the open-section layout, not Discord's dark theme or the settings-menu width.
-- Removed enclosing cards and heading islands from Notifications, Analyst/Trainer autogeneration and Call Assessment. Section headings are 20px semibold; labels and controls share a left/right row, with contextual help beneath the label and thin section separators.
-- Applied the user's subsequent compactness correction: 560px maximum content width (previously 696px), 48px preference rows (previously 64px), 12px heading gaps and 24px section spacing. Compact channel/duration inputs stack when their content container becomes narrow.
-- Browser verification covered report sections, both notification groups, and call assessment. Toggling automatic analysis enabled/disabled minimum duration correctly; the original disabled state and 00:00:30 value were restored. No console errors were reported.
-- Wide viewport captures verified section structure, alignment and absence of enclosing cards; the in-app browser's scaled wide captures were visibly soft, so these are composition evidence rather than a pixel-fidelity claim. Native narrow captures were sharp and confirmed wrapping without clipped controls. Temporary viewport overrides were reset.
-- Evidence: `design-qa-artifacts/settings-open-notifications-desktop.jpg`, `settings-open-notifications-narrow.jpg`, `settings-open-scoring-narrow.jpg`, and the latest density capture `settings-compact-final.jpg`. Older captures precede the 560px/48px correction.
-- The 12 existing settings-structure, notification and stereo model checks passed when run directly. Production build passed after the final compactness edit; the existing bundle-size advisory remains. No Git push was performed.
-
-# Design QA — Analyst pages and report refinements (October 26)
-
-## Source and scope
-
-- Inspected all four production Analyst destinations through the authenticated browser: Clients, call report, Summary and Category reports. Production records remained outside the repository; all prototype rows and generated reports are local fictional data.
-- Source captures and native-density comparisons are in the user's temporary folder. Inspected full comparisons for Clients, Summary and Categories and focused comparisons `iq-clients-focus.jpg`, `iq-summary-focus.jpg`, `iq-category-generation-comparison.jpg`.
-- Initial desktop comparison used 1280 × 720 at scale 1; responsive checks used 390 × 844. The final width refinement was checked at 1920 × 900 and then restored to the default browser size.
-- Latest user decisions intentionally supersede the source table layout: no vertical cell separators in any Analyst table; no explanation column in Summary or Categories; these two tables use 52px rows and 14px text, retaining the full available page width. Explanations remain in detail drawers. The proposed 1040px width cap was reverted at the user's request.
-
-## Visual and functional review
-
-- Captured production Inter weights and source toolbar SVGs are stored locally. Heading sizes, toolbar hierarchy, pale report surfaces, striped rows, badges, dialogs and right-side panels were compared with the source. Supplementary icons use the existing Tabler set.
-- All four routes are connected to the Analyst menu, including compact/mobile navigation. Client search, filters, visibility controls, sorting, pagination and client/call details work against local data.
-- Summary and Category history, filtering, generation forms, period selection, schedule persistence, pagination, export and detail panels were exercised. Category employee links open the matching Summary detail.
-- The generation date fields now accept both input and change events; the chosen period was verified in the generated report heading. Filter cancellation preserves the applied values.
-- Mobile tables scroll within their own region, actions fit, and document width/height remain 390 × 844. Drawers and forms fit the viewport without copying production's narrow-screen clipping.
-- The settings stylesheet race was fixed and file watching now waits for completed Windows saves. The modal is 1232px wide at a 1280px viewport, with 16px corners and a 280px navigation rail; screenshot `design-qa-artifacts/settings-modal-restored.jpg`.
-- Summary/Category hover and keyboard-focus affordances show a small side-panel icon and «Открыть». Enter opens the existing details. The indicators reserve space and remain available on touch screens.
-- Desktop evidence includes `clients-desktop.jpg`, `summary-report-desktop.png`, `category-desktop.jpg`, and the later `summary-report-compact-no-dividers.jpg`, `category-full-width-open.jpg` in `design-qa-artifacts/`. Earlier captures document intermediate iterations; final width remains unrestricted.
-
-## Comparison history and intentional differences
-
-- Fixed the unstyled/narrow settings dialog, font-width mismatch, source-icon differences, category form spacing, inline history filter, mobile action overflow and period input events.
-- User-requested table simplifications are intentional; original four-column captures are retained only as comparison history.
-- Existing prototype shell, local account and demo balances are retained. No production API, paid analysis, real customer data or server-side submission is connected.
-- Existing report/model/navigation checks passed (25 tests). Final column-resize verification and build results are recorded below.
-
-
-## Final column-resize and presentation checks
-
-- Shared native-table resizing is integrated in Clients, Calls, Summary and Categories. Actual pointer dragging changed only the chosen Category column from 434.69px to 354.69px; adjacent columns stayed 318.77px and 212.55px. The same widths survived a reload; double-click restored the initial responsive layout.
-- Keyboard resizing changed Summary's first column by exactly 16px. In Calls, the first data column changed from 205px to 221px while the checkbox column stayed 35px. Home reset the original layout.
-- Client column visibility was toggled off and on after resizing. Widths stayed associated with stable IDs, including the restored Source column. Test changes were reset after verification.
-- Resize handles do not trigger sorting or open detail panels. Existing header sticky positioning is retained. Pointer capture, cancel/Escape handling, keyboard labels, bounds and storage failure fallbacks were reviewed. Five additional model tests passed; total scoped checks: 30 passing tests.
-- Final user changes: departments in Calls and Summary use the neutral pipeline-style pill; Calls and Summary have subtle 1px #EEEEEC horizontal body-row rules. Calls alone now uses white resting rows instead of alternating gray. Hover and selected states remain.
-- Experimental thematic header icons were removed as requested; all ten call-report headings are plain text with sorting and resizing controls. Final browser inspection confirmed zero decorative header icons and ten resize handles.
-- Final browser check after reload reported no console warnings/errors. Production build passed; only the existing bundle-size advisory remains. The final CSS-only removal of striped call rows was checked in the browser: first five resting rows all have rgb(255,255,255) backgrounds and the requested horizontal rules.
-- Final visible evidence: `design-qa-artifacts/calls-report-final.jpg`; settings fix: `settings-modal-restored.jpg`. Earlier `*-icons.jpg` and capped-width captures are intermediate history, not the final design.
-- No unresolved P0, P1 or P2 issue remains within the local prototype scope. No production changes, submissions or GitHub publishing were performed.
+- [x] Compact dashboard cards with informative badges and current scope.
+- [x] No Dynamics table column; no empty region to the right of the table.
+- [x] Stable employee avatars and circular 3+ style counters.
+- [x] Summary underline ends after its content.
+- [x] Browser inspection, build and calculation checks.
 
 final result: passed

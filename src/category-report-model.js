@@ -13,6 +13,7 @@ const categoryNames = [
 ];
 const scores = [100, 100, 86, 78, 74, 65, 93, 81, 70, 68, 85, 79, 72, 88, 90, 63, 82, 85, 91, 76, 89, 67, 92, 71, 84, 87, 69, 77, 80, 94, 73, 83, 75];
 
+
 // Fictional report content: no production customer records are included.
 export const CATEGORY_REPORT_ROWS = categoryNames.map((name, index) => {
   const count = index < 2 ? 1 : 2 + index % 4;

@@ -1,0 +1,12 @@
+.report-pagination-footer { display: flex; align-items: center; justify-content: center; flex: 0 0 50px; min-height: 50px; padding: 5px 8px; border-radius: 12px; background: #f5f5f5; }
+.report-pagination { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.report-pagination .report-page-button { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 32px; height: 32px; margin: 0; padding: 0 7px; border: 0; border-radius: 8px; background: transparent; color: #626262; font: 500 14px/20px 'IQ Report Inter', Inter, sans-serif; cursor: pointer; }
+.report-pagination .report-page-button:hover:not(:disabled) { background: #eaeaea; }
+.report-pagination .report-page-button[aria-current=page] { color: #fff; background: #ff9025; }
+.report-pagination .report-page-button[aria-current=page]:hover { background: #f3841a; }
+.report-pagination .report-page-button:disabled { color: #b5b5b0; opacity: .55; cursor: default; }
+.report-pagination .report-page-button:focus-visible { outline: 2px solid #ff9025; outline-offset: 2px; }
+.report-page-gap { display: inline-flex; align-items: center; justify-content: center; width: 20px; color: #858585; font-size: 14px; }
+.cr-footer.has-selection .report-page-button:not([aria-current=page]) { color: #fff; }
+.cr-footer.has-selection .report-page-button:hover:not(:disabled):not([aria-current=page]) { background: #555; }
+.cr-footer.has-selection .report-page-gap { color: #bbb; }

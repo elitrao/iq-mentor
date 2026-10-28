@@ -1,5 +1,6 @@
+import { ReportPagination } from './ReportPagination.jsx';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { IconAlertCircle, IconCheck, IconChevronDown, IconChevronLeft, IconChevronRight, IconClock, IconSearch, IconUpload, IconX } from '@tabler/icons-react';
+import { IconAlertCircle, IconCheck, IconChevronDown, IconClock, IconSearch, IconUpload, IconX } from '@tabler/icons-react';
 import { FeedbackSelect } from './FeedbackSelect.jsx';
 import { ResizableReportTable } from './ResizableReportTable.jsx';
 import { CALL_COLUMNS, DEMO_CALLS, EMPTY_CALL_FILTERS, callCellText, callsToCsv, filterCallRows, formatCallDuration, parseCallDuration, validateCallFilters } from './calls-report-model.js';
@@ -94,8 +95,7 @@ export function CallsReportPage({ scoring, saveScoring, notify, manageTeam, open
   const toggle = id => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const changeSort = id => { setSort(current => current?.id !== id ? { id, direction: 'asc' } : current.direction === 'asc' ? { id, direction: 'desc' } : null); setPage(1); };
   const exportRows = () => { const data = selectedRows.length ? selectedRows : filtered; const url = URL.createObjectURL(new Blob([callsToCsv(data, columns)], { type: 'text/csv;charset=utf-8;' })); const a = document.createElement('a'); a.href = url; a.download = 'Отчёт по звонкам.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); notify(`Экспортировано звонков: ${data.length}`); };
-  const pageNumbers = [...new Set([1, ...Array.from({ length: 5 }, (_, i) => currentPage <= 3 ? i + 1 : currentPage - 2 + i), pageCount])].filter(n => n >= 1 && n <= pageCount).sort((a, b) => a - b);
-  const pagination = <nav className="cr-pagination" aria-label="Страницы отчёта"><button disabled={currentPage === 1} aria-label="Предыдущая страница" onClick={() => setPage(currentPage - 1)}><IconChevronLeft size={16} /></button>{pageNumbers.map((number, i) => <span key={number}>{i > 0 && number - pageNumbers[i - 1] > 1 && <i>…</i>}<button className={number === currentPage ? 'active' : ''} aria-label={`Страница ${number}`} aria-current={number === currentPage ? 'page' : undefined} onClick={() => setPage(number)}>{number}</button></span>)}<button disabled={currentPage === pageCount} aria-label="Следующая страница" onClick={() => setPage(currentPage + 1)}><IconChevronRight size={16} /></button></nav>;
+  const pagination = <ReportPagination page={currentPage} pageCount={pageCount} onChange={setPage} label="Страницы отчёта по звонкам" />;
   const cell = (row, column) => {
     if (column.id === 'title') return <div className="cr-call-name">{row.status === 'evaluated' && <span className="cr-status evaluated" title="Звонок проанализирован">А</span>}{row.status === 'error' && <span className="cr-status error" title="Не удалось проанализировать"><IconAlertCircle size={15} stroke={1.4} /></span>}<button title={row.title} onClick={() => setDetail(row)}>{row.title}</button></div>;
     if (column.id === 'source') return <span className={`cr-badge source-${row.source === 'Bitrix 24' ? 'bitrix' : row.source === 'IQ Mentor' ? 'mentor' : 'offline'}`}>{row.source}</span>;

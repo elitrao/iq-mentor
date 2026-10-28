@@ -1,0 +1,21 @@
+.report-employee-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #eeefed;
+  color: #6c7169;
+  font: 500 9px/1 Inter, Arial, sans-serif;
+  letter-spacing: .1px;
+  user-select: none;
+}
+.report-employee-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

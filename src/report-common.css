@@ -1,0 +1,50 @@
+.summary-report-page .report-page-heading, .category-report-page .report-page-heading {
+  display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto;
+  gap: 20px; min-height: 48px; margin-bottom: 8px; padding: 0; flex-wrap: nowrap;
+}
+.report-actions { display: flex; align-items: center; flex: none; gap: 8px; margin-left: auto; }
+.report-actions button.report-action {
+  position: relative; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  flex: none; gap: 6px; height: 44px; padding: 0 14px; border: 1px solid #ededed; border-radius: 12px;
+  background: #f5f5f5; color: #626262; font: 600 16px/24px 'IQ Report Inter', Inter, sans-serif;
+  letter-spacing: -.2px; white-space: nowrap; cursor: pointer;
+}
+.report-actions .report-action-history { width: 200px; }
+.report-actions .report-action-generate { width: 180px; }
+.report-actions button.report-action-generate { color: #fff; background: #ff9025; border-color: #ff9025; }
+.report-actions button.report-action-square { width: 44px; padding: 9px; }
+.report-actions button.report-action-warm { color: #ff9025; background: #fff2e5; border-color: #fff2e5; }
+.report-actions button.report-action:hover { filter: brightness(.98); }
+.report-actions button.report-action:disabled { cursor: not-allowed; opacity: .5; }
+.report-action-icon { display: block; flex: none; width: 24px; height: 24px; background: currentColor; mask: var(--report-icon) center/contain no-repeat; }
+.report-unread-dot { position: absolute; box-sizing: border-box; width: 12px; height: 12px; top: -4px; right: 5px; border: 2px solid #fff; border-radius: 50%; background: #ff9025; }
+.report-table-toolbar { display: flex; flex: 0 0 40px; align-items: center; justify-content: space-between; height: 40px; gap: 16px; }
+.report-table-toolbar .report-filter-button { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 9px; background: #fff; border: 1px solid #fafafa; border-radius: 12px; color: #777; }
+.report-filter-button .report-action-icon { width: 20px; height: 20px; }
+.report-table-toolbar .report-filter-button.is-active { color: #ff9025; background: #fff2e5; }
+.report-table-counts { display: flex; align-items: center; gap: 16px; color: #858585; font-size: 14px; line-height: 20px; font-weight: 400; letter-spacing: -.4px; white-space: nowrap; }
+.report-page-size { position: relative; }
+.report-table-counts .report-page-size > button { padding: 0; border: 0; color: #ff9025; background: none; font: inherit; }
+.report-size-menu { position: absolute; z-index: 5; top: 28px; right: 0; min-width: 70px; padding: 5px; border: 1px solid #eee; border-radius: 10px; background: #fff; box-shadow: 0 8px 24px #0002; }
+.report-size-menu > button { display: block; width: 100%; padding: 6px; border: 0; border-radius: 6px; background: transparent; color: #666; font: inherit; }
+.report-size-menu > button:hover, .report-size-menu > button[aria-checked=true] { background: #fff2e5; color: #ff9025; }
+.summary-report-page .sr-table-scroll, .category-report-page .catr-table-scroll { scrollbar-width: thin; scrollbar-color: #252525 #fff; }
+.category-report-page .catr-table-card { gap: 8px; }
+.sr-table th[data-column=score] > span, .catr-table th[data-column=score] > div { justify-content: flex-start; gap: 8px; }
+@media (max-width: 1100px) {
+  .summary-report-page .report-page-heading, .category-report-page .report-page-heading { flex-wrap: wrap; gap: 10px; }
+  .report-actions { margin-left: 0; }
+}
+@media (max-width: 600px) {
+  .report-actions { width: 100%; gap: 6px; }
+  .report-actions button.report-action { height: 38px; font-size: 12px; padding: 0 8px; gap: 4px; }
+  .report-actions button.report-action-history, .report-actions button.report-action-generate { width: auto; min-width: 0; flex: 1; }
+  .report-actions button.report-action-square { width: 38px; padding: 8px; }
+  .report-action-icon { width: 20px; height: 20px; }
+  .report-table-toolbar { gap: 6px; }
+  .report-table-counts { gap: 8px; font-size: 11px; }
+}
+@media (max-width: 420px) {
+  .report-actions button.report-action { font-size: 11px; padding-inline: 6px; gap: 3px; }
+  .report-actions .report-action-icon { width: 18px; height: 18px; }
+}

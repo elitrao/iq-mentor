@@ -1,6 +1,8 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.jsx";
+import { ReportCustdevPage } from "./ReportCustdevPage.jsx";
+import { isReportCustdevPath } from "./report-custdev-navigation.js";
 import { resetLocalEmployeeDirectory } from "./settings/local-directory-reset.js";
 import "./styles.css";
 import "./billing.css";
@@ -14,6 +16,6 @@ try {
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    {isReportCustdevPath(window.location.pathname) ? <ReportCustdevPage /> : <App />}
   </React.StrictMode>,
 );

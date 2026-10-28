@@ -1,0 +1,34 @@
+.report-score {
+  --score-text: #333332;
+  --score-surface: #f0f2f5;
+  --score-fill: #bac1cc;
+  --score-end: #c9cfd8;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1 1 240px;
+  min-width: 0;
+  max-width: 240px;
+}
+.report-score--green { --score-surface: #e9f8ee; --score-fill: #50c88a; --score-end: #78d7a3; }
+.report-score--amber { --score-surface: #fff7dc; --score-fill: #ffbd27; --score-end: #ffd04d; }
+.report-score--red { --score-surface: #fff0ef; --score-fill: #ee8581; --score-end: #f3a09a; }
+.report-score-value {
+  flex: 0 0 44px;
+  padding: 2px 4px;
+  border-radius: 7px;
+  background: var(--score-surface);
+  color: var(--score-text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 20px;
+  text-align: center;
+}
+.report-score-track { flex: 1 1 auto; min-width: 12px; height: 8px; overflow: hidden; border-radius: 99px; background: #edf0f5; }
+.report-score-fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--score-fill), var(--score-end)); }
+
+/* Keep the detail action beside the meter without covering its fill. */
+.sr-score-cell .sr-cell-open, .catr-score-cell .catr-open-hint { flex: 0 0 30px; width: 30px; padding: 0; justify-content: center; }
+.sr-score-cell .sr-cell-open > span, .catr-score-cell .catr-open-hint > span { display: none; }
+.catr-table td > .catr-score-cell { gap: 8px; padding-right: 38px; }

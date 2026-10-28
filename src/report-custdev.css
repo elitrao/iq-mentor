@@ -1,0 +1,4 @@
+.report-custdev { background: #fff; }
+.report-custdev .topbar { height: 64px; }
+.report-custdev .report-custdev-content { padding: 16px; }
+@media (max-width: 600px) { .report-custdev .report-custdev-content { padding: 12px; } }
