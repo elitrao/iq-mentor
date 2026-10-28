@@ -16,7 +16,6 @@ export const SETTINGS_GROUPS = [
   ] },
   { id: 'trainer', title: 'Тренер', items: [
     { id: 'trainer-reports', label: 'Автогенерация отчётов', icon: 'report', children: [
-      { id: 'trainer-reports-training', label: 'Отчёт по тренировкам', reportType: 'training' },
       { id: 'trainer-reports-summary', label: 'Сводный отчёт', reportType: 'summary' },
     ] },
   ] },
@@ -33,6 +32,7 @@ export const SETTINGS_PILL_SECTIONS = SETTINGS_GROUPS.flatMap((group) => group.i
 
 export function resolveSettingsSection(id) {
   if (id === 'scoring') id = 'analyst-reports-calls';
+  if (id === 'trainer-reports-training') id = 'trainer-reports';
   for (const group of SETTINGS_GROUPS) {
     for (const item of group.items) {
       if (item.children) {

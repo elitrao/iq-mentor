@@ -10,7 +10,17 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
-- October 27 integration catalog labels: use «Активные» for connected services and «Неактивные» for services available to connect; replace the old «Все интеграции» heading without changing filtering or connection behavior.
+- October 28 branch separation: publish approved settings changes to `main`. Keep the `/bonus` experiment, its locked integrations and sidebar notice exclusively on `codex/bonus-integrations-preview`; do not merge that experiment into `main`.
+
+- October 28 Trainer autogeneration: remove «Отчёт по тренировкам» and its period controls. Keep only «Сводный отчёт» inside Trainer autogeneration; old selections of the removed section return to that overview. Do not repurpose saved training-report periods as summary-report periods.
+
+- October 28 call-duration helper: show «Ограничение действует только для интеграционных звонков. Загруженные вручную звонки анализируются независимо от длительности.» persistently below the minimum-duration field, using the same quote-style note as the stereo helper. Keep it readable when automatic analysis is disabled. Remove the info icon and heading tooltip entirely from «Автоматический отчёт по звонкам»; retain the other section tooltips.
+
+- October 28 stereo helper: show «Выбранный формат по умолчанию применяется при отправке звонков на анализ.» as a persistent compact quote-style note below the channel selector, including inside Call Assessment. Use a pale warm background, subtle orange left rule and 12px text. Keep channel/role explanations in the heading tooltip, without duplicating this sentence there; associate the visible note with the selector for assistive technology.
+
+- October 28 directory width, clarified: Employees and the pages inside Integrations (Bitrix24, Yandex Disk, API list and nested API key pages) fill the available Settings modal content width without the 1240px cap. Remove inner Bitrix/Yandex content caps too. The integration catalog retains its original compact layout, including 340px columns and the standard content cap. Keep the current navigation width and other compact settings-form layouts. Expanded pages use a 32px desktop right inset, close-button clearance in the top heading/breadcrumb row, and 18px mobile insets.
+
+- October 27 integration catalog labels: use «Активные» for connected services and «Неактивные» for services available to connect; replace the old «Все интеграции» heading without changing filtering or connection behavior. Place the inactive count in a compact neutral pill beside its heading: 20px height/min-width, pale gray #F0F0EE surface, 12px semibold number and 8px heading gap, centered vertically.
 
 - October 27 unified settings groups: apply the approved notification-panel treatment to Analyst and Trainer autogeneration and both Call Assessment sections. All these groups share the same white surface, 1px #E5E4E0 outline, 14px corners, 12px/16px/8px padding and 16px gap. Remove the former rules between open report/call sections. Keep headings, tooltip help, period rows and existing values; align call controls to the inner right edge, stacking fields at content widths up to 400px to prevent narrow labels from colliding with the controls.
 

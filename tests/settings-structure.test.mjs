@@ -13,7 +13,7 @@ test('settings groups and report hierarchy match the supplied structure', () => 
   assert.deepEqual(SETTINGS_GROUPS[1].items[1].children.map((item) => item.id), ['stereo', 'analyst-reports-calls']);
   assert.equal(resolveSettingsSection('stereo').parent.id, 'call-assessment');
   assert.equal(resolveSettingsSection('analyst-reports-calls').parent.id, 'call-assessment');
-  assert.deepEqual(SETTINGS_GROUPS[2].items[0].children.map((item) => item.label), ['Отчёт по тренировкам', 'Сводный отчёт']);
+  assert.deepEqual(SETTINGS_GROUPS[2].items[0].children.map((item) => item.label), ['Сводный отчёт']);
 });
 
 test('primary sections have semantic icons; nested rows share a marker and have unique ids', () => {
@@ -28,6 +28,7 @@ test('legacy unknown section resolves to employees; report parents resolve to ov
   assert.equal(resolveSettingsSection('analyst-reports').item.id, 'analyst-reports');
   assert.equal(resolveSettingsSection('analyst-reports').item.reportType, undefined);
   assert.equal(resolveSettingsSection('trainer-reports').item.id, 'trainer-reports');
+  assert.equal(resolveSettingsSection('trainer-reports-training').item.id, 'trainer-reports');
   assert.equal(resolveSettingsSection('trainer-reports-summary').group.id, 'trainer');
   assert.equal(resolveSettingsSection('documents').item.id, 'employees');
   assert.equal(resolveSettingsSection('criteria').item.id, 'employees');

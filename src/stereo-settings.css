@@ -63,8 +63,7 @@
 .stereo-channel-help > button:hover, .stereo-channel-help > button[aria-expanded="true"] { background: #f4f4f1; color: #65635d; }
 .stereo-channel-help > button:focus-visible { outline: 2px solid #3998ff; outline-offset: 2px; }
 .stereo-channel-help-text { position: absolute; z-index: 25; bottom: calc(100% + 6px); right: -8px; width: 204px; border: 1px solid #eeede9; border-radius: 8px; background: #fff; padding: 10px 12px; color: #73716b; font-size: 12px; line-height: 1.7; box-shadow: 0 4px 16px rgba(0,0,0,.07); }
-.stereo-format-scope { display: flex; align-items: center; gap: 10px; max-width: 520px; box-sizing: border-box; margin: 18px 0 0; border: 0; border-radius: 8px; background: #f7f7f5; padding: 11px 14px; color: #78766f; font-size: 12px; line-height: 1.6; }
-.stereo-format-scope > svg { flex-shrink: 0; color: #99968f; }
+.stereo-format-scope { max-width: 520px; box-sizing: border-box; margin: 12px 0 0; border: 0; border-left: 2px solid #ffb576; border-radius: 0 8px 8px 0; background: #faf7f2; padding: 10px 12px; color: #78766f; font-size: 12px; line-height: 18px; }
 .stereo-format-scope p { margin: 0; text-wrap: pretty; }
 
 @media (prefers-reduced-motion: reduce) {
