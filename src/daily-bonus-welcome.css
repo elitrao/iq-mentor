@@ -43,12 +43,12 @@
   from { transform: translate(-32px, -15px) scale(1.18); filter: hue-rotate(-8deg) brightness(.93); }
   to { transform: translate(32px, 15px) scale(1.34); filter: hue-rotate(9deg) brightness(1.15); }
 }
-.daily-bonus-exhausted-content { min-height: 460px; padding: 76px 36px 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.daily-bonus-exhausted h1 { color: #fff8ee; font-size: 44px; font-weight: 600; line-height: 1.14; letter-spacing: -1.6px; }
-.daily-bonus-exhausted #daily-bonus-description { margin-top: 26px; color: #e0cdbd; font-size: 16px; line-height: 1.65; }
-.daily-bonus-exhausted .daily-bonus-start { margin-top: 34px; min-height: 50px; flex-shrink: 0; }
-.daily-bonus-exhausted .daily-bonus-glow { animation: daily-bonus-exhausted-light 8s ease-in-out infinite alternate; }
-@keyframes daily-bonus-exhausted-light {
+.daily-bonus-topped-up-content { min-height: 460px; padding: 76px 36px 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.daily-bonus-topped-up h1 { color: #fff8ee; font-size: 44px; font-weight: 600; line-height: 1.14; letter-spacing: -1.6px; }
+.daily-bonus-topped-up #daily-bonus-description { margin-top: 26px; color: #e0cdbd; font-size: 16px; line-height: 1.65; }
+.daily-bonus-topped-up .daily-bonus-start { margin-top: 34px; min-height: 50px; flex-shrink: 0; }
+.daily-bonus-topped-up .daily-bonus-glow { animation: daily-bonus-topped-up-light 8s ease-in-out infinite alternate; }
+@keyframes daily-bonus-topped-up-light {
   from { transform: translate(-6px, -3px) scale(1.06); filter: brightness(.96); }
   to { transform: translate(6px, 3px) scale(1.1); filter: brightness(1.04); }
 }
@@ -59,12 +59,12 @@
   .daily-bonus-heading { font-size: 21px; }
   .daily-bonus-intro { font-size: 15px; }
   .daily-bonus-welcome #daily-bonus-description { font-size: 13px; }
-  .daily-bonus-exhausted-content { min-height: 390px; padding: 64px 23px 38px; }
-  .daily-bonus-exhausted h1 { font-size: clamp(28px, 8vw, 36px); letter-spacing: -1px; }
-  .daily-bonus-exhausted #daily-bonus-description { font-size: 14px; }
+  .daily-bonus-topped-up-content { min-height: 390px; padding: 64px 23px 38px; }
+  .daily-bonus-topped-up h1 { font-size: clamp(28px, 8vw, 36px); letter-spacing: -1px; }
+  .daily-bonus-topped-up #daily-bonus-description { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .daily-bonus-welcome[open], .daily-bonus-welcome::backdrop, .daily-bonus-glow, .daily-bonus-exhausted .daily-bonus-glow { animation: none; }
+  .daily-bonus-welcome[open], .daily-bonus-welcome::backdrop, .daily-bonus-glow, .daily-bonus-topped-up .daily-bonus-glow { animation: none; }
   .daily-bonus-start, .daily-bonus-close { transition: none; }
   .daily-bonus-start:hover { transform: none; }
 }

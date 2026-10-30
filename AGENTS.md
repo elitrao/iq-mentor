@@ -10,6 +10,24 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- October 30 `/bonus` preview controls supersede the restored sidebar entry: remove Integrations from the main sidebar. Add three compact top-of-content buttons, «Приветствие», «Обновление баланса», «Пополнение баланса», opening the existing welcome dialog, balance-anchored daily notice, and topped-up dialog respectively. The controls exist only on `/bonus` and `/bonus/`, can be replayed, and never mutate the wallet or persisted acknowledgement. Show one bonus surface at a time and keep the current page when its CTA closes it. Preserve locked Integrations content in Settings and direct links. Publish these changes to `main`.
+
+- October 30 top-up notice clarification: under «Баланс пополнен», use «Ежедневные бонусы больше не начисляются.» and a separate quiet line «Оставшиеся бонусы можно использовать до 00:00.». This replaces the previous statement that calls/training are now paid from the balance; keep the «Продолжить» dismissal and existing artwork/layout. This copy reflects remaining bonuses being usable until the next midnight, not immediate forfeiture.
+
+- October 30 bonus transition replaces the trial-ended notice: after the first successful top-up, the preview says «Баланс пополнен» and «Ежедневные бонусы больше не начисляются. Теперь анализ звонков и тренировки оплачиваются с вашего баланса.». One «Продолжить» button dismisses the notice without returning to payment. Use `?welcome=topped-up` (retain `exhausted` as an old preview-link alias); no backend payment detection or balance mutation is implied by this UI change. Keep the existing orange glow artwork and large dialog treatment.
+
+- October 30 daily-bonus notice simplification: remove the remaining/total updates counter («Осталось обновлений: 9 из 10»). Keep the next renewal time and «Приступить» action, without changing bonus accrual behavior.
+
+- October 30 daily-bonus welcome copy: the renewal line is now «Лимиты обновляются в 00:00.». Remove «— всего 10 раз за пробный период.» from this welcome dialog; this is a copy change only.
+
+- October 30 locked integration panel simplification: remove the «Бесплатный период» badge and gift icon above the illustration. Keep the explanation of the free-period restriction in the paragraph and the top-up button; remove the vacated top gap.
+
+- October 30 locked integration copy clarification: explicitly explain the free-period restriction with «Интеграции недоступны в бесплатный период. Пополните баланс, чтобы подключить их.». Use «Бесплатный период» in the panel badge and matching sidebar accessibility/tooltip text. Keep the top-up action.
+
+- October 30 locked integration panel: use «Интеграции недоступны» and «Пополните баланс, чтобы подключить интеграции.», with one orange «Пополнить баланс» action to the existing account-tariff screen. Apply to both the `/bonus` page and embedded Settings view. Remove the manual-upload/report navigation and its explanatory footer.
+
+- October 30 bonus sidebar simplification: remove the separate gift icon and «Бонусный период» caption above Settings. Keep the locked Integrations entry and its explanatory top-up notice.
+
 - October 30 branch consolidation supersedes the earlier branch-separation rule: ship the `/bonus` preview on `main` and synchronize `codex/bonus-integrations-preview` with it. Restore its locked Integrations entry below Documents, shake/inline top-up notice and locked Settings content only on `/bonus` and `/bonus/`. Ordinary routes and the table-only `/reportcustdev` keep their current behavior. The restriction is still a demo, not a wallet-derived backend permission.
 
 - October 29 custdev-only view restriction: `/reportcustdev` always renders Summary as a table and hides the view switch entirely for now. Ignore a saved Cards preference in this route without overwriting it; the normal Summary page retains Table/Cards and its saved choice. Preserve filters, sorting, pagination and details in the custdev table.

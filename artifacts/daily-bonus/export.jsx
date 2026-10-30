@@ -29,6 +29,7 @@ const baseCss = `
   .daily-bonus-welcome::backdrop { background: transparent; backdrop-filter: none; animation: none; }
   .daily-bonus-welcome button, .daily-bonus-notice button { outline: none !important; transition: none; }
   .daily-bonus-glow { animation: none !important; transform: translate(0, 0) scale(1.26); filter: hue-rotate(0deg) brightness(1.04); }
+  .daily-bonus-topped-up .daily-bonus-glow { transform: translate(0, 0) scale(1.08); filter: brightness(1); }
   .daily-bonus-notice-art img { animation: none !important; transform: translate(0, 0) scale(1.18); filter: brightness(1.08); }
 `;
 const style = document.createElement('style');
@@ -124,9 +125,12 @@ async function run() {
   flushSync(() => root.render(<DailyBonusNotice anchorRef={anchorRef} onClose={() => {}} onStart={() => {}} />));
   await nextFrame();
   await exportCard(document.querySelector('.daily-bonus-notice'), fonts, 'Уведомление об обновлении бонуса', 'daily-bonus-notice-4x.png');
+  flushSync(() => root.render(<DailyBonusWelcome variant="topped-up" onClose={() => {}} onStart={() => {}} />));
+  await nextFrame();
+  await exportCard(document.querySelector('.daily-bonus-welcome'), fonts, 'Баланс пополнен', 'balance-topped-up-4x.png');
   root.unmount();
   anchor.remove();
-  document.getElementById('export-status').textContent = 'Готово. Обе плашки экспортированы из актуальных компонентов в масштабе 4×.';
+  document.getElementById('export-status').textContent = 'Готово. Все три плашки экспортированы из актуальных компонентов в масштабе 4×.';
 }
 run().catch(error => {
   document.querySelector('dialog')?.close();
