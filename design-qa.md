@@ -1,3 +1,56 @@
+## Follow-up QA — Hide first-stage metrics (October 29)
+
+- Removed the upper metrics component and its scope calculation from Summary, including the shared reportcustdev entry. Table/cards now follow the title and regain vertical space; the second-stage metric implementation is retained separately.
+- Confirmed the live localhost page has no metric region and retains the table, two view controls and pagination. Production build passed with the existing bundle-size warning.
+- Screenshot: `design-qa-artifacts/summary-without-metrics.png`.
+
+## Follow-up QA — Visual Summary metrics and final simplification (October 29)
+
+- Final UI: three visual cards for call count, average employee score and average per-call duration. Call share is a department donut with visible labels/counts; duration uses employee averages, not an invented daily series. Only the score retains the employee/scope badge; duration retains its total-time badge.
+- Removed Table 2 and per-employee call-stat pills from both table and cards. The remaining table uses inside-bar percentages. New three-column width revision avoids stale five-column pixel sizing; other filters, resizing, details and CSV data remain available.
+- Verified all-row totals (1,100 calls; 33.6%; 5m34s) and Sales filter (425 calls; 35.1%; 5m41s). Cards share the filtered totals and have no call-stat pills.
+- 19 focused model/column-width tests passed, including weighted duration, missing data, department grouping and Russian plurals. Production build passed; existing large-bundle warning only. Final scope badge reuses the verified badge markup.
+- Inspected desktop and 390px layout: metric content and charts do not overlap. Screenshot: `design-qa-artifacts/summary-visual-metrics-final.png`.
+
+## Follow-up QA — Call statistics visible at desktop width (October 29)
+
+- Fixed the 1280px table minimum that pushed both call-stat columns out of view. Restored a 900px minimum, balanced the five columns and allowed their long headings to wrap.
+- Browser verified at 1280×720 with expanded sidebar: table scrollWidth equals clientWidth (966px); both Minutes and Calls are fully visible on the right. Other table interactions and persisted manual resizing remain intact.
+- Screenshot: `design-qa-artifacts/summary-call-columns-visible.png`.
+
+## Follow-up QA — Restored Summary metrics (October 29)
+
+- Restored the four existing compact neutral metric cards above Summary: average with scope, employee count, below 60%, and 80%+. Retained orange bottom accents, filtered calculations and explicitly demo prior-period comparisons.
+- Verified the 1600×900 layout: cards fill one row, table retains all five columns with minutes/calls at the right. Narrow layouts use the existing responsive grid and reserve usable table height.
+- 10 relevant metric and Summary tests pass; production build passes with the existing bundle-size warning.
+- Screenshot: `design-qa-artifacts/summary-metrics-restored.png`.
+
+## Follow-up QA — Per-employee call columns on the right (October 29)
+
+- User correction supersedes the aggregate overview below: removed the side panel and restored a full-width table with Employee → Department → Score → Minutes → Calls.
+- Both table variants show the existing neutral clock/phone pills for each employee. Verified ascending/descending call sorting and view switching in the browser at 1600×900. Column IDs and saved resizing remain unchanged.
+- 10 relevant model/column-width tests and the production build pass; only the existing bundle-size warning remains.
+- Screenshot: `design-qa-artifacts/summary-call-columns-right.png`.
+
+## Follow-up QA — Right-hand call overview (October 29)
+
+- Replaced the Summary table's minutes/calls columns with a compact report overview beside both table views and cards; totals cover every filtered employee, regardless of page size.
+- Browser verified: all employees = 6,129 minutes / 1,100 calls / 25 employees; Sales filter = 2,416.3 minutes / 425 calls / 10 employees. Switching views and setting 10 rows keeps totals unchanged. Restored all employees and 25 rows after QA.
+- Verified desktop layout at 1600×900; narrow viewport stacks the panel above results and retains a usable 353px table viewport. Restored the browser's normal viewport.
+- 19 model/filter/column-width/custdev tests pass; production build passes (existing bundle-size warning only). Prototype totals use fictional fixtures.
+- Screenshot: `design-qa-artifacts/summary-call-overview.png`.
+# Follow-up QA — Call minutes and report call counts
+
+final result: passed
+
+- Both Summary table variants now have resizable numeric columns for minutes in included calls and the number of calls used in the report, displayed as compact neutral clock/phone pills. Cards and CSV carry the same figures.
+- Added deterministic fictional call durations to the existing demo fixtures. Minutes are converted from seconds with up to one decimal; unknown values remain distinct from zero.
+- Verified the five-column table at 1280px and 1600px, descending numeric call-count sorting and preservation of the same values across both tables and Cards. Browser console has no errors.
+- Production build and all 17 report/model/column/custdev tests passed, including minute conversion, CSV fields and numeric sorting under filters.
+- Proof: `design-qa-artifacts/summary-call-stats.png`, `design-qa-artifacts/summary-call-stats-cards.png`.
+
+---
+
 # Follow-up QA — Table variants and adjacent Open hint
 
 final result: passed

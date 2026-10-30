@@ -1,4 +1,4 @@
-import { IconTable, IconLayoutGrid, IconPhone, IconArrowUp, IconArrowDown, IconArrowsSort } from '@tabler/icons-react';
+import { IconTable, IconLayoutGrid, IconArrowUp, IconArrowDown, IconArrowsSort } from '@tabler/icons-react';
 import { FeedbackSelect } from './FeedbackSelect.jsx';
 import { ReportEmployeeAvatar } from './ReportEmployeeAvatar.jsx';
 import { ReportScore } from './ReportScore.jsx';
@@ -10,6 +10,10 @@ const sortOptions = [
   { value: 'Оценка: по возрастанию', icon: IconArrowUp, sort: { key: 'score', direction: 1 } },
   { value: 'Имя: А–Я', icon: IconArrowUp, sort: { key: 'name', direction: 1 } },
   { value: 'Имя: Я–А', icon: IconArrowDown, sort: { key: 'name', direction: -1 } },
+  { value: 'Минуты: по убыванию', icon: IconArrowDown, sort: { key: 'callDurationSeconds', direction: -1 } },
+  { value: 'Минуты: по возрастанию', icon: IconArrowUp, sort: { key: 'callDurationSeconds', direction: 1 } },
+  { value: 'Звонки: по убыванию', icon: IconArrowDown, sort: { key: 'calls', direction: -1 } },
+  { value: 'Звонки: по возрастанию', icon: IconArrowUp, sort: { key: 'calls', direction: 1 } },
 ];
 
 export function SummaryReportViewControls({ view, onView, sort, onSort }) {
@@ -17,8 +21,7 @@ export function SummaryReportViewControls({ view, onView, sort, onSort }) {
   return <>
     <div className="sr-view-switch" role="group" aria-label="Вид сводного отчёта">
       {[
-        { value: 'table', label: 'Таблица 1', description: 'Процент внутри шкалы', Icon: IconTable },
-        { value: 'table-outside', label: 'Таблица 2', description: 'Процент рядом со шкалой', Icon: IconTable },
+        { value: 'table', label: 'Таблица', description: 'Таблица сотрудников', Icon: IconTable },
         { value: 'cards', label: 'Карточки', description: 'Карточки сотрудников', Icon: IconLayoutGrid },
       ].map(({ value, label, description, Icon }) => <button key={value} type="button" title={description} aria-pressed={view === value} onClick={() => onView(value)}>
         <Icon size={17} stroke={1.7} aria-hidden="true" />{label}
@@ -45,9 +48,7 @@ export function SummaryReportCards({ rows, onOpen }) {
           <span className="sr-report-card-caption">Средняя оценка</span>
           <ReportScore score={employee.score} />
         </span>
-        <span className="sr-report-card-footer">
-          <span className="sr-report-card-calls"><IconPhone size={15} stroke={1.7} aria-hidden="true" /><span>Звонков за период</span><strong>{employee.calls}</strong></span>
-        </span>
+
       </button>
     </li>)}
   </ul>;

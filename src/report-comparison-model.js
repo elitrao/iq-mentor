@@ -1,5 +1,6 @@
 import { SUMMARY_ROWS } from './summary-report-model.js';
 import { CATEGORY_REPORT_ROWS } from './category-report-model.js';
+import { reportEmployeeCount } from './report-metrics.js';
 
 // Fictional previous-period snapshots for the dashboard prototype only.
 // These are not production history and are identified as demo data in the UI help.
@@ -19,6 +20,6 @@ export function summaryMetricScope(filters, count, isSelectedReport = false) {
   const departments = filters.departments || [];
   const selected = Boolean(filters.employees?.length || isSelectedReport);
   const department = departments.length === 1 ? departments[0] : departments.length > 1 ? `Отделов: ${departments.length}` : '';
-  if (department) return selected ? `${department} · ${count} сотр.` : department;
-  return selected ? `Выбрано: ${count} сотр.` : 'Все сотрудники';
+  if (department) return selected ? `${department} · ${reportEmployeeCount(count)}` : department;
+  return selected ? reportEmployeeCount(count) : 'Все сотрудники';
 }
