@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import {
   IconBell, IconCategory, IconChartBar, IconChevronDown,
-  IconHeadphones, IconPhone, IconPlugConnected, IconReportAnalytics, IconUsers,
+  IconHeadphones, IconPhone, IconPlugConnected, IconReportAnalytics, IconUsers, IconLock,
 } from '@tabler/icons-react';
 import { SETTINGS_GROUPS, resolveSettingsSection } from './settings/schema.js';
 import { SettingsHint } from './SettingsHint.jsx';
@@ -77,7 +77,7 @@ function ReportOverview({ group, item, renderSection }) {
   </section>;
 }
 
-function SettingsNav({ active, setActive }) {
+function SettingsNav({ active, setActive, lockedSections }) {
   const navRef = useRef(null);
   const [collapsed, setCollapsed] = useState({});
   const [highlight, setHighlight] = useState(null);
@@ -105,9 +105,10 @@ function SettingsNav({ active, setActive }) {
         const ItemIcon = ICONS[item.icon];
         const containsActive = item.children?.some((child) => child.id === active);
         return <div key={item.id}>
-          <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}`} aria-current={active === item.id || containsActive ? 'page' : undefined} onClick={() => setActive(item.id)}>
+          <button type="button" className={`settings-structure-item${active === item.id ? ' active' : ''}${containsActive ? ' contains-active' : ''}${lockedSections?.[item.id] ? ' is-locked' : ''}`} title={lockedSections?.[item.id]} aria-current={active === item.id || containsActive ? 'page' : undefined} onClick={() => setActive(item.id)}>
             {ItemIcon && <ItemIcon size={16} stroke={1.6} aria-hidden="true" />}
             <span className="settings-item-label" title={item.label}>{item.label}</span>
+            {lockedSections?.[item.id] && <IconLock className="settings-item-lock" size={15} stroke={1.7} aria-label={lockedSections[item.id]} />}
           </button>
         </div>;
       })}
@@ -127,7 +128,7 @@ export function SettingsSectionContent({ active, setActive, renderSection }) {
   </section>;
 }
 
-export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false, title = 'Настройки', headerActions, sidebarActions }) {
+export function SettingsWorkspace({ active, setActive, settings, update, notify, renderSection, modal = false, title = 'Настройки', headerActions, sidebarActions, lockedSections }) {
   const { item } = resolveSettingsSection(active);
   const contentScrollRef = useRef(null);
   useLayoutEffect(() => {
@@ -136,7 +137,7 @@ export function SettingsWorkspace({ active, setActive, settings, update, notify,
   return <section className={`settings-structure-workspace${modal ? '' : ' settings-page-workspace'}`}>
     {!modal && <><h1>{title}</h1>{headerActions}</>}
     <div className="settings-structure-layout">
-      {modal ? <aside className="settings-modal-sidebar"><h1 id="settings-modal-title">{title}</h1>{sidebarActions}<SettingsNav active={item.id} setActive={setActive} /></aside> : <SettingsNav active={item.id} setActive={setActive} />}
+      {modal ? <aside className="settings-modal-sidebar"><h1 id="settings-modal-title">{title}</h1>{sidebarActions}<SettingsNav active={item.id} setActive={setActive} lockedSections={lockedSections} /></aside> : <SettingsNav active={item.id} setActive={setActive} lockedSections={lockedSections} />}
       <div ref={contentScrollRef} className={modal ? 'settings-modal-content-scroll' : undefined}>
         <SettingsSectionContent active={active} setActive={setActive} renderSection={renderSection} />
       </div>

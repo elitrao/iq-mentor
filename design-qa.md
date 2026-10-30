@@ -268,3 +268,10 @@ No remaining actionable P0/P1/P2 differences for the requested desktop component
 - [x] Browser inspection, build and calculation checks.
 
 final result: passed
+
+## Bonus preview restored on main — October 30
+
+- Merged the bonus branch into the current main without dropping the latest report changes. The bonus sidebar entry retains its lock, restrained shake and inline top-up notice below Documents.
+- Browser verified `/bonus`: clicking Integrations does not expand/navigate; the notice appears; its CTA opens `/bonus#account-tariff` (no payment submitted). Settings > Integrations also shows the locked screen. Ordinary `/#settings` still opens the integration catalog. `/reportcustdev#summary-report` retains only its two Analyst routes, table and no Cards switch.
+- Production build passed with the existing chunk-size advisory. 47 focused report/settings/navigation tests and 4 hosting checks passed.
+- Evidence: `design-qa-artifacts/bonus-main-restored.png`.

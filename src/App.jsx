@@ -33,6 +33,7 @@ import { EmployeesSettings } from "./EmployeesSettings.jsx";
 import { sidebarDragLayout, sidebarGroup, groupSidebarOrder, moveSidebarItem } from "./sidebar-reorder.js";
 import { DailyBonusWelcome, shouldShowDailyBonusWelcome, acknowledgeDailyBonusWelcome } from "./DailyBonusWelcome.jsx";
 import { DailyBonusNotice } from "./DailyBonusNotice.jsx";
+import { BonusIntegrationNav, BonusIntegrationsLocked, BONUS_INTEGRATIONS_HINT } from "./BonusPreview.jsx";
 import { CriteriaTemplates } from "./CriteriaTemplates.jsx";
 import { DocumentsExperience } from "./DocumentsExperience.jsx";
 import { initialNavigation, navigatePrototype, navigationHash, closeNavigationModal } from "./settings/navigation.js";
@@ -61,7 +62,7 @@ const ANALYST_PAGES = [
   { id: 'category-report', label: 'Отчет по категориям' },
 ];
 const isAnalystPage = (page) => ANALYST_PAGES.some(item => item.id === page);
-const PAGE_LABELS = { home: "Главная", ...Object.fromEntries(ANALYST_PAGES.map(item => [item.id, item.label])), templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", 'settings-4': "Настройки", feedback: "Предложить идею" };
+const PAGE_LABELS = { home: "Главная", ...Object.fromEntries(ANALYST_PAGES.map(item => [item.id, item.label])), templates: "Шаблоны", documents: "Документы", trainer: "Тренер", billing: "Тарификация", settings: "Настройки", 'settings-4': "Настройки", feedback: "Предложить идею", integrations: "Интеграции" };
 // Enable both daily bonus banners for prototype review.
 const DAILY_BONUS_PROMOTION_ENABLED = true;
 const NAV_ITEMS = [
@@ -316,10 +317,10 @@ function loadDashboardLayout() {
   return [...visible, ...Array(DASHBOARD_SLOTS.length - visible.length).fill(null)];
 }
 
-export function App() {
+export function App({ bonusPreview = false }) {
   const [navigation, setNavigation] = useState(() => {
     const saved = window.history.state?.iqMentorNavigation;
-    return initialNavigation(window.location.hash, saved);
+    return initialNavigation(window.location.hash || (bonusPreview ? '#integrations' : ''), saved);
   });
   const { page } = navigation;
   const activeNavigationModal = navigation.settingsModal ? 'settings' : navigation.feedbackModal ? 'feedback' : null;
@@ -338,7 +339,7 @@ export function App() {
   const [knowledgeOpen, setKnowledgeOpen] = useState(false);
   // Explicit design preview only; real exhaustion must come from billing.
   const [dailyBonusVariant] = useState(() => new URLSearchParams(window.location.search).get('welcome') === 'exhausted' ? 'exhausted' : 'welcome');
-  const [dailyBonusWelcomeOpen, setDailyBonusWelcomeOpen] = useState(() => DAILY_BONUS_PROMOTION_ENABLED && shouldShowDailyBonusWelcome());
+  const [dailyBonusWelcomeOpen, setDailyBonusWelcomeOpen] = useState(() => !bonusPreview && DAILY_BONUS_PROMOTION_ENABLED && shouldShowDailyBonusWelcome());
   // A reload is not a bonus-accrual event. Real notices require a billing event.
   const [dailyBonusNoticeOpen, setDailyBonusNoticeOpen] = useState(false);
 
@@ -446,7 +447,11 @@ export function App() {
     notify("Порядок разделов сохранен");
   };
 
-  const workspaceProps = { active: settingSection, setActive: setSettingSection, settings, update, notify, renderSection: (id) => <SettingsSection id={id} settings={settings} update={update} notify={notify} /> };
+  const workspaceProps = { active: settingSection, setActive: setSettingSection, settings, update, notify,
+    lockedSections: bonusPreview ? { integrations: BONUS_INTEGRATIONS_HINT } : undefined,
+    renderSection: (id) => bonusPreview && id === 'integrations'
+      ? <BonusIntegrationsLocked embedded onManualUpload={() => setPage('analytics')} />
+      : <SettingsSection id={id} settings={settings} update={update} notify={notify} /> };
   const settingsModal = navigation.settingsModal && <SettingsModal {...workspaceProps} close={closeModal} toast={toast} />;
   const helpCustomer = { ...settings.profile, company: settings.company.name };
   const feedbackModal = navigation.feedbackModal && <KnowledgeBaseModal close={closeModal} notify={notify} customer={helpCustomer} initialSection="Предложить идею" />;
@@ -476,11 +481,12 @@ export function App() {
     {feedbackModal}
   </>;
 
-  return <div className={`app-shell${collapsed && !sidebarPreviewOpen ? ' sidebar-collapsed' : ''}${isAnalystPage(page) ? ' analyst-shell' : ''}`}>
-    <Sidebar page={activeNavigationModal || page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+  return <div className={`app-shell${collapsed && !sidebarPreviewOpen ? ' sidebar-collapsed' : ''}${isAnalystPage(page) ? ' analyst-shell' : ''}${bonusPreview ? ' bonus-preview' : ''}`}>
+    <Sidebar page={activeNavigationModal || page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} bonusPreview={bonusPreview} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
+        {bonusPreview && page === 'integrations' && <BonusIntegrationsLocked onManualUpload={() => setPage('analytics')} />}
         {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />}
         {page === 'clients' && <ClientsPage notify={notify} />}
         {page === 'summary-report' && <SummaryReportPage initialEmployee={summaryEmployee} notify={notify} manageTeam={() => { setSettingSection('employees'); setPage('settings'); }} openTrainer={() => setPage('trainer')} />}
@@ -508,7 +514,7 @@ function SidebarIcon({ item }) {
     : <Icon size={16} stroke={1.7} />;
 }
 
-export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge, reportOnly = false }) {
+export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge, reportOnly = false, bonusPreview = false }) {
   const analystPages = reportOnly ? ANALYST_PAGES.filter(item => ['summary-report', 'category-report'].includes(item.id)) : ANALYST_PAGES;
   const navRef = useRef(null);
   const dragRef = useRef(null);
@@ -706,6 +712,7 @@ export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange
           <span className="nav-drag-hint" id={`nav-drag-hint-${item.id}`} role="tooltip">Потяните за точки, чтобы переместить</span></>}
         </div>;
         })}
+        {bonusPreview && group.id === 'materials' && <BonusIntegrationNav active={page === 'integrations'} compact={collapsed || narrowMenu} onTopUp={() => setPage('account-tariff')} />}
       </div>)}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id || (draggedItem.id === 'analytics' && isAnalystPage(page))} page={page} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
@@ -715,6 +722,7 @@ export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange
     <span className="nav-reorder-sr-only" id="nav-reorder-keyboard-help">Стрелки вверх и вниз меняют порядок разделов внутри группы. Escape отменяет перетаскивание.</span>
     <span className="nav-reorder-sr-only" role="status" aria-live="polite">{reorderAnnouncement}</span>
     {!reportOnly && <div className="sidebar-bottom">
+      {bonusPreview && <div className="bonus-sidebar-period"><IconGift size={17} stroke={1.7} aria-hidden="true" /><span>Бонусный период</span></div>}
       <button className={page === 'settings' || page === 'settings-4' ? 'nav-item muted-item active' : 'nav-item muted-item'} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /><span>Настройки</span></button>
       <button className="nav-item sidebar-help-item" onClick={openKnowledge} aria-haspopup="dialog" aria-label="Помощь"><IconLifebuoyFilled size={18} /><span>Помощь</span></button>
       <div className="profile-card"><span className="avatar">СД</span><span className="profile-copy"><strong>Самойленко Даниил</strong><small>weaver@yandex.ru</small></span></div>
