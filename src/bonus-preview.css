@@ -9,14 +9,24 @@
 .bonus-topup-button:hover { background: #f5821c; }
 .bonus-topup-button:focus-visible { outline: 2px solid #c4702d; outline-offset: 3px; }
 .bonus-integrations-page.is-embedded .bonus-integrations-title { font-weight: 400; font-size: clamp(24px, 2.1vw, 34px); }
-.bonus-preview-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 24px; }
-.bonus-preview-controls button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 8px 14px; border: 1px solid #e9e7e3; border-radius: 12px; background: #f8f8f6; color: #37352f; font: 500 13px/20px Inter, sans-serif; cursor: pointer; transition: background .16s ease, border-color .16s ease; }
+.bonus-preview-controls { display: grid; gap: 6px; margin: 18px 0 0; padding: 14px 2px 0; border-top: 1px solid #eeede9; }
+.bonus-preview-controls button { display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; min-width: 0; min-height: 40px; padding: 9px 10px; border: 1px solid #e9e7e3; border-radius: 10px; background: #f8f8f6; color: #37352f; font: 500 13px/20px Inter, sans-serif; text-align: left; cursor: pointer; transition: background .16s ease, border-color .16s ease; }
+.bonus-preview-controls button span { white-space: nowrap; }
+.bonus-preview-controls.is-compact button { justify-content: center; padding: 9px 0; }
+.bonus-preview-controls.is-compact button span { display: none; }
 .bonus-preview-controls button svg { flex-shrink: 0; color: #d56b16; }
 .bonus-preview-controls button:hover { background: #fff2e5; border-color: #ffcd9e; }
 .bonus-preview-controls button:focus-visible { outline: 2px solid #ff9025; outline-offset: 3px; }
 .settings-structure-nav .settings-structure-item.is-locked { grid-template-columns: 16px minmax(0, 1fr) 16px; }
 .settings-structure-item.is-locked .settings-item-lock { color: #96938c; }
+@media (min-width: 821px) {
+  .bonus-preview .sidebar-nav { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; align-content: start; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: #ddd transparent; }
+  .bonus-preview .sidebar-bottom { flex-shrink: 0; }
+}
 @media (max-width: 820px) {
+  .bonus-preview .sidebar-nav { justify-content: flex-start; overflow-x: auto; }
+  .bonus-preview-controls { display: contents; }
+  .bonus-preview-controls button { flex: 0 0 44px; width: 44px; margin: 3px; }
   .bonus-integrations-title { font-size: 26px; }
   .bonus-integration-gate { padding: 24px 18px; }
   .bonus-integration-gate > :is(h2, h3) { font-size: 22px; }

@@ -491,11 +491,10 @@ export function App({ bonusPreview = false }) {
   </>;
 
   return <div className={`app-shell${collapsed && !sidebarPreviewOpen ? ' sidebar-collapsed' : ''}${isAnalystPage(page) ? ' analyst-shell' : ''}${bonusPreview ? ' bonus-preview' : ''}`}>
-    <Sidebar page={activeNavigationModal || page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} />
+    <Sidebar page={activeNavigationModal || page} setPage={setPage} collapsed={collapsed && !sidebarPreviewOpen} compactMode={collapsed} onPreviewChange={setSidebarPreviewOpen} setCollapsed={(value) => { setSidebarPreviewOpen(false); setCollapsed(value); }} navOrder={navOrder} reorderNavItem={reorderNavItem} openKnowledge={() => setKnowledgeOpen(true)} onShowBonusPreview={bonusPreview ? showBonusPreview : undefined} />
     <div className="app-column">
       <Topbar page={page} setPage={setPage} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />
       <main className="page-area">
-        {bonusPreview && <BonusPreviewControls onShow={showBonusPreview} />}
         {bonusPreview && page === 'integrations' && <BonusIntegrationsLocked onTopUp={() => setPage('account-tariff')} />}
         {page === "home" && <HomePage setPage={setPage} notify={notify} balanceCents={billing.balanceCents} bonusBalanceCents={billing.bonusBalanceCents} bonusNotice={bonusNotice} />}
         {page === 'clients' && <ClientsPage notify={notify} />}
@@ -524,7 +523,7 @@ function SidebarIcon({ item }) {
     : <Icon size={16} stroke={1.7} />;
 }
 
-export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge, reportOnly = false }) {
+export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange, setCollapsed, navOrder, reorderNavItem, openKnowledge, reportOnly = false, onShowBonusPreview }) {
   const analystPages = reportOnly ? ANALYST_PAGES.filter(item => ['summary-report', 'category-report'].includes(item.id)) : ANALYST_PAGES;
   const navRef = useRef(null);
   const dragRef = useRef(null);
@@ -723,6 +722,7 @@ export function Sidebar({ page, setPage, collapsed, compactMode, onPreviewChange
         </div>;
         })}
       </div>)}
+      {onShowBonusPreview && <BonusPreviewControls onShow={onShowBonusPreview} compact={collapsed || narrowMenu} />}
       {dragLayout && <span className="nav-drop-slot" style={{ top: `${dragLayout.slotTop}px`, height: `${drag.height}px` }} aria-hidden="true" />}
       {draggedItem && <NavDragOverlay item={draggedItem} active={page === draggedItem.id || (draggedItem.id === 'analytics' && isAnalystPage(page))} page={page} expanded={draggedItem.id === 'analytics' && analyticsOpen} top={drag.pointerY - drag.navTop - drag.offsetY} width={drag.width} />}
       {!reportOnly && <button className={`nav-item mobile-settings-shortcut${page === 'settings' || page === 'settings-4' ? ' active' : ''}`} aria-label="Настройки" onClick={() => setPage('settings')}><IconSettingsFilled size={18} /></button>}

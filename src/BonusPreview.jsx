@@ -7,11 +7,11 @@ export function isBonusPreviewPath(pathname) {
   return /^\/bonus\/?$/.test(pathname);
 }
 
-export function BonusPreviewControls({ onShow }) {
-  return <div className="bonus-preview-controls" role="group" aria-label="Бонусные плашки">
-    <button type="button" onClick={() => onShow('welcome')} aria-haspopup="dialog"><IconGift size={17} stroke={1.7} aria-hidden="true" />Приветствие</button>
-    <button type="button" onClick={() => onShow('renewal')}><IconRefresh size={17} stroke={1.7} aria-hidden="true" />Обновление баланса</button>
-    <button type="button" onClick={() => onShow('topped-up')} aria-haspopup="dialog"><IconWallet size={17} stroke={1.7} aria-hidden="true" />Пополнение баланса</button>
+export function BonusPreviewControls({ onShow, compact = false }) {
+  return <div className={`bonus-preview-controls${compact ? ' is-compact' : ''}`} role="group" aria-label="Бонусные плашки">
+    <button type="button" onClick={() => onShow('welcome')} aria-label="Приветствие" title={compact ? 'Приветствие' : undefined} aria-haspopup="dialog"><IconGift size={17} stroke={1.7} aria-hidden="true" /><span>Приветствие</span></button>
+    <button type="button" onClick={() => onShow('renewal')} aria-label="Обновление баланса" title={compact ? 'Обновление баланса' : undefined}><IconRefresh size={17} stroke={1.7} aria-hidden="true" /><span>Обновление баланса</span></button>
+    <button type="button" onClick={() => onShow('topped-up')} aria-label="Пополнение баланса" title={compact ? 'Пополнение баланса' : undefined} aria-haspopup="dialog"><IconWallet size={17} stroke={1.7} aria-hidden="true" /><span>Пополнение баланса</span></button>
   </div>;
 }
 
