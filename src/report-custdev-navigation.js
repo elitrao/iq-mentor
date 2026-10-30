@@ -4,7 +4,7 @@ export const REPORT_CUSTDEV_PAGES = [
 ];
 
 export function isReportCustdevPath(pathname) {
-  return /^\/reportcustdev\/?$/.test(pathname);
+  return /^\/newviewreport\/?$/.test(pathname);
 }
 
 export function reportCustdevRoute(hash) {

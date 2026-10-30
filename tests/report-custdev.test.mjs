@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { isReportCustdevPath, reportCustdevRoute } from '../src/report-custdev-navigation.js';
 
-test('only the exact custdev path and its trailing slash select the standalone report page', () => {
-  for (const path of ['/reportcustdev', '/reportcustdev/']) assert.equal(isReportCustdevPath(path), true);
-  for (const path of ['/', '/bonus', '/reportcustdev-other', '/reportcustdev/settings']) assert.equal(isReportCustdevPath(path), false);
+test('only the exact newviewreport path and its trailing slash select the standalone report page', () => {
+  for (const path of ['/newviewreport', '/newviewreport/']) assert.equal(isReportCustdevPath(path), true);
+  for (const path of ['/', '/bonus', '/reportcustdev', '/reportcustdev/', '/newviewreport-other', '/newviewreport/settings']) assert.equal(isReportCustdevPath(path), false);
 });
 test('report links are reloadable while unrelated hashes stay within the two-report scope', () => {
   assert.equal(reportCustdevRoute('#category-report'), 'category-report');

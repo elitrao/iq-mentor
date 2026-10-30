@@ -10,6 +10,8 @@ Build app UI in `src/`. Keep `.openai/hosting.json`, `worker/index.js`, `scripts
 
 ## Durable product direction
 
+- October 30 report preview URL rename: `/newviewreport` and `/newviewreport/` replace `/reportcustdev`. Preserve the restricted Analyst sidebar, Summary/Category hash navigation and table-only Summary behavior. Publish the route rename to `main`.
+
 - October 30 bonus preview placement correction: move «Приветствие», «Обновление баланса» and «Пополнение баланса» from the top of the content into a compact sidebar group below the main navigation. Show icons with accessible labels/tooltips when the sidebar is collapsed. Keep these controls exclusive to `/bonus`, retain their existing preview behavior and keep Integrations absent from the sidebar. Publish to `main`.
 
 - October 30 `/bonus` preview controls supersede the restored sidebar entry: remove Integrations from the main sidebar. Add three compact top-of-content buttons, «Приветствие», «Обновление баланса», «Пополнение баланса», opening the existing welcome dialog, balance-anchored daily notice, and topped-up dialog respectively. The controls exist only on `/bonus` and `/bonus/`, can be replayed, and never mutate the wallet or persisted acknowledgement. Show one bonus surface at a time and keep the current page when its CTA closes it. Preserve locked Integrations content in Settings and direct links. Publish these changes to `main`.
